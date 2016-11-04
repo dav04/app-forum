@@ -9,6 +9,8 @@
 		<link rel="import" href="components/components.html">
 	</head>
 	<body>
-
+		<template is="dom-bind">
+			
+		</template>
 	</body>
 </html>

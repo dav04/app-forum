@@ -1,0 +1,29 @@
+<dom-module id="app-forum">
+	<template>
+		<style>
+		  /* CSS rules for your element */
+		</style>
+
+		<div>
+			<paper-material>
+				<div>{{title}}</div>
+				<content></content>
+			</paper-material>
+		</div>
+	</template>
+
+	<script>
+		// element registration
+		Polymer({
+			is: "app-forum",
+
+			properties: {
+				// declare properties for the element's public API
+				title: {
+					type: String,
+					value: "Test app forum"
+				}
+			}
+		});
+	</script>
+</dom-module>
