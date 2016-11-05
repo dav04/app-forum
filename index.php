@@ -10,7 +10,7 @@
 	</head>
 	<body>
 		<template is="dom-bind">
-			
+            <app-forum></app-forum>
 		</template>
 	</body>
 </html>

@@ -1,0 +1,25 @@
+<dom-module id="forum-section">
+	<template>
+		<style>
+            :host {
+                
+            }
+		</style>
+
+		<div>{{greeting}}</div> <!-- data bindings in local DOM -->
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-section",
+
+			properties: {
+				// 
+				title: {
+					type: String,
+					value: "Forum Section"
+				}
+			}
+		});
+	</script>
+</dom-module>

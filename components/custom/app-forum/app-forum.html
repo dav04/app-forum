@@ -1,29 +1,111 @@
+<!--
+Structure:
+    app-forum
+        forum-area
+
+
+Example:
+    area = [{id:1, title: "Area 1"}, {id:2, title: "Area 2"}]
+
+    section = [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1"}, 
+               {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2"}]
+
+    topic = [{id:1, section: 1, title: "Topic 1", status: "open"}, 
+            {id:2, section: 1, title: "Topic 2", status: "close"}]
+-->
+
 <dom-module id="app-forum">
 	<template>
 		<style>
-		  /* CSS rules for your element */
+            :host {
+                text-align: center;
+                font-family: 'Roboto', sans-serif;
+            }
+            paper-material {
+                display: inline-block;
+                width: 100%;
+                height: auto;
+                min-height: 100%;
+                background: var(--forum-primary-color);
+                border-radius: 5px;
+            }
+            .title {
+                padding: 10px;
+                font-weight: bold;
+                border-bottom: 1px solid var(--forum-secondary-color);
+            }
 		</style>
 
 		<div>
-			<paper-material>
-				<div>{{title}}</div>
+			<paper-material elevation="2">
+				<div class="title">{{title}}</div>
+                <template is="dom-repeat" items={{area}} as="area">
+                    <forum-area title={{area.title}}></forum-area>
+                </template>
+                
 				<content></content>
 			</paper-material>
 		</div>
 	</template>
 
 	<script>
-		// element registration
 		Polymer({
 			is: "app-forum",
 
 			properties: {
-				// declare properties for the element's public API
+				// define title on top of forum
 				title: {
 					type: String,
 					value: "Test app forum"
-				}
-			}
+				},
+                // define main color of forum
+                primaryColor: {
+                    type: String,
+                    value: "#82bfc8",
+                    notify: true,
+                    observer: "_change_primary"
+                },
+                // define secondary color of forum
+                secondaryColor: {
+                    type: String,
+                    value: "#16414f",
+                    observer: "_change_secondary"
+                },
+                //
+                area: {
+                    type: Array,
+                    value: [{id:1, title: "Area 1"}, {id:2, title: "Area 2"}]
+                },
+                //
+                section: {
+                    type: Array,
+                    value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1"}, 
+                            {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2"},
+                            {id:3, area: 2, title: "Sezione 3", description: "Descrizione 3"}, 
+                            {id:4, area: 2, title: "Sezione 4", description: "Descrizione 4"}]
+                },
+                //
+                topic: {
+                    type: Array,
+                    value: [{id:1, section: 1, title: "Topic 1", status: "open"}, 
+                            {id:2, section: 1, title: "Topic 2", status: "close"}]
+                }
+			},
+            
+            ready: function() {
+                this._change_primary();
+                this._change_secondary();
+            },
+            
+            _change_primary: function() {
+                this.customStyle['--forum-primary-color'] = this.primaryColor;
+                this.updateStyles();
+            },
+            
+            _change_secondary: function() {
+                this.customStyle['--forum-secondary-color'] = this.secondaryColor;
+                this.updateStyles();
+            }
 		});
 	</script>
 </dom-module>

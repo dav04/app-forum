@@ -1,0 +1,36 @@
+<dom-module id="forum-area">
+	<template>
+		<style>
+            :host {
+                text-align: left;
+            }
+            .area {
+                border-bottom: 1px solid #000;
+                padding: 20px;
+            }
+            .title {
+                text-transform: uppercase;
+                padding-bottom: 5px;
+            }
+		</style>
+
+		<div class="area">
+            <div class="title">{{title}}</div>
+            
+        </div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-area",
+
+			properties: {
+                //
+				title: {
+					type: String,
+                    value: "Forum Area"
+				}
+			}
+		});
+	</script>
+</dom-module>
