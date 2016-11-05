@@ -1,4 +1,4 @@
-<dom-module id="forum-section">
+<dom-module id="forum-topic">
 	<template>
 		<style>
             :host {
@@ -7,25 +7,19 @@
             }
 		</style>
 
-		<div>{{name}}</div>
-        <div>{{description}}</div>
+		<div>{{title}}</div>
         <content></content>
 	</template>
 
 	<script>
 		Polymer({
-			is: "forum-section",
+			is: "forum-topic",
 
 			properties: {
 				// 
-				name: {
+				title: {
 					type: String,
-					value: "Forum Section"
-				},
-                // 
-				description: {
-					type: String,
-					value: "Section description"
+					value: "Forum Topic"
 				}
 			}
 		});

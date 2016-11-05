@@ -1,0 +1,49 @@
+<dom-module id="forum-edit">
+	<template>
+		<style>
+            :host {
+                padding: 10px;
+            }
+		</style>
+
+		<div>{{type}}</div>
+        <div>{{typeId}}</div>
+        <form is="iron-form" id="form" method="post" action="/form/handler">
+            <div><paper-input name="title" label="Title"></paper-input></div>
+            <div><paper-input name="message" label="Message"></paper-input></div>
+            <paper-button on-click="_sendForm">CREA</paper-button>
+        </form>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-edit",
+
+			properties: {
+				// 
+				type: {
+					type: String
+				},
+                // 
+				typeId: {
+					type: Number
+				},
+                // 
+				result: {
+					type: Array,
+                    observer: "_resultReady"
+				}
+			},
+            
+            _sendForm: function() {
+                this.result = this.$.form.serialize();
+                this.set('result.topic', this.typeId);
+                alert("unshift: " + JSON.stringify(this.result));
+            },
+            
+            _resultReady: function() {
+                this.fire('resultReady', {result: this.result});
+            }
+		});
+	</script>
+</dom-module>

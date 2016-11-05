@@ -1,31 +1,28 @@
-<dom-module id="forum-section">
+<dom-module id="forum-post">
 	<template>
 		<style>
             :host {
                 padding: 10px;
-                cursor: pointer;
             }
 		</style>
 
-		<div>{{name}}</div>
-        <div>{{description}}</div>
+		<div>{{message}}</div>
         <content></content>
 	</template>
 
 	<script>
 		Polymer({
-			is: "forum-section",
+			is: "forum-post",
 
 			properties: {
 				// 
-				name: {
-					type: String,
-					value: "Forum Section"
+				id: {
+					type: Number
 				},
                 // 
-				description: {
+				message: {
 					type: String,
-					value: "Section description"
+					value: "Topic message"
 				}
 			}
 		});

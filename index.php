@@ -7,6 +7,13 @@
 		
 		<script src="components/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 		<link rel="import" href="components/components.html">
+        
+        <script>
+            // forumEdit è un evento per ottenere la modifica effettuata
+            document.addEventListener('forumEdit', function() {
+                alert("Il forum è stato modificato");
+            });
+        </script>
 	</head>
 	<body>
 		<template is="dom-bind">

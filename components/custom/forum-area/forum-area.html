@@ -6,7 +6,6 @@
             }
             .area {
                 border-bottom: 1px solid #000;
-                padding: 20px;
             }
             .title {
                 text-transform: uppercase;
@@ -15,8 +14,8 @@
 		</style>
 
 		<div class="area">
-            <div class="title">{{title}}</div>
-            
+            <div class="title">{{name}}</div>
+            <content></content>
         </div>
 	</template>
 
@@ -26,7 +25,7 @@
 
 			properties: {
                 //
-				title: {
+				name: {
 					type: String,
                     value: "Forum Area"
 				}
