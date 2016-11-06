@@ -8,9 +8,12 @@
 
 		<div>{{type}}</div>
         <div>{{typeId}}</div>
-        <form is="iron-form" id="form" method="post" action="/form/handler">
-            <div><paper-input name="title" label="Title"></paper-input></div>
-            <div><paper-input name="message" label="Message"></paper-input></div>
+        <form is="iron-form" id="editForm" method="post" action="/form/handler">
+            <template is="dom-if" if="{{_isTopic}}">
+                <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
+            </template>
+            <div><paper-input name="message" value={{message}} label="Message"></paper-input></div>
+            <input name="topic" type="hidden" value={{typeId}}>
             <paper-button on-click="_sendForm">CREA</paper-button>
         </form>
 	</template>
@@ -22,11 +25,26 @@
 			properties: {
 				// 
 				type: {
-					type: String
+					type: String,
+                    observer: '_isNewTopic'
 				},
                 // 
 				typeId: {
 					type: Number
+				},
+                // Check to view or not title of form
+                _isTopic: {
+                    type: Boolean
+                },
+                // 
+				title: {
+					type: String,
+                    value: ''
+				},
+                // 
+				message: {
+					type: String,
+                    value: ''
 				},
                 // 
 				result: {
@@ -35,10 +53,19 @@
 				}
 			},
             
+            ready: function() {
+                
+            },
+            
+            _isNewTopic: function() {
+                this._isTopic = this.type == "topic";
+                return this._isTopic;
+            },
+            
             _sendForm: function() {
-                this.result = this.$.form.serialize();
-                this.set('result.topic', this.typeId);
-                alert("unshift: " + JSON.stringify(this.result));
+                this.result = this.$.editForm.serialize();
+                this.$.editForm.reset();
+                //alert("unshift: " + JSON.stringify(this.$.form.serialize()));
             },
             
             _resultReady: function() {

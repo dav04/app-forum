@@ -91,7 +91,11 @@ Example:
                     </div>
                     <!-- Page to create topic or write post -->
                     <div>
-                        <forum-edit type={{pageField}} type-id={{pageFieldId}}></forum-edit>
+                        <forum-edit type={{pageField}} 
+                                    type-id={{pageFieldId}} 
+                                    title={{_tempTitle}} 
+                                    message={{_tempMessage}}>
+                        </forum-edit>
                     </div>
                     <!-- Page to edit forum parameters -->
                     <div>
@@ -220,6 +224,8 @@ Example:
             _editPost: function(e) {
                 this.pageField = "edit";
                 this.pageFieldId = e.model.post.id;
+                this._tempTitle = "";
+                this._tempMessage = e.model.post.message;
                 this.$.forumpages.select(3);
             },
             
@@ -228,20 +234,35 @@ Example:
                 this.$.forumpages.select(3);
             },
             
+            _findIndex: function(element) {
+                return element.id == this.pageFieldId;
+            },
+            
             _catchResult: function(data) {
                 this.editEvent = data.detail.result;
                 //alert(data.detail.result.title);
                 
+                // Edit message in 'post' array
                 if(this.pageField == "edit") {
-                    alert();
+                    var pos = this.post.findIndex(this._findIndex, this);
+                    this.pageFieldId = this.post[pos].topic;
+                    this.post[pos].message = this.editEvent.message;
+                    this.notifyPath('post.' + pos + '.message');
                     this.$.forumpages.select(2);
+                    
+                // Add a new record in 'post' array
                 } else if(this.pageField == "reply") {
-                    alert(this.editEvent.message);
+                    var newid = this.post[this.post.length-1].id + 1;
+                    this.post.push({id: newid, topic: this.editEvent.topic, message: this.editEvent.message, user: 4});
+                    this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.$.forumpages.select(2);
+                    
+                // 
                 } else {
                     
                     this.$.forumpages.select(1);
                 }
+                
                 this.fire('forumEdit');
             }
 		});
