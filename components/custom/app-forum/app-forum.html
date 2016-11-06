@@ -49,6 +49,11 @@ Example:
 		<div>
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
+                <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
+                    <template is="dom-if" if="{{_checkBack}}">
+                        <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
+                    </template>
+                </div>
                 
                 <iron-pages id="forumpages" selected="0">
                     <!-- Page with areas and sections -->
@@ -172,6 +177,14 @@ Example:
                             {id:9, topic: 1, message: "Messaggio Topic 1", user: 4}, 
                             {id:10, topic: 2, message: "Messaggio Topic 2", user: 4}]
                 },
+                //
+                user: {
+                    type: Array,
+                    value: [{id:1, nickname: "admin", account: 4, avatar: "address"}, 
+                            {id:2, nickname: "dav04", account: 3, avatar: "address"},
+                            {id:3, nickname: "poul", account: 2, avatar: "address"}, 
+                            {id:4, nickname: "taz", account: 2, avatar: "address"}]
+                },
                 // Contain data when an edit event happens inside forum
                 editEvent: {
                     type: Array
@@ -183,6 +196,14 @@ Example:
                 //
                 pageFieldId: {
                     type: Number
+                },
+                //
+                previousPageFieldId: {
+                    type: Number
+                },
+                //
+                _checkBack: {
+                    type: Boolean
                 }
 			},
             
@@ -205,6 +226,17 @@ Example:
                 this.updateStyles();
             },
             
+            _goHome: function() {
+                this.$.forumpages.select(0);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            _goBack: function() {
+                this.pageFieldId = this.previousPageFieldId;
+                this.$.forumpages.selectPrevious();
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
             _sectionFilter: function(id1, id2) {                
                 return id1 == id2;
             },
@@ -213,12 +245,15 @@ Example:
                 this.pageField = "section";
                 this.pageFieldId = e.model.section.id;
                 this.$.forumpages.select(1);
+                this._checkBack = this.$.forumpages.selected != 0;
             },
             
             _topicSelect: function(e) {
                 this.pageField = "topic";
+                this.previousPageFieldId = this.pageFieldId;
                 this.pageFieldId = e.model.topic.id;
                 this.$.forumpages.select(2);
+                this._checkBack = this.$.forumpages.selected != 0;
             },
             
             _editPost: function(e) {
@@ -227,11 +262,13 @@ Example:
                 this._tempTitle = "";
                 this._tempMessage = e.model.post.message;
                 this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
             },
             
             _replyPost: function(e) {
                 this.pageField = "reply";
                 this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
             },
             
             _findIndex: function(element) {
@@ -249,6 +286,7 @@ Example:
                     this.post[pos].message = this.editEvent.message;
                     this.notifyPath('post.' + pos + '.message');
                     this.$.forumpages.select(2);
+                    this._checkBack = this.$.forumpages.selected != 0;
                     
                 // Add a new record in 'post' array
                 } else if(this.pageField == "reply") {
@@ -256,11 +294,13 @@ Example:
                     this.post.push({id: newid, topic: this.editEvent.topic, message: this.editEvent.message, user: 4});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.$.forumpages.select(2);
+                    this._checkBack = this.$.forumpages.selected != 0;
                     
                 // 
                 } else {
                     
                     this.$.forumpages.select(1);
+                    this._checkBack = this.$.forumpages.selected != 0;
                 }
                 
                 this.fire('forumEdit');
