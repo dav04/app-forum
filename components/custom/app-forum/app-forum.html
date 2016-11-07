@@ -84,6 +84,7 @@ Example:
                         <template is="dom-repeat" items={{post}} as="post">
                             <template is="dom-if" if="{{_sectionFilter(pageFieldId, post.topic)}}">
                                 <forum-post message="{{post.message}}" id="{{post.id}}">
+                                    <forum-user info-user={{_findUser(post.user)}}></forum-user>
                                     <paper-button on-click="_editPost">
                                         <iron-icon icon="create"></iron-icon>
                                     </paper-button>
@@ -180,10 +181,10 @@ Example:
                 //
                 user: {
                     type: Array,
-                    value: [{id:1, nickname: "admin", account: 4, avatar: "address"}, 
-                            {id:2, nickname: "dav04", account: 3, avatar: "address"},
-                            {id:3, nickname: "poul", account: 2, avatar: "address"}, 
-                            {id:4, nickname: "taz", account: 2, avatar: "address"}]
+                    value: [{id:1, nickname: "admin", account: 4, avatar: "images/users/avatar1.jpg"}, 
+                            {id:2, nickname: "dav04", account: 3, avatar: "images/users/avatar2.jpg"},
+                            {id:3, nickname: "poul", account: 2, avatar: "images/users/avatar3.jpg"}, 
+                            {id:4, nickname: "taz", account: 2, avatar: "images/users/avatar4.jpg"}]
                 },
                 // Contain data when an edit event happens inside forum
                 editEvent: {
@@ -269,6 +270,15 @@ Example:
                 this.pageField = "reply";
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            _findUser: function(id) {
+                var pos = this.user.findIndex(this._findId, {id: id});
+                return this.user[pos];
+            },
+            
+            _findId: function(element, index, array) {
+                return element.id == this.id;
             },
             
             _findIndex: function(element) {

@@ -1,0 +1,44 @@
+<dom-module id="forum-user">
+	<template>
+		<style>
+            :host {
+                
+            }
+		</style>
+
+		<div>{{infoUser.nickname}} <img src="{{infoUser.avatar}}" height="50" width="50"></div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-user",
+
+			properties: {
+                //
+                infoUser: {
+                    type: Array
+                },
+				// 
+				idUser: {
+					type: Number
+				},
+                // 
+				nickname: {
+					type: String
+				},
+                // 
+				account: {
+					type: Number
+				},
+                // 
+				avatar: {
+					type: String
+				},
+			},
+            
+            ready: function() {
+                
+            }
+		});
+	</script>
+</dom-module>
