@@ -55,7 +55,7 @@ section2        id1
 		<div>
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
-                id: {{pageFieldId}}, p-id: {{previousPageFieldId}}
+
                 <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
@@ -259,22 +259,25 @@ section2        id1
                 this.$.forumpages.select(0);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
-            // GESTIRE A PARTE LE SOTTO SEZIONI
+            // 
             _goBack: function() {
-                //alert("id: " + this.pageFieldId + "; previous: " + this.previousPageFieldId + "; field: " + this.pageField);
-                // [3,5,6]
-                if(this.subSection.length > 1)
+                if(this.subSection.length > 1) {
+                    if(this.pageField == "section")
                         this.subSection.pop();
+                    if(this.pageField == "topic" || this.pageField == "reply" || this.pageField == "editPost")
+                        this.pageField = "section";
+                }
                 if(this.pageField == "section" & this.subSection.length != 0 & this.previousPageFieldId != undefined) {
-                    this.pageFieldId = this.subSection.pop();
-                    //this.previousPageFieldId = this.subSection.pop();
-                    alert(JSON.stringify(this.subSection));
+                    this.pageFieldId = this.subSection[this.subSection.length-1];
+                    this.previousPageFieldId = this.subSection[this.subSection.length-2];
                     this.$.forumpages.select(1);
                 } else {
                     this.pageFieldId = this.previousPageFieldId;
                     this.$.forumpages.selectPrevious();
                 }
                 
+                if(this.$.forumpages.selected == 0)
+                    this.subSection = [];
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
@@ -291,7 +294,7 @@ section2        id1
                 this.previousPageFieldId = this.pageFieldId;
                 this.pageFieldId = e.model.section.id;
                 this.subSection.push(this.pageFieldId);
-                alert(JSON.stringify(this.subSection));
+                //alert(JSON.stringify(this.subSection));
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -367,8 +370,9 @@ section2        id1
                     var newid2 = this.post[this.post.length-1].id + 1;
                     this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: 4});
                     this.notifySplices('post', [{index: (newid2 - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this.pageField = "section";
                     this.$.forumpages.select(1);
-                    alert(JSON.stringify(this.topic));
+                    
                     this._checkBack = this.$.forumpages.selected != 0;
                     
                 // 
