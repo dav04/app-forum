@@ -55,7 +55,7 @@ section2        id1
 		<div>
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
-
+                field: {{pageField}}, id: {{pageFieldId}}, pr: {{previousPageFieldId}}
                 <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
@@ -99,7 +99,7 @@ section2        id1
                     <!-- Page with posts -->
                     <div>
                         <template is="dom-repeat" items={{post}} as="post">
-                            <template is="dom-if" if="{{_sectionFilter(pageFieldId, post.topic)}}">
+                            <template is="dom-if" if="{{_sectionFilter(trackPage.topic, post.topic)}}">
                                 <forum-post message="{{post.message}}" id="{{post.id}}">
                                     <forum-user info-user={{_findUser(post.user)}}></forum-user>
                                     <paper-button on-click="_editPost">
@@ -228,6 +228,11 @@ section2        id1
                     value: []
                 },
                 //
+                trackPage: {
+                    type: Array,
+                    value: [{section: [], topic: null}]
+                },
+                //
                 _checkBack: {
                     type: Boolean
                 }
@@ -261,23 +266,61 @@ section2        id1
             },
             // 
             _goBack: function() {
-                if(this.subSection.length > 1) {
+                
+                // [{sezione: [], topic: ]
+                
+                // DA INSERIRE IL CASO BASE PER GESTIONE ULTIMO ID SEZIONE
+                
+                if(this.trackPage.topic != null) {
+                    this.trackPage.topic = null;
+                    this.pageFieldId = this.trackPage[0].section.pop();
+                    this.$.forumpages.select(1);
+                } else if(this.trackPage[0].section.length == 1) {
+                    this.pageFieldId = this.trackPage[0].section.pop();
+                    this.$.forumpages.select(0);
+                } else if(this.trackPage[0].section.length > 1) {
+                    this.trackPage[0].section.pop();
+                    this.pageFieldId = this.trackPage[0].section.pop();
+                    this.$.forumpages.select(1);
+                }
+                
+                
+                
+                
+                
+                /*if(this.subSection.length > 1) {
                     if(this.pageField == "section")
                         this.subSection.pop();
-                    if(this.pageField == "topic" || this.pageField == "reply" || this.pageField == "editPost")
+                    if(this.pageField == "topic")
                         this.pageField = "section";
+                } else {
+                    console.log(this.subSection[this.subSection.length-1]);
+                    if(this.previousPageFieldId != undefined)
+                        this.previousPageFieldId = this.subSection[this.subSection.length-1];
                 }
-                if(this.pageField == "section" & this.subSection.length != 0 & this.previousPageFieldId != undefined) {
+                if(this.pageField == "section" & this.subSection.length > 1 & this.previousPageFieldId != undefined) {
                     this.pageFieldId = this.subSection[this.subSection.length-1];
                     this.previousPageFieldId = this.subSection[this.subSection.length-2];
                     this.$.forumpages.select(1);
                 } else {
                     this.pageFieldId = this.previousPageFieldId;
-                    this.$.forumpages.selectPrevious();
-                }
+                    if(this.pageField == "reply" || this.pageField == "editPost") {
+                        this.pageField = "topic";
+                        this.$.forumpages.selectPrevious();
+                    }
+                    else if(this.pageField == "newTopic" || this.pageField == "topic") {
+                        this.pageField = "section";
+                        this.$.forumpages.select(1);
+                    } else {
+                        this.$.forumpages.selectPrevious();
+                    }
+                }*/
                 
-                if(this.$.forumpages.selected == 0)
+                if(this.$.forumpages.selected == 0) {
                     this.subSection = [];
+                    this.pageFieldId = undefined;
+                    this.previousPageFieldId = undefined;
+                }
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
@@ -285,36 +328,48 @@ section2        id1
                 return sub == null;
             },
             
-            _sectionFilter: function(id1, id2) {                
+            _sectionFilter: function(id1, id2) {  
                 return id1 == id2;
             },
             
-            _sectionSelect: function(e) {
-                this.pageField = "section";
+            _selection: function(field, id, page) {
+                this.pageField = field;
                 this.previousPageFieldId = this.pageFieldId;
-                this.pageFieldId = e.model.section.id;
-                this.subSection.push(this.pageFieldId);
-                //alert(JSON.stringify(this.subSection));
-                this.$.forumpages.select(1);
+                this.pageFieldId = id;
+                this.$.forumpages.select(page);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            _sectionSelect: function(e) {
+                //this._selection("section", e.model.section.id, 1);
+                
+                this.push('trackPage.0.section', e.model.section.id);
+                //this.trackPage.section = e.model.section.id;
+                this.pageFieldId = e.model.section.id;
+                this.$.forumpages.select(1);
+                this._checkBack = this.$.forumpages.selected != 0;
+                //this.subSection.push(this.pageFieldId);
+            },
+            
             _topicSelect: function(e) {
-                this.pageField = "topic";
-                this.previousPageFieldId = this.pageFieldId;
-                this.pageFieldId = e.model.topic.id;
+                //this._selection("topic", e.model.topic.id, 2);
+                this.trackPage.topic = e.model.topic.id;
+                this.notifyPath('trackPage.topic');
                 this.$.forumpages.select(2);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
             _newTopic: function() {
                 this.pageField = "newTopic";
+                this.previousPageFieldId = this.pageFieldId;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
-            
+            // SI DEVE AGGIUNGERE IL CASO CHE SIA IL PRIMO POST DEL TOPIC PER VISUALIZZARE ANCHE IL TITOLO
+            // AGGIUNGERE IL COUNT AL TEMPLATE?
             _editPost: function(e) {
                 this.pageField = "editPost";
+                this.previousPageFieldId = this.pageFieldId;
                 this.pageFieldId = e.model.post.id;
                 this._tempTitle = "";
                 this._tempMessage = e.model.post.message;
@@ -324,6 +379,7 @@ section2        id1
             
             _replyPost: function(e) {
                 this.pageField = "reply";
+                this.previousPageFieldId = this.pageFieldId;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -362,7 +418,7 @@ section2        id1
                     this.$.forumpages.select(2);
                     this._checkBack = this.$.forumpages.selected != 0;
                     
-                // DA SISTEMARE PER EVITARE CODICE DUPLICATO
+                // Add a new record in 'topic' and 'post' arrays
                 } else if(this.pageField == "newTopic") {
                     var newid = this.topic[this.topic.length-1].id + 1;
                     this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open'});
@@ -372,12 +428,10 @@ section2        id1
                     this.notifySplices('post', [{index: (newid2 - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "section";
                     this.$.forumpages.select(1);
-                    
                     this._checkBack = this.$.forumpages.selected != 0;
                     
                 // 
                 } else {
-                    
                     this.$.forumpages.select(1);
                     this._checkBack = this.$.forumpages.selected != 0;
                 }
