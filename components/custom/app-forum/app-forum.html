@@ -18,6 +18,12 @@ Example:
 
     topic = [{id:1, section: 1, title: "Topic 1", status: "open"}, 
             {id:2, section: 1, title: "Topic 2", status: "close"}]
+
+area 1      
+section2        id1
+    section 8
+    topic 1
+    topic 2
 -->
 
 <dom-module id="app-forum">
@@ -49,6 +55,7 @@ Example:
 		<div>
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
+                id: {{pageFieldId}}, p-id: {{previousPageFieldId}}
                 <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
@@ -61,11 +68,13 @@ Example:
                         <template id="forumarea" is="dom-repeat" items={{area}} as="area">
                             <forum-area name={{area.title}}>
                                 <template is="dom-repeat" items={{section}} as="section">
-                                    <template is="dom-if" if="{{_sectionFilter(area.id, section.area)}}">
-                                        <forum-section name={{section.title}} 
-                                                       description={{section.description}}
-                                                       on-click="_sectionSelect">
-                                        </forum-section>
+                                    <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
+                                        <template is="dom-if" if="{{_sectionFilter(area.id, section.area)}}">
+                                            <forum-section name={{section.title}} 
+                                                           description={{section.description}}
+                                                           on-click="_sectionSelect">
+                                            </forum-section>
+                                        </template>
                                     </template>
                                 </template>
                             </forum-area>
@@ -73,6 +82,14 @@ Example:
                     </div>
                     <!-- Page with sections and topics-->
                     <div>
+                        <paper-button on-click="_newTopic">New topic</paper-button>
+                        <template is="dom-repeat" items={{section}} as="section">
+                            <template is="dom-if" if="{{_sectionFilter(pageFieldId, section.subsection)}}">
+                                <forum-section name={{section.title}} 
+                                               description={{section.description}}
+                                               on-click="_sectionSelect"></forum-section>
+                            </template>
+                        </template>
                         <template is="dom-repeat" items={{topic}} as="topic">
                             <template is="dom-if" if="{{_sectionFilter(pageFieldId, topic.section)}}">
                                 <forum-topic title={{topic.title}} on-click="_topicSelect"></forum-topic>
@@ -145,10 +162,12 @@ Example:
                 //
                 section: {
                     type: Array,
-                    value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1"}, 
-                            {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2"},
-                            {id:3, area: 2, title: "Sezione 3", description: "Descrizione 3"}, 
-                            {id:4, area: 2, title: "Sezione 4", description: "Descrizione 4"}]
+                    value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1", subsection: null}, 
+                            {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2", subsection: null},
+                            {id:3, area: 2, title: "Sezione 3", description: "Descrizione 3", subsection: null}, 
+                            {id:4, area: 2, title: "Sezione 4", description: "Descrizione 4", subsection: null}, 
+                            {id:5, area: 2, title: "Sezione 5", description: "Descrizione 5", subsection: 3}, 
+                            {id:6, area: 2, title: "Sezione 6", description: "Descrizione 6", subsection: 5}]
                 },
                 //
                 topic: {
@@ -161,7 +180,7 @@ Example:
                             {id:6, section: 4, title: "Topic 6", status: "open"},
                             {id:7, section: 3, title: "Topic 7", status: "open"}, 
                             {id:8, section: 2, title: "Topic 8", status: "close"},
-                            {id:9, section: 1, title: "Topic 9", status: "open"}, 
+                            {id:9, section: 5, title: "Topic 9", status: "open"}, 
                             {id:10, section: 2, title: "Topic 10", status: "close"}]
                 },
                 //
@@ -171,7 +190,7 @@ Example:
                             {id:2, topic: 1, message: "Messaggio Topic 1", user: 3},
                             {id:3, topic: 4, message: "Messaggio Topic 4", user: 4}, 
                             {id:4, topic: 1, message: "Messaggio Topic 1", user: 2},
-                            {id:5, topic: 1, message: "Messaggio Topic 1", user: 1}, 
+                            {id:5, topic: 9, message: "Messaggio Topic 9", user: 1}, 
                             {id:6, topic: 4, message: "Messaggio Topic 4", user: 1},
                             {id:7, topic: 3, message: "Messaggio Topic 3", user: 2}, 
                             {id:8, topic: 2, message: "Messaggio Topic 2", user: 3},
@@ -200,7 +219,13 @@ Example:
                 },
                 //
                 previousPageFieldId: {
-                    type: Number
+                    type: Number,
+                    value: undefined
+                },
+                //
+                subSection: {
+                    type: Array,
+                    value: []
                 },
                 //
                 _checkBack: {
@@ -228,14 +253,33 @@ Example:
             },
             
             _goHome: function() {
+                this.subSection = [];
+                this.pageFieldId = undefined;
+                this.previousPageFieldId = undefined;
                 this.$.forumpages.select(0);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
-            
+            // GESTIRE A PARTE LE SOTTO SEZIONI
             _goBack: function() {
-                this.pageFieldId = this.previousPageFieldId;
-                this.$.forumpages.selectPrevious();
+                //alert("id: " + this.pageFieldId + "; previous: " + this.previousPageFieldId + "; field: " + this.pageField);
+                // [3,5,6]
+                if(this.subSection.length > 1)
+                        this.subSection.pop();
+                if(this.pageField == "section" & this.subSection.length != 0 & this.previousPageFieldId != undefined) {
+                    this.pageFieldId = this.subSection.pop();
+                    //this.previousPageFieldId = this.subSection.pop();
+                    alert(JSON.stringify(this.subSection));
+                    this.$.forumpages.select(1);
+                } else {
+                    this.pageFieldId = this.previousPageFieldId;
+                    this.$.forumpages.selectPrevious();
+                }
+                
                 this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            _checkSubSection: function(sub) {
+                return sub == null;
             },
             
             _sectionFilter: function(id1, id2) {                
@@ -244,7 +288,10 @@ Example:
             
             _sectionSelect: function(e) {
                 this.pageField = "section";
+                this.previousPageFieldId = this.pageFieldId;
                 this.pageFieldId = e.model.section.id;
+                this.subSection.push(this.pageFieldId);
+                alert(JSON.stringify(this.subSection));
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -257,8 +304,14 @@ Example:
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            _newTopic: function() {
+                this.pageField = "newTopic";
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
             _editPost: function(e) {
-                this.pageField = "edit";
+                this.pageField = "editPost";
                 this.pageFieldId = e.model.post.id;
                 this._tempTitle = "";
                 this._tempMessage = e.model.post.message;
@@ -290,7 +343,7 @@ Example:
                 //alert(data.detail.result.title);
                 
                 // Edit message in 'post' array
-                if(this.pageField == "edit") {
+                if(this.pageField == "editPost") {
                     var pos = this.post.findIndex(this._findIndex, this);
                     this.pageFieldId = this.post[pos].topic;
                     this.post[pos].message = this.editEvent.message;
@@ -301,9 +354,21 @@ Example:
                 // Add a new record in 'post' array
                 } else if(this.pageField == "reply") {
                     var newid = this.post[this.post.length-1].id + 1;
-                    this.post.push({id: newid, topic: this.editEvent.topic, message: this.editEvent.message, user: 4});
+                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: 4});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.$.forumpages.select(2);
+                    this._checkBack = this.$.forumpages.selected != 0;
+                    
+                // DA SISTEMARE PER EVITARE CODICE DUPLICATO
+                } else if(this.pageField == "newTopic") {
+                    var newid = this.topic[this.topic.length-1].id + 1;
+                    this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open'});
+                    this.notifySplices('topic', [{index: (newid - 1), removed: [], addedCount: 1, object: this.topic}]);
+                    var newid2 = this.post[this.post.length-1].id + 1;
+                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: 4});
+                    this.notifySplices('post', [{index: (newid2 - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this.$.forumpages.select(1);
+                    alert(JSON.stringify(this.topic));
                     this._checkBack = this.$.forumpages.selected != 0;
                     
                 // 

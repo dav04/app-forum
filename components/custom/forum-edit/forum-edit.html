@@ -13,7 +13,7 @@
                 <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
             </template>
             <div><paper-input name="message" value={{message}} label="Message"></paper-input></div>
-            <input name="topic" type="hidden" value={{typeId}}>
+            <input name="typeid" type="hidden" value={{typeId}}>
             <paper-button on-click="_sendForm">CREA</paper-button>
         </form>
 	</template>
@@ -58,7 +58,7 @@
             },
             
             _isNewTopic: function() {
-                this._isTopic = this.type == "topic";
+                this._isTopic = this.type == "newTopic";
                 return this._isTopic;
             },
             
