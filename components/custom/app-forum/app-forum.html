@@ -55,7 +55,7 @@ section2        id1
 		<div>
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
-                field: {{pageField}}, id: {{pageFieldId}}, pr: {{previousPageFieldId}}
+                
                 <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
@@ -266,10 +266,10 @@ section2        id1
                     this._tempTitle = null;
                     this._tempMessage = null;
                     this.$.forumpages.select(2);
-                } else if(this.trackPage[0].section.length <= 1) {
+                } else if(this.trackPage[0].section.length <= 1 && this.pageField != "newTopic") {
                     this.trackPage[0].section.pop();
                     this.$.forumpages.select(0);
-                } else if(this.trackPage[0].section.length > 1) {
+                } else if(this.trackPage[0].section.length >= 1) {
                     if(this.pageField != "newTopic")
                         this.trackPage[0].section.pop();
                     else
@@ -304,6 +304,7 @@ section2        id1
             _topicSelect: function(e) {
                 this.trackPage.topic = e.model.topic.id;
                 this.notifyPath('trackPage.topic');
+                this.pageFieldId = e.model.topic.id;
                 this.$.forumpages.select(2);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -352,6 +353,7 @@ section2        id1
                     this.pageFieldId = this.post[pos].topic;
                     this.post[pos].message = this.editEvent.message;
                     this.notifyPath('post.' + pos + '.message');
+                    this.pageField = "topic";
                     this.$.forumpages.select(2);
                     this._checkBack = this.$.forumpages.selected != 0;
                     
@@ -360,6 +362,7 @@ section2        id1
                     var newid = this.post[this.post.length-1].id + 1;
                     this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: 4});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this.pageField = "topic";
                     this.$.forumpages.select(2);
                     this._checkBack = this.$.forumpages.selected != 0;
                     

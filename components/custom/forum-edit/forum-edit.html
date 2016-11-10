@@ -64,6 +64,7 @@
             
             _sendForm: function() {
                 this.result = this.$.editForm.serialize();
+                this.$.editForm.reset();
             },
             
             _resultReady: function() {
