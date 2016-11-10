@@ -218,16 +218,6 @@ section2        id1
                     type: Number
                 },
                 //
-                previousPageFieldId: {
-                    type: Number,
-                    value: undefined
-                },
-                //
-                subSection: {
-                    type: Array,
-                    value: []
-                },
-                //
                 trackPage: {
                     type: Array,
                     value: [{section: [], topic: null}]
@@ -266,58 +256,30 @@ section2        id1
             },
             // 
             _goBack: function() {
-                
-                // [{sezione: [], topic: ]
-                
-                // DA INSERIRE IL CASO BASE PER GESTIONE ULTIMO ID SEZIONE
-                
-                if(this.trackPage.topic != null) {
+                if(this.trackPage.topic != null && this.pageField != "reply" && this.pageField != "editPost") {
                     this.trackPage.topic = null;
-                    this.pageFieldId = this.trackPage[0].section.pop();
+                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
                     this.$.forumpages.select(1);
-                } else if(this.trackPage[0].section.length == 1) {
-                    this.pageFieldId = this.trackPage[0].section.pop();
+                } else if(this.trackPage.topic != null) {
+                    this.pageFieldId = this.trackPage.topic;
+                    this.pageField = "topic";
+                    this._tempTitle = null;
+                    this._tempMessage = null;
+                    this.$.forumpages.select(2);
+                } else if(this.trackPage[0].section.length <= 1) {
+                    this.trackPage[0].section.pop();
                     this.$.forumpages.select(0);
                 } else if(this.trackPage[0].section.length > 1) {
-                    this.trackPage[0].section.pop();
-                    this.pageFieldId = this.trackPage[0].section.pop();
+                    if(this.pageField != "newTopic")
+                        this.trackPage[0].section.pop();
+                    else
+                        this.pageField = "section";
+                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
                     this.$.forumpages.select(1);
                 }
-                
-                
-                
-                
-                
-                /*if(this.subSection.length > 1) {
-                    if(this.pageField == "section")
-                        this.subSection.pop();
-                    if(this.pageField == "topic")
-                        this.pageField = "section";
-                } else {
-                    console.log(this.subSection[this.subSection.length-1]);
-                    if(this.previousPageFieldId != undefined)
-                        this.previousPageFieldId = this.subSection[this.subSection.length-1];
-                }
-                if(this.pageField == "section" & this.subSection.length > 1 & this.previousPageFieldId != undefined) {
-                    this.pageFieldId = this.subSection[this.subSection.length-1];
-                    this.previousPageFieldId = this.subSection[this.subSection.length-2];
-                    this.$.forumpages.select(1);
-                } else {
-                    this.pageFieldId = this.previousPageFieldId;
-                    if(this.pageField == "reply" || this.pageField == "editPost") {
-                        this.pageField = "topic";
-                        this.$.forumpages.selectPrevious();
-                    }
-                    else if(this.pageField == "newTopic" || this.pageField == "topic") {
-                        this.pageField = "section";
-                        this.$.forumpages.select(1);
-                    } else {
-                        this.$.forumpages.selectPrevious();
-                    }
-                }*/
                 
                 if(this.$.forumpages.selected == 0) {
-                    this.subSection = [];
+                    this.trackPage[0].section.length = [];
                     this.pageFieldId = undefined;
                     this.previousPageFieldId = undefined;
                 }
@@ -332,27 +294,14 @@ section2        id1
                 return id1 == id2;
             },
             
-            _selection: function(field, id, page) {
-                this.pageField = field;
-                this.previousPageFieldId = this.pageFieldId;
-                this.pageFieldId = id;
-                this.$.forumpages.select(page);
-                this._checkBack = this.$.forumpages.selected != 0;
-            },
-            
             _sectionSelect: function(e) {
-                //this._selection("section", e.model.section.id, 1);
-                
                 this.push('trackPage.0.section', e.model.section.id);
-                //this.trackPage.section = e.model.section.id;
                 this.pageFieldId = e.model.section.id;
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
-                //this.subSection.push(this.pageFieldId);
             },
             
             _topicSelect: function(e) {
-                //this._selection("topic", e.model.topic.id, 2);
                 this.trackPage.topic = e.model.topic.id;
                 this.notifyPath('trackPage.topic');
                 this.$.forumpages.select(2);
@@ -361,7 +310,6 @@ section2        id1
             
             _newTopic: function() {
                 this.pageField = "newTopic";
-                this.previousPageFieldId = this.pageFieldId;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -369,7 +317,6 @@ section2        id1
             // AGGIUNGERE IL COUNT AL TEMPLATE?
             _editPost: function(e) {
                 this.pageField = "editPost";
-                this.previousPageFieldId = this.pageFieldId;
                 this.pageFieldId = e.model.post.id;
                 this._tempTitle = "";
                 this._tempMessage = e.model.post.message;
@@ -379,7 +326,6 @@ section2        id1
             
             _replyPost: function(e) {
                 this.pageField = "reply";
-                this.previousPageFieldId = this.pageFieldId;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -399,7 +345,6 @@ section2        id1
             
             _catchResult: function(data) {
                 this.editEvent = data.detail.result;
-                //alert(data.detail.result.title);
                 
                 // Edit message in 'post' array
                 if(this.pageField == "editPost") {
