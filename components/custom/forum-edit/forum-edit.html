@@ -4,18 +4,84 @@
             :host {
                 padding: 10px;
             }
+            
+            .boxArea {
+                width: 150px;
+                height: auto;
+                background-color: #fff;
+                border: 1px solid #000;
+                padding: 10px;
+                margin: 20px;
+                float: left;
+                display: inline-block;
+            }
+            .addButton {
+                margin-top: 20px;
+                margin-left: -10px;
+                padding: 0px;
+            }
+            .boxInsert {
+                width: 300px;
+                height: auto;
+                background-color: #fff;
+                border: 1px solid #000;
+                padding: 10px;
+                margin: 20px;
+                float: left;
+            }
 		</style>
 
 		<div>{{type}}</div>
         <div>{{typeId}}</div>
-        <form is="iron-form" id="editForm" method="post" action="/form/handler">
-            <template is="dom-if" if="{{_isTopic}}">
-                <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
-            </template>
-            <div><paper-input name="message" value={{message}} label="Message"></paper-input></div>
-            <input name="typeid" type="hidden" value={{typeId}}>
-            <paper-button on-click="_sendForm">CREA</paper-button>
-        </form>
+        
+        <!-- Form to insert/edit topic or post -->
+        <template is="dom-if" if="{{!_isForumEdit}}">
+            <form is="iron-form" id="editForm" method="post" action="/form/handler">
+                <template is="dom-if" if="{{_isTopic}}">
+                    <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
+                </template>
+                <div><paper-input name="message" value={{message}} label="Message"></paper-input></div>
+                <input name="typeid" type="hidden" value={{typeId}}>
+                <paper-button on-click="_sendForm">CREA</paper-button>
+            </form>
+        </template>
+        
+        <!-- Form to insert/remove new area or section -->
+        <template is="dom-if" if="{{_isForumEdit}}">
+            <div class="boxArea">
+                <template id="forumarea" is="dom-repeat" items={{area}} as="area">
+                    <div on-click="_showSection">{{area.title}}</div>
+                </template>
+                <paper-button class="addButton" on-click="_addArea">
+                    <iron-icon icon="add"></iron-icon>
+                    Add area
+                </paper-button>
+            </div>
+            
+            <div class="boxArea">
+                <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter(_tempIdArea)}}">
+                <!--<template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
+                    <template is="dom-if" if="{{_sectionFilter(area.id, section.area)}}">
+
+                    </template>
+                </template> -->
+                <div>{{section.title}}</div>
+                </template>
+                <paper-button class="addButton" on-click="_addSection">
+                    <iron-icon icon="add"></iron-icon>
+                    Add section
+                </paper-button>
+            </div>
+            
+            <div class="boxInsert">
+                <form  is="iron-form" id="pippo"></form>
+                <form is="iron-form" id="editForm2" method="post" action="/form/handler">
+                    <paper-input name="name" label="Name"></paper-input>
+                    <paper-input name="description" label="Description"></paper-input>
+                    <paper-button on-click="_insertArSe">Insert</paper-button>
+                </form>
+            </div>
+        </template>
 	</template>
 
 	<script>
@@ -36,6 +102,10 @@
                 _isTopic: {
                     type: Boolean
                 },
+                // Check to view or not edit tool of forum
+                _isForumEdit: {
+                    type: Boolean
+                },
                 // 
 				title: {
 					type: String,
@@ -46,6 +116,14 @@
 					type: String,
                     value: ''
 				},
+                //
+                area: {
+                    type: Array
+                },
+                //
+                section: {
+                    type: Array
+                },
                 // 
 				result: {
 					type: Array,
@@ -57,14 +135,53 @@
                 
             },
             
+            
             _isNewTopic: function() {
                 this._isTopic = this.type == "newTopic";
+                this._isForumEdit = this.type == "editForum";
                 return this._isTopic;
             },
             
+            _showSection: function(e) {
+                this._tempIdArea = e.model.area.id;
+            },
+            
+            computeFilter: function(idArea) {
+                if(!idArea)
+                    return null;
+                else
+                    return function(section) {
+                        return section.area == idArea;
+                    };
+            },
+            
+            _addArea: function() {
+                this._tempAddField = "area";
+            },
+            
+            _addSection: function() {
+                this._tempAddField = "section";
+            },
+            
             _sendForm: function() {
-                this.result = this.$.editForm.serialize();
-                this.$.editForm.reset();
+                this.result = this.$$('#editForm').serialize();
+                this.$$('#editForm').reset();
+            },
+            
+            _insertArSe: function() {
+                //alert(JSON.stringify(this.$$('#editForm2').serialize()));
+                var newField = this.$$('#editForm2').serialize();
+                var name = newField.name;
+                var description = newField.description;
+                if(this._tempAddField == "area") {
+                    var newid = this.area[this.area.length-1].id + 1;
+                    this.area.push({id:newid, title: name}, {id:2, title: "Area 2"});
+                    this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
+                } else if(this._tempAddField == "section") {
+                    var newid = this.section[this.section.length-1].id + 1;
+                    this.section.push({id:newid, area: 1, title: name, description: description, subsection: null});
+                    this.notifySplices('section', [{index: (newid - 1), removed: [], addedCount: 1, object: this.section}]);
+                }
             },
             
             _resultReady: function() {

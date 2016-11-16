@@ -56,10 +56,12 @@ section2        id1
 			<paper-material elevation="2">
 				<div class="title">{{title}}</div>
                 
-                <div><iron-icon icon="home" on-click="_goHome"></iron-icon>
+                <div>
+                    <iron-icon icon="home" on-click="_goHome"></iron-icon>
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
                     </template>
+                    <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
                 </div>
                 
                 <iron-pages id="forumpages" selected="0">
@@ -117,7 +119,9 @@ section2        id1
                         <forum-edit type={{pageField}} 
                                     type-id={{pageFieldId}} 
                                     title={{_tempTitle}} 
-                                    message={{_tempMessage}}>
+                                    message={{_tempMessage}}
+                                    area={{_tempArea}}
+                                    section={{_tempSection}}>
                         </forum-edit>
                     </div>
                     <!-- Page to edit forum parameters -->
@@ -283,6 +287,14 @@ section2        id1
                     this.pageFieldId = undefined;
                     this.previousPageFieldId = undefined;
                 }
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            _goEditForum: function() {
+                this.pageField = "editForum";
+                this._tempArea = this.area;
+                this._tempSection = this.section;
+                this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
