@@ -236,7 +236,9 @@ section2        id1
 			},
             
             listeners: {
-                'resultReady': '_catchResult'
+                'resultReady': '_catchResult',
+                'editArea' : '_catchArea',
+                'editSection' : '_catchSection'
             },
             
             ready: function() {
@@ -400,6 +402,30 @@ section2        id1
                 }
                 
                 this.fire('forumEdit');
+            },
+            
+            _catchArea: function(data) {
+                this.area = data.detail.result;
+                if(data.detail.type == "newArea") {
+                    this.notifySplices('area', [{index: (this.area.length - 1), removed: [], addedCount: 1, object: this.area}]);
+                } else if(data.detail.type == "editArea") {
+                    this.notifyPath('area.' + data.detail.pos + '.title');
+                } else if(data.detail.type == "deleteArea") {
+                    this.notifySplices('area', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.area}]);
+                }
+            },
+            
+            _catchSection: function(data) {
+                this.section = data.detail.result;
+                if(data.detail.type == "newSection") {
+                    this.notifySplices('section', [{index: (this.section.length - 1), removed: [], addedCount: 1, 
+                                                object: this.section}]);
+                } else if(data.detail.type == "editSection") {
+                    this.notifyPath('section.' + data.detail.pos + '.title');
+                    this.notifyPath('section.' + data.detail.pos + '.description');
+                } else if(data.detail.type == "deleteSection") {
+                    this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);
+                }
             }
 		});
 	</script>
