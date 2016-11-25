@@ -20,6 +20,9 @@
             .field {
                 padding: 5px;
             }
+            .field-highlighted {
+                background-color: red;
+            }
             .action {
                 width: 17px;
                 height: 17px;
@@ -79,11 +82,11 @@
             <template is="dom-if" if="{{_tempIdArea}}">
             <div class="box boxArea">
                 <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter(_tempIdArea)}}">
-                <div class="field">
-                    <iron-icon icon="remove" class="action" on-click="_removeSection"></iron-icon>
-                    <iron-icon icon="create" class="action" on-click="_editSection"></iron-icon>
-                    <span on-click="_showSection">{{section.title}}</span>
-                </div>
+                    <div class="field">
+                        <iron-icon icon="remove" class="action" on-click="_removeSection"></iron-icon>
+                        <iron-icon icon="create" class="action" on-click="_editSection"></iron-icon>
+                        <span on-click="_showSection">{{section.title}}</span>
+                    </div>
                 </template>
                 <paper-button class="addButton" on-click="_addSection">
                     <iron-icon icon="add"></iron-icon>
@@ -170,6 +173,10 @@
             
             _showSection: function(e) {
                 this._tempIdArea = e.model.area.id;
+                while(this.$$('.field'))
+                    console.log('ok');
+                //this.classFollows('field-highlighted', e.target.parentNode, this.('.field'));
+                //this.updateStyles();
             },
             
             computeFilter: function(idArea) {
