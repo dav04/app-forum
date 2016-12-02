@@ -19,9 +19,11 @@
             }
             .field {
                 padding: 5px;
+                cursor: pointer;
             }
             .field-highlighted {
-                background-color: red;
+                background-color: cornflowerblue;
+                border-radius: 15px;
             }
             .action {
                 width: 17px;
@@ -101,10 +103,20 @@
                         <paper-input name="name" value={{_name}} label="Name"></paper-input>
                         <template is="dom-if" if="{{_checkSection}}">
                             <paper-input name="description" value={{_description}} label="Description"></paper-input>
-                            <div>
-                                <paper-input name="idarea" value={{_idarea}} label="Area"></paper-input>
-                                <paper-input name="subsection" value={{_subsection}} label="SubSection"></paper-input>
-                            </div>
+                            
+                            <paper-dropdown-menu id="listAreas" selected-item="{{selectedArea}}">
+                                <paper-listbox class="dropdown-content" selected="{{_indexSelectArea}}">
+                                    <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter3(_tempIdArea)}}">
+                                        <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
+                                    </template>
+                                    <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter4(_tempIdArea)}}">
+                                        <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
+                                    </template>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <input type="hidden" name="idarea" value={{_idarea}}>
+                            
+                            <paper-input name="subsection" value={{_subsection}} label="SubSection"></paper-input>
                         </template>
                         <paper-button on-click="_insertArSe">Insert</paper-button>
                     </form>
@@ -171,12 +183,24 @@
                 return this._isTopic;
             },
             
+            _insertSelectedArea: function() {
+                this._idarea = this.selectedArea.name;
+            },
+            
+            _areaOfSection: function(item) {
+                return item.id == this._tempIdArea;
+            },
+            
             _showSection: function(e) {
-                this._tempIdArea = e.model.area.id;
-                while(this.$$('.field'))
-                    console.log('ok');
-                //this.classFollows('field-highlighted', e.target.parentNode, this.('.field'));
-                //this.updateStyles();
+                if(e.model.area != undefined) {
+                    this._tempIdArea = e.model.area.id;
+                    this._idarea = this._tempIdArea;
+                }
+                e.target.parentNode.parentNode.querySelectorAll('.field').forEach(function(el) {
+                    this.classFollows('field-highlighted', e.target.parentNode, el);
+                }.bind(this));
+                
+                this._tempInsert = null; // close edit form
             },
             
             computeFilter: function(idArea) {
@@ -188,6 +212,18 @@
             computeFilter2: function() {
                 return function(area) {
                     return true;
+                };
+            },
+            
+            computeFilter3: function(idArea) {
+                return function(area) {
+                    return area.id == idArea;
+                };
+            },
+            
+            computeFilter4: function(idArea) {
+                return function(area) {
+                    return area.id != idArea;
                 };
             },
             
@@ -204,6 +240,8 @@
                 this._tempInsert = true;
                 this._name = e.model.section.title;
                 this._description = e.model.section.description;
+                this._sectionArea = e.model.section.area;
+                this._sectionSub = e.model.section.subsection;
                 this._tempAddField = "editSection";
                 this.typeId = e.model.section.id;
                 this._checkSection = this._tempAddField == "editSection";
@@ -240,6 +278,8 @@
                 this._tempInsert = true;
                 this._tempAddField = "area";
                 this._checkSection = this._tempAddField == "section";
+                this._name = null;
+                this._description = null;
             },
             
             _addSection: function() {
@@ -247,6 +287,10 @@
                 this._tempInsert = true;
                 this._tempAddField = "section";
                 this._checkSection = this._tempAddField == "section";
+                this._name = null;
+                this._description = null;
+                this._indexSelectArea = undefined;
+                this._indexSelectArea = 0;
             },
             
             _sendForm: function() {
@@ -263,11 +307,12 @@
             },
             
             _insertArSe: function() {
-                //alert(JSON.stringify(this.$$('#editForm2').serialize()));
+                alert(JSON.stringify(this.$$('#editForm2').serialize()));
                 var newField = this.$$('#editForm2').serialize();
                 var name = newField.name;
                 var description = newField.description;
-                if(this._tempAddField == "area") {
+                var area = newField.idarea;
+                if(this._tempAddField == "area") {      // new area
                     if(this.area[this.area.length-1] != undefined)
                         var newid = this.area[this.area.length-1].id + 1;
                     else
@@ -276,9 +321,9 @@
                     this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
                     
                     this.fire('editArea', {type: "newArea", result: this.area});
-                } else if(this._tempAddField == "section") {
+                } else if(this._tempAddField == "section") {        // new section
                     var newid = this.section[this.section.length-1].id + 1;
-                    this.section.push({id:newid, area: this._tempIdArea, title: name, description: description, subsection: null});
+                    this.section.push({id:newid, area: newField.idarea, title: name, description: description, subsection: null});
                     this.notifySplices('section', [{index: (newid - 1), removed: [], addedCount: 1, object: this.section}]);
                     
                     this.fire('editSection', {type: "newSection", result: this.section});
@@ -291,13 +336,14 @@
                     var pos = this.section.findIndex(this._findIndex, this);
                     this.section[pos].title = name;
                     this.section[pos].description = description;
+                    this.section[pos].area = area;
                     this.notifyPath('section.' + pos + '.title');
                     this.notifyPath('section.' + pos + '.description');
+                    this.notifyPath('section.' + pos + '.area');
                     this.fire('editSection', {type: "editSection", id: pos, result: this.section});
                 }
-                this.$$('#editForm2').reset();
                 this._name = null;
-                this._description =null;
+                this._description = null;
                 this._tempInsert = false;
             },
             
