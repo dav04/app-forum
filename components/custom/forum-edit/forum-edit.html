@@ -52,6 +52,7 @@
 
 		<div>{{type}}</div>
         <div>{{typeId}}</div>
+        <div>ss {{_sectionSub}}</div>
         
         <!-- Form to insert/edit topic or post -->
         <template is="dom-if" if="{{!_isForumEdit}}">
@@ -83,7 +84,8 @@
             
             <template is="dom-if" if="{{_tempIdArea}}">
             <div class="box boxArea">
-                <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter(_tempIdArea)}}">
+                <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter(_tempIdArea)}}" 
+                          observe="area">
                     <div class="field">
                         <iron-icon icon="remove" class="action" on-click="_removeSection"></iron-icon>
                         <iron-icon icon="create" class="action" on-click="_editSection"></iron-icon>
@@ -104,7 +106,9 @@
                         <template is="dom-if" if="{{_checkSection}}">
                             <paper-input name="description" value={{_description}} label="Description"></paper-input>
                             
-                            <paper-dropdown-menu id="listAreas" selected-item="{{selectedArea}}">
+                            <paper-dropdown-menu label="Area" selected-item="{{selectedArea}}" 
+                                                 vertical-align="top" horizontal-align="left" 
+                                                 dynamic-align>
                                 <paper-listbox class="dropdown-content" selected="{{_indexSelectArea}}">
                                     <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter3(_tempIdArea)}}">
                                         <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
@@ -116,7 +120,21 @@
                             </paper-dropdown-menu>
                             <input type="hidden" name="idarea" value={{_idarea}}>
                             
-                            <paper-input name="subsection" value={{_subsection}} label="SubSection"></paper-input>
+                            <paper-dropdown-menu label="SubSection" selected-item="{{selectedSection}}" 
+                                                 vertical-align="top" horizontal-align="left" 
+                                                 dynamic-align>
+                                <paper-listbox class="dropdown-content" selected="{{_indexSelectSection}}">
+                                    <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter5(_sectionSub)}}">
+                                        <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
+                                    </template>
+                                    <paper-item name="null" on-click="_insertSelectedSection">none</paper-item>
+                                    <template is="dom-repeat" items={{section}} as="section" 
+                                              filter="{{computeFilter6(_tempIdArea, typeId, _sectionSub)}}">
+                                        <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
+                                    </template>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <input type="hidden" name="subsection" value={{_subsection}}>
                         </template>
                         <paper-button on-click="_insertArSe">Insert</paper-button>
                     </form>
@@ -187,6 +205,10 @@
                 this._idarea = this.selectedArea.name;
             },
             
+            _insertSelectedSection: function() {
+                this._subsection = this.selectedSection.name;
+            },
+            
             _areaOfSection: function(item) {
                 return item.id == this._tempIdArea;
             },
@@ -200,6 +222,7 @@
                     this.classFollows('field-highlighted', e.target.parentNode, el);
                 }.bind(this));
                 
+                this._sectionSub = null;
                 this._tempInsert = null; // close edit form
             },
             
@@ -227,6 +250,20 @@
                 };
             },
             
+            computeFilter5: function(idSub) {
+                alert(idSub);
+                return function(section) {
+                    return section.id == idSub;
+                };
+            },
+            
+            computeFilter6: function(idArea, idSection, idSub) {
+                //alert("area " + idArea + " - sub " + idSub);
+                return function(section) {
+                    return section.area == idArea && section.id != idSection && section.id != idSub;
+                };
+            },
+            
             _editArea: function(e) {
                 this._tempInsert = true;
                 this._name = e.model.area.title;
@@ -246,6 +283,10 @@
                 this.typeId = e.model.section.id;
                 this._checkSection = this._tempAddField == "editSection";
                 this._tempDescInsert = "Edit name and description of section:";
+                this._indexSelectArea = undefined;
+                this._indexSelectArea = 0;
+                this._indexSelectSection = undefined;
+                this._indexSelectSection = 0;
             },
             
             _removeArea: function(e) {
@@ -289,8 +330,12 @@
                 this._checkSection = this._tempAddField == "section";
                 this._name = null;
                 this._description = null;
+                this.typeId = null;
+                this._sectionSub = null;
                 this._indexSelectArea = undefined;
                 this._indexSelectArea = 0;
+                this._indexSelectSection = undefined;
+                this._indexSelectSection = 0;
             },
             
             _sendForm: function() {
@@ -312,6 +357,7 @@
                 var name = newField.name;
                 var description = newField.description;
                 var area = newField.idarea;
+                var subsection = newField.subsection;
                 if(this._tempAddField == "area") {      // new area
                     if(this.area[this.area.length-1] != undefined)
                         var newid = this.area[this.area.length-1].id + 1;
@@ -337,9 +383,11 @@
                     this.section[pos].title = name;
                     this.section[pos].description = description;
                     this.section[pos].area = area;
+                    this.section[pos].subsection = subsection;
                     this.notifyPath('section.' + pos + '.title');
                     this.notifyPath('section.' + pos + '.description');
                     this.notifyPath('section.' + pos + '.area');
+                    this.notifyPath('section.' + pos + '.subsection');
                     this.fire('editSection', {type: "editSection", id: pos, result: this.section});
                 }
                 this._name = null;
