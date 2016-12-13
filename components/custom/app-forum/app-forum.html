@@ -304,7 +304,7 @@ section2        id1
             },
             
             _checkSubSection: function(sub) {
-                return sub == null;
+                return sub == null || sub == "";
             },
             
             _sectionFilter: function(id1, id2) {  
@@ -423,6 +423,9 @@ section2        id1
                 } else if(data.detail.type == "editSection") {
                     this.notifyPath('section.' + data.detail.pos + '.title');
                     this.notifyPath('section.' + data.detail.pos + '.description');
+                    this.notifyPath('section.' + data.detail.pos + '.area');
+                    this.notifyPath('section.' + data.detail.pos + '.subsection');
+                      
                 } else if(data.detail.type == "deleteSection") {
                     this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);
                 }

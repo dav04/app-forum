@@ -56,7 +56,7 @@
         
         <!-- Form to insert/edit topic or post -->
         <template is="dom-if" if="{{!_isForumEdit}}">
-            <form is="iron-form" id="editForm" method="post" action="/form/handler">
+            <form is="iron-form" id="editForm" method="post">
                 <template is="dom-if" if="{{_isTopic}}">
                     <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
                 </template>
@@ -101,7 +101,7 @@
             <template is="dom-if" if="{{_tempInsert}}">
                 <div class="box boxInsert">
                     <div class="title">{{_tempDescInsert}}</div>
-                    <form is="iron-form" id="editForm2" method="post" action="/form/handler">
+                    <form is="iron-form" id="editForm2" method="post">
                         <paper-input name="name" value={{_name}} label="Name"></paper-input>
                         <template is="dom-if" if="{{_checkSection}}">
                             <paper-input name="description" value={{_description}} label="Description"></paper-input>
@@ -190,6 +190,18 @@
 				}
 			},
             
+            behaviors: [
+                Polymer.IronA11yKeysBehavior
+            ],
+            
+            keyBindings: {
+                'enter': '_keySubmitForm'
+            },
+            
+            _keySubmitForm: function(event) {
+                event.detail.keyboardEvent.target.form.$$('paper-button').click();
+            },
+            
             ready: function() {
                 this._tempIdArea = null;
                 this._tempInsert = null;
@@ -251,7 +263,6 @@
             },
             
             computeFilter5: function(idSub) {
-                alert(idSub);
                 return function(section) {
                     return section.id == idSub;
                 };
@@ -279,6 +290,7 @@
                 this._description = e.model.section.description;
                 this._sectionArea = e.model.section.area;
                 this._sectionSub = e.model.section.subsection;
+                this._subsection = this._sectionSub;
                 this._tempAddField = "editSection";
                 this.typeId = e.model.section.id;
                 this._checkSection = this._tempAddField == "editSection";
@@ -365,19 +377,20 @@
                         var newid = 1;
                     this.area.push({id:newid, title: name});
                     this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
-                    
                     this.fire('editArea', {type: "newArea", result: this.area});
+                    
                 } else if(this._tempAddField == "section") {        // new section
                     var newid = this.section[this.section.length-1].id + 1;
                     this.section.push({id:newid, area: newField.idarea, title: name, description: description, subsection: null});
                     this.notifySplices('section', [{index: (newid - 1), removed: [], addedCount: 1, object: this.section}]);
-                    
                     this.fire('editSection', {type: "newSection", result: this.section});
+                    
                 } else if(this._tempAddField == "editArea") {
                     var pos = this.area.findIndex(this._findIndex, this);
                     this.area[pos].title = name;
                     this.notifyPath('area.' + pos + '.title');
                     this.fire('editArea', {type: "editArea", pos: pos, result: this.area});
+                    
                 } else if(this._tempAddField == "editSection") {
                     var pos = this.section.findIndex(this._findIndex, this);
                     this.section[pos].title = name;
@@ -388,7 +401,7 @@
                     this.notifyPath('section.' + pos + '.description');
                     this.notifyPath('section.' + pos + '.area');
                     this.notifyPath('section.' + pos + '.subsection');
-                    this.fire('editSection', {type: "editSection", id: pos, result: this.section});
+                    this.fire('editSection', {type: "editSection", pos: pos, result: this.section});
                 }
                 this._name = null;
                 this._description = null;
