@@ -72,7 +72,7 @@ section2        id1
                     <div>
                         <template id="forumarea" is="dom-repeat" items={{area}} as="area">
                             <forum-area name={{area.title}}>
-                                <template is="dom-repeat" items={{section}} as="section">
+                                <template id="forumsection" is="dom-repeat" items={{section}} as="section">
                                     <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
                                         <template is="dom-if" if="{{_sectionFilter(area.id, section.area)}}">
                                             <forum-section name={{section.title}} 
@@ -236,8 +236,8 @@ section2        id1
 			},
             
             listeners: {
-                'resultReady': '_catchResult',
-                'editArea' : '_catchArea',
+                'resultReady':  '_catchResult',
+                'editArea' :    '_catchArea',
                 'editSection' : '_catchSection'
             },
             
@@ -246,16 +246,19 @@ section2        id1
                 this._change_secondary();
             },
             
+            // change primary color of app-forum
             _change_primary: function() {
                 this.customStyle['--forum-primary-color'] = this.primaryColor;
                 this.updateStyles();
             },
             
+            // change secondary color of app-forum
             _change_secondary: function() {
                 this.customStyle['--forum-secondary-color'] = this.secondaryColor;
                 this.updateStyles();
             },
             
+            // go to homepage
             _goHome: function() {
                 this.subSection = [];
                 this.pageFieldId = undefined;
@@ -263,7 +266,8 @@ section2        id1
                 this.$.forumpages.select(0);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
-            // 
+            
+            // go to previous page
             _goBack: function() {
                 if(this.trackPage.topic != null && this.pageField != "reply" && this.pageField != "editPost") {
                     this.trackPage.topic = null;
@@ -295,6 +299,7 @@ section2        id1
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // go to edit structure of forum page
             _goEditForum: function() {
                 this.pageField = "editForum";
                 this._tempArea = this.area;
@@ -303,14 +308,17 @@ section2        id1
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // filter section to not see subsection
             _checkSubSection: function(sub) {
                 return sub == null || sub == "";
             },
             
+            // filter to see subelements of active element
             _sectionFilter: function(id1, id2) {  
                 return id1 == id2;
             },
             
+            // show topics of selected section
             _sectionSelect: function(e) {
                 this.push('trackPage.0.section', e.model.section.id);
                 this.pageFieldId = e.model.section.id;
@@ -318,6 +326,7 @@ section2        id1
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // show posts of selected topic
             _topicSelect: function(e) {
                 this.trackPage.topic = e.model.topic.id;
                 this.notifyPath('trackPage.topic');
@@ -326,6 +335,7 @@ section2        id1
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // show windows to create a new topic
             _newTopic: function() {
                 this.pageField = "newTopic";
                 this.$.forumpages.select(3);
@@ -342,25 +352,30 @@ section2        id1
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // show window to reply to a post
             _replyPost: function(e) {
                 this.pageField = "reply";
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            // return info of a specific user by id
             _findUser: function(id) {
                 var pos = this.user.findIndex(this._findId, {id: id});
                 return this.user[pos];
             },
             
+            // support to find position of an id in an array
             _findId: function(element, index, array) {
                 return element.id == this.id;
             },
             
+            // support to find position of an id in an array
             _findIndex: function(element) {
                 return element.id == this.pageFieldId;
             },
             
+            // elaborate data received by the 'resultReady' event
             _catchResult: function(data) {
                 this.editEvent = data.detail.result;
                 
@@ -404,6 +419,7 @@ section2        id1
                 this.fire('forumEdit');
             },
             
+            // elaborate data received by the 'editArea' event in forum-edit component
             _catchArea: function(data) {
                 this.area = data.detail.result;
                 if(data.detail.type == "newArea") {
@@ -415,6 +431,7 @@ section2        id1
                 }
             },
             
+            // elaborate data received by the 'editSection' event in forum-edit component
             _catchSection: function(data) {
                 this.section = data.detail.result;
                 if(data.detail.type == "newSection") {
@@ -424,7 +441,8 @@ section2        id1
                     this.notifyPath('section.' + data.detail.pos + '.title');
                     this.notifyPath('section.' + data.detail.pos + '.description');
                     this.notifyPath('section.' + data.detail.pos + '.area');
-                    this.notifyPath('section.' + data.detail.pos + '.subsection');
+                    if(data.detail.oldsub != this.section[data.detail.pos].subsection)
+                        this.notifyPath('section.' + data.detail.pos + '.subsection');
                       
                 } else if(data.detail.type == "deleteSection") {
                     this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);

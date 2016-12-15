@@ -52,7 +52,6 @@
 
 		<div>{{type}}</div>
         <div>{{typeId}}</div>
-        <div>ss {{_sectionSub}}</div>
         
         <!-- Form to insert/edit topic or post -->
         <template is="dom-if" if="{{!_isForumEdit}}">
@@ -165,30 +164,35 @@
                 _isForumEdit: {
                     type: Boolean
                 },
-                // 
+                // title of a topic
 				title: {
 					type: String,
                     value: ''
 				},
-                // 
+                // message of a post
 				message: {
 					type: String,
                     value: ''
 				},
-                //
+                // list of areas
                 area: {
                     type: Array
                 },
-                //
+                // list of sections
                 section: {
                     type: Array
                 },
-                // 
+                //
 				result: {
 					type: Array,
                     observer: "_resultReady"
 				}
 			},
+            
+            ready: function() {
+                this._tempIdArea = null;
+                this._tempInsert = null;
+            },
             
             behaviors: [
                 Polymer.IronA11yKeysBehavior
@@ -198,33 +202,49 @@
                 'enter': '_keySubmitForm'
             },
             
+            // submit form pressing enter button
             _keySubmitForm: function(event) {
                 event.detail.keyboardEvent.target.form.$$('paper-button').click();
             },
             
-            ready: function() {
-                this._tempIdArea = null;
-                this._tempInsert = null;
-            },
-            
+            // check type of edit
+            // _isForumEdit: FALSE -> view topic or post
+            //               TRUE  -> view structure of forum 
+            // _isTopic:     FALSE -> title hidden
+            //               TRUE  -> title visible 
             _isNewTopic: function() {
-                this._isTopic = this.type == "newTopic";
                 this._isForumEdit = this.type == "editForum";
-                return this._isTopic;
+                this._isTopic = this.type == "newTopic";
             },
             
+            // EDITING TOPIC AND POST
+            // -----------------------
+            
+            // submit form of a topic or a post
+            _sendForm: function() {
+                this.result = this.$$('#editForm').serialize();
+                this.$$('#editForm').reset();
+            },
+            
+            // send event 'resultReady' to notify to app-forum component
+            _resultReady: function() {
+                this.fire('resultReady', {result: this.result});
+            },
+            
+            // EDITING FORUM STRUCTURE
+            // -----------------------
+            
+            // insert selected area in the hidden field 'idarea'
             _insertSelectedArea: function() {
                 this._idarea = this.selectedArea.name;
             },
             
+            // insert selected section in the hidden field 'subsection'
             _insertSelectedSection: function() {
                 this._subsection = this.selectedSection.name;
             },
             
-            _areaOfSection: function(item) {
-                return item.id == this._tempIdArea;
-            },
-            
+            // show sub-element of an area or a section
             _showSection: function(e) {
                 if(e.model.area != undefined) {
                     this._tempIdArea = e.model.area.id;
@@ -238,43 +258,49 @@
                 this._tempInsert = null; // close edit form
             },
             
+            // filter to select sections of active area
             computeFilter: function(idArea) {
                 return function(section) {
                     return section.area == idArea;
                 };
             },
             
+            // update list of areas when edited 
             computeFilter2: function() {
                 return function(area) {
                     return true;
                 };
             },
             
+            // filter to select active area
             computeFilter3: function(idArea) {
                 return function(area) {
                     return area.id == idArea;
                 };
             },
             
+            // filter to select no active areas
             computeFilter4: function(idArea) {
                 return function(area) {
                     return area.id != idArea;
                 };
             },
             
+            // filter to select active subsection if it exists
             computeFilter5: function(idSub) {
                 return function(section) {
                     return section.id == idSub;
                 };
             },
             
+            // filter to select all sections of active area without active section
             computeFilter6: function(idArea, idSection, idSub) {
-                //alert("area " + idArea + " - sub " + idSub);
                 return function(section) {
                     return section.area == idArea && section.id != idSection && section.id != idSub;
                 };
             },
             
+            // set window to edit an area
             _editArea: function(e) {
                 this._tempInsert = true;
                 this._name = e.model.area.title;
@@ -284,6 +310,7 @@
                 this._tempDescInsert = "Edit name of area:";
             },
             
+            // set window to edit a section
             _editSection: function(e) {
                 this._tempInsert = true;
                 this._name = e.model.section.title;
@@ -301,6 +328,7 @@
                 this._indexSelectSection = 0;
             },
             
+            // remove the selected area
             _removeArea: function(e) {
                 this.typeId = e.model.area.id;
                 var pos = this.area.findIndex(this._findIndex, this);
@@ -319,6 +347,7 @@
                 this.fire('editArea', {type: "deleteArea", pos: pos, removed: tempArea, result: this.area});
             },
             
+            // remove the selected section
             _removeSection: function(e) {
                 var pos = this.section.findIndex(this._findSection, e.model.section);
                 var tempSection = this.splice('section', pos, 1); 
@@ -326,6 +355,7 @@
                 this.fire('editSection', {type: "deleteSection", pos: pos, removed: tempSection, result: this.section});
             },
             
+            // set window to add an area
             _addArea: function() {
                 this._tempDescInsert = "Insert name of area:";
                 this._tempInsert = true;
@@ -335,6 +365,7 @@
                 this._description = null;
             },
             
+            // set window to add a section
             _addSection: function() {
                 this._tempDescInsert = "Insert name and description of section:";
                 this._tempInsert = true;
@@ -350,27 +381,25 @@
                 this._indexSelectSection = 0;
             },
             
-            _sendForm: function() {
-                this.result = this.$$('#editForm').serialize();
-                this.$$('#editForm').reset();
-            },
-            
+            // find position in array of an alement by id
             _findIndex: function(element) {
                 return element.id == this.typeId;
             },
             
+            // find position in array of a section by id
             _findSection: function(element) {
                 return element.id == this.id;
             },
             
+            // submit form edit of an area or a section
             _insertArSe: function() {
-                alert(JSON.stringify(this.$$('#editForm2').serialize()));
+                //alert(JSON.stringify(this.$$('#editForm2').serialize()));
                 var newField = this.$$('#editForm2').serialize();
                 var name = newField.name;
                 var description = newField.description;
                 var area = newField.idarea;
                 var subsection = newField.subsection;
-                if(this._tempAddField == "area") {      // new area
+                if(this._tempAddField == "area") {              // new area
                     if(this.area[this.area.length-1] != undefined)
                         var newid = this.area[this.area.length-1].id + 1;
                     else
@@ -379,7 +408,7 @@
                     this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
                     this.fire('editArea', {type: "newArea", result: this.area});
                     
-                } else if(this._tempAddField == "section") {        // new section
+                } else if(this._tempAddField == "section") {    // new section
                     var newid = this.section[this.section.length-1].id + 1;
                     this.section.push({id:newid, area: newField.idarea, title: name, description: description, subsection: null});
                     this.notifySplices('section', [{index: (newid - 1), removed: [], addedCount: 1, object: this.section}]);
@@ -396,20 +425,17 @@
                     this.section[pos].title = name;
                     this.section[pos].description = description;
                     this.section[pos].area = area;
+                    var oldSub = this.section[pos].subsection;
                     this.section[pos].subsection = subsection;
                     this.notifyPath('section.' + pos + '.title');
                     this.notifyPath('section.' + pos + '.description');
                     this.notifyPath('section.' + pos + '.area');
                     this.notifyPath('section.' + pos + '.subsection');
-                    this.fire('editSection', {type: "editSection", pos: pos, result: this.section});
+                    this.fire('editSection', {type: "editSection", pos: pos, oldsub: oldSub, result: this.section});
                 }
                 this._name = null;
                 this._description = null;
                 this._tempInsert = false;
-            },
-            
-            _resultReady: function() {
-                this.fire('resultReady', {result: this.result});
             }
 		});
 	</script>
