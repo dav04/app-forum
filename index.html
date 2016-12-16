@@ -13,6 +13,13 @@
             document.addEventListener('forumEdit', function() {
                 //alert("Il forum è stato modificato");
             });
+            
+            // loginUserForum è un evento per inviare il login dell'utente e ricevere un token
+            document.addEventListener('loginUserForum', function(info) {
+                //alert("L'utente " + info.detail.username + " si è loggato.");
+                var event = new CustomEvent("getToken", {detail: {id: "3", token: "adasfsafa"}});
+                document.querySelector('app-forum').dispatchEvent(event);
+            });
         </script>
 	</head>
 	<body>

@@ -24,6 +24,22 @@ section2        id1
     section 8
     topic 1
     topic 2
+
+------------------
+Events
+------------------
+IN
+- 'getToken'        ->
+- 'resultReady'     ->
+- 'editArea'        ->
+- 'editSection'     ->
+OUT
+- 'loginUserForum'  ->
+- 'forumEdit'       ->
+
+Login: user/password  ->  check in db  ->  return token  ->  save id and token in cookie
+
+Edit: send id and token
 -->
 
 <dom-module id="app-forum">
@@ -53,6 +69,23 @@ section2        id1
             iron-icon {
                 cursor: pointer;
             }
+            .loginbar {
+                float:right; 
+                width: 300px;
+            }
+            .logininput {
+                width:100px; 
+                float:left; 
+                margin-left: 15px; 
+                margin-top: -10px
+            }
+            .loginicon {
+                margin-top: 20px;
+                padding-left: 15px;
+            }
+            .infouser {
+                
+            }
 		</style>
 
 		<div>
@@ -65,6 +98,23 @@ section2        id1
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
                     </template>
                     <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
+                    
+                    <!-- User bar -->
+                    <div class="loginbar">
+                        <template is="dom-if" if="{{!_checkUser}}">
+                            <form is="iron-form" id="loginForm" method="post">
+                                <paper-input name="username" label="Username" class="logininput"></paper-input>
+                                <paper-input name="password" label="Password" class="logininput"></paper-input>
+                                <iron-icon icon="send" class="loginicon" on-click="_loginUser"></iron-icon>
+                            </form>
+                        </template>
+                        <template is="dom-if" if="{{_checkUser}}">
+                            <div class="infouser">
+                                {{_userInfo.nick}} <iron-icon icon="account-circle"></iron-icon>
+                                <iron-icon icon="exit-to-app" class="loginicon" on-click="_logoutUser"></iron-icon>
+                            </div>
+                        </template>
+                    </div>
                 </div>
                 
                 <iron-pages id="forumpages" selected="0">
@@ -212,6 +262,16 @@ section2        id1
                             {id:3, nickname: "poul", account: 2, avatar: "images/users/avatar3.jpg"}, 
                             {id:4, nickname: "taz", account: 2, avatar: "images/users/avatar4.jpg"}]
                 },
+                //
+                _checkUser: {
+                    type: String,
+                    value: false
+                },
+                //
+                _userInfo: {
+                    type: Array,
+                    value: [{id: null, nick: null}]
+                },
                 // Contain data when an edit event happens inside forum
                 editEvent: {
                     type: Array
@@ -236,6 +296,7 @@ section2        id1
 			},
             
             listeners: {
+                'getToken':     '_saveIdToken',
                 'resultReady':  '_catchResult',
                 'editArea' :    '_catchArea',
                 'editSection' : '_catchSection'
@@ -244,6 +305,12 @@ section2        id1
             ready: function() {
                 this._change_primary();
                 this._change_secondary();
+                
+                if(document.cookie.indexOf('app_forum_user') != -1) {
+                    this._userInfo.id = this._getCookie().id;
+                    this._userInfo.nick = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].nickname;
+                    this._checkUser = true;
+                }
             },
             
             // change primary color of app-forum
@@ -306,6 +373,39 @@ section2        id1
                 this._tempSection = this.section;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // send username and password by 'loginUserForum' event
+            _loginUser: function() {
+                var info = this.$$('#loginForm').serialize();
+                this._userInfo.nick = info.username;
+                this.fire('loginUserForum', {username: info.username, password: info.password});
+            },
+            
+            // save id and token into a cookie
+            _saveIdToken: function(data) {
+                this._checkUser = true;
+                this._userInfo.id = data.detail.id;
+                
+                var d = new Date();
+                d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = "app_forum_user=" + data.detail.id + "$$" + data.detail.token + ";" + expires + "; path=/";
+            },
+            
+            // logout user and delete relative cookie
+            _logoutUser: function() {
+                this._checkUser = false;
+                this._userInfo.id = null;
+                this._userInfo.nick = null;
+                document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+            },
+            
+            // return id and token of user
+            _getCookie: function() {
+                var id = document.cookie.substring(15, document.cookie.indexOf('$$'));
+                var token = document.cookie.substring(document.cookie.indexOf('$$')+2);
+                return {id: id, token: token};
             },
             
             // filter section to not see subsection
@@ -392,7 +492,7 @@ section2        id1
                 // Add a new record in 'post' array
                 } else if(this.pageField == "reply") {
                     var newid = this.post[this.post.length-1].id + 1;
-                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: 4});
+                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: this._userInfo.id});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "topic";
                     this.$.forumpages.select(2);
@@ -404,7 +504,7 @@ section2        id1
                     this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open'});
                     this.notifySplices('topic', [{index: (newid - 1), removed: [], addedCount: 1, object: this.topic}]);
                     var newid2 = this.post[this.post.length-1].id + 1;
-                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: 4});
+                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: this._userInfo.id});
                     this.notifySplices('post', [{index: (newid2 - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "section";
                     this.$.forumpages.select(1);
