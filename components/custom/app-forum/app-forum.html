@@ -1,5 +1,7 @@
 <!--
-Structure:
+------------------
+Structure
+------------------
     app-forum
         forum-area
 
@@ -28,18 +30,46 @@ section2        id1
 ------------------
 Events
 ------------------
-IN
-- 'getToken'        ->
-- 'resultReady'     ->
-- 'editArea'        ->
-- 'editSection'     ->
-OUT
-- 'loginUserForum'  ->
-- 'forumEdit'       ->
+IN:
+- 'getToken'        -> from client/server
+- 'resultReady'     -> from 'forum-edit'
+- 'editArea'        -> from 'forum-edit'
+- 'editSection'     -> from 'forum-edit'
+OUT:
+- 'loginUserForum'  -> to client/server
+- 'forumEdit'       -> to client/server
 
-Login: user/password  ->  check in db  ->  return token  ->  save id and token in cookie
+Type on 'forumEdit':
+- reply                 message / typeid (topic)
+- editPost              message / typeid (post)
+- editTopic             
+- newTopic              id (topic) / title / message / typeid (section)
+- newArea               
+- editArea              
+- deleteArea            
+- newSection            
+- editSection           
+- deleteSection         
 
-Edit: send id and token
+------------------
+User
+------------------
+LOGIN: 
+    user/password  ->  check in db  ->  return token  ->  save id and token in cookie
+
+EDIT: 
+    every editing send id and token
+
+LOGOUT:
+    unset cookie
+
+------------------
+Dependencies
+------------------
+
+DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
+
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 -->
 
 <dom-module id="app-forum">
@@ -97,7 +127,9 @@ Edit: send id and token
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
                     </template>
-                    <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
+                    <template is="dom-if" if="{{_checkUser}}">
+                        <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
+                    </template>
                     
                     <!-- User bar -->
                     <div class="loginbar">
@@ -124,7 +156,7 @@ Edit: send id and token
                             <forum-area name={{area.title}}>
                                 <template id="forumsection" is="dom-repeat" items={{section}} as="section">
                                     <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
-                                        <template is="dom-if" if="{{_sectionFilter(area.id, section.area)}}">
+                                        <template is="dom-if" if="{{_areaFilter(area.id, section.area)}}">
                                             <forum-section name={{section.title}} 
                                                            description={{section.description}}
                                                            on-click="_sectionSelect">
@@ -137,34 +169,33 @@ Edit: send id and token
                     </div>
                     <!-- Page with sections and topics-->
                     <div>
-                        <paper-button on-click="_newTopic">New topic</paper-button>
-                        <template is="dom-repeat" items={{section}} as="section">
-                            <template is="dom-if" if="{{_sectionFilter(pageFieldId, section.subsection)}}">
-                                <forum-section name={{section.title}} 
-                                               description={{section.description}}
-                                               on-click="_sectionSelect"></forum-section>
-                            </template>
+                        <template is="dom-if" if="{{_checkUser}}">
+                            <paper-button on-click="_newTopic">New topic</paper-button>
                         </template>
-                        <template is="dom-repeat" items={{topic}} as="topic">
-                            <template is="dom-if" if="{{_sectionFilter(pageFieldId, topic.section)}}">
+                        <template is="dom-repeat" items={{section}} as="section" filter="{{_sectionFilter(pageFieldId)}}">
+                            <forum-section name={{section.title}} 
+                                           description={{section.description}}
+                                           on-click="_sectionSelect"></forum-section>
+                        </template>
+                        <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(pageFieldId)}}">
                                 <forum-topic title={{topic.title}} on-click="_topicSelect"></forum-topic>
-                            </template>
                         </template>
                     </div>
                     <!-- Page with posts -->
                     <div>
-                        <template is="dom-repeat" items={{post}} as="post">
-                            <template is="dom-if" if="{{_sectionFilter(trackPage.topic, post.topic)}}">
-                                <forum-post message="{{post.message}}" id="{{post.id}}">
-                                    <forum-user info-user={{_findUser(post.user)}}></forum-user>
+                        <div>{{topicName}}</div>
+                        <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
+                            <forum-post message="{{post.message}}" id="{{post.id}}">
+                                <forum-user info-user={{_findUser(post.user)}}></forum-user>
+                                <template is="dom-if" if="{{_checkUser}}">
                                     <paper-button on-click="_editPost">
                                         <iron-icon icon="create"></iron-icon>
                                     </paper-button>
                                     <paper-button on-click="_replyPost">
                                         <iron-icon icon="reply"></iron-icon>
                                     </paper-button>
-                                </forum-post>
-                            </template>
+                                </template>
+                            </forum-post>
                         </template>
                     </div>
                     <!-- Page to create topic or write post -->
@@ -193,30 +224,30 @@ Edit: send id and token
 			is: "app-forum",
 
 			properties: {
-				// define title on top of forum
+				// title on top of forum
 				title: {
 					type: String,
 					value: "Test app forum"
 				},
-                // define main color of forum
+                // main color of forum
                 primaryColor: {
                     type: String,
                     value: "#82bfc8",
                     notify: true,
                     observer: "_change_primary"
                 },
-                // define secondary color of forum
+                // secondary color of forum
                 secondaryColor: {
                     type: String,
                     value: "#16414f",
                     observer: "_change_secondary"
                 },
-                //
+                // array with all areas of forum
                 area: {
                     type: Array,
                     value: [{id:1, title: "Area 1"}, {id:2, title: "Area 2"}]
                 },
-                //
+                // array with all sections of forum
                 section: {
                     type: Array,
                     value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1", subsection: null}, 
@@ -226,7 +257,7 @@ Edit: send id and token
                             {id:5, area: 2, title: "Sezione 5", description: "Descrizione 5", subsection: 3}, 
                             {id:6, area: 2, title: "Sezione 6", description: "Descrizione 6", subsection: 5}]
                 },
-                //
+                // array with all topics of forum
                 topic: {
                     type: Array,
                     value: [{id:1, section: 3, title: "Topic 1", status: "open"}, 
@@ -240,7 +271,7 @@ Edit: send id and token
                             {id:9, section: 5, title: "Topic 9", status: "open"}, 
                             {id:10, section: 2, title: "Topic 10", status: "close"}]
                 },
-                //
+                // array with all posts of forum
                 post: {
                     type: Array,
                     value: [{id:1, topic: 3, message: "Messaggio Topic 3", user: 1}, 
@@ -254,7 +285,7 @@ Edit: send id and token
                             {id:9, topic: 1, message: "Messaggio Topic 1", user: 4}, 
                             {id:10, topic: 2, message: "Messaggio Topic 2", user: 4}]
                 },
-                //
+                // array with all users of forum
                 user: {
                     type: Array,
                     value: [{id:1, nickname: "admin", account: 4, avatar: "images/users/avatar1.jpg"}, 
@@ -262,34 +293,39 @@ Edit: send id and token
                             {id:3, nickname: "poul", account: 2, avatar: "images/users/avatar3.jpg"}, 
                             {id:4, nickname: "taz", account: 2, avatar: "images/users/avatar4.jpg"}]
                 },
-                //
+                // check if user is logged
                 _checkUser: {
                     type: String,
                     value: false
                 },
-                //
+                // information about active user
                 _userInfo: {
                     type: Array,
                     value: [{id: null, nick: null}]
                 },
-                // Contain data when an edit event happens inside forum
+                // data when an edit event happens inside forum
                 editEvent: {
-                    type: Array
+                    type: Array,
+                    reflectToAttribute: true
                 },
-                //
+                // name of active page
                 pageField: {
                     type: String
                 },
-                //
+                // id of active section or topic
                 pageFieldId: {
                     type: Number
                 },
-                //
+                // title of active topic
+                topicName: {
+                    type: String
+                },
+                // trace path of browsing
                 trackPage: {
                     type: Array,
                     value: [{section: [], topic: null}]
                 },
-                //
+                // check to view or not back button
                 _checkBack: {
                     type: Boolean
                 }
@@ -313,6 +349,9 @@ Edit: send id and token
                 }
             },
             
+            // STYLE
+            // -----------------------
+            
             // change primary color of app-forum
             _change_primary: function() {
                 this.customStyle['--forum-primary-color'] = this.primaryColor;
@@ -325,55 +364,8 @@ Edit: send id and token
                 this.updateStyles();
             },
             
-            // go to homepage
-            _goHome: function() {
-                this.subSection = [];
-                this.pageFieldId = undefined;
-                this.previousPageFieldId = undefined;
-                this.$.forumpages.select(0);
-                this._checkBack = this.$.forumpages.selected != 0;
-            },
-            
-            // go to previous page
-            _goBack: function() {
-                if(this.trackPage.topic != null && this.pageField != "reply" && this.pageField != "editPost") {
-                    this.trackPage.topic = null;
-                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
-                    this.$.forumpages.select(1);
-                } else if(this.trackPage.topic != null) {
-                    this.pageFieldId = this.trackPage.topic;
-                    this.pageField = "topic";
-                    this._tempTitle = null;
-                    this._tempMessage = null;
-                    this.$.forumpages.select(2);
-                } else if(this.trackPage[0].section.length <= 1 && this.pageField != "newTopic") {
-                    this.trackPage[0].section.pop();
-                    this.$.forumpages.select(0);
-                } else if(this.trackPage[0].section.length >= 1) {
-                    if(this.pageField != "newTopic")
-                        this.trackPage[0].section.pop();
-                    else
-                        this.pageField = "section";
-                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
-                    this.$.forumpages.select(1);
-                }
-                
-                if(this.$.forumpages.selected == 0) {
-                    this.trackPage[0].section.length = [];
-                    this.pageFieldId = undefined;
-                    this.previousPageFieldId = undefined;
-                }
-                this._checkBack = this.$.forumpages.selected != 0;
-            },
-            
-            // go to edit structure of forum page
-            _goEditForum: function() {
-                this.pageField = "editForum";
-                this._tempArea = this.area;
-                this._tempSection = this.section;
-                this.$.forumpages.select(3);
-                this._checkBack = this.$.forumpages.selected != 0;
-            },
+            // USER
+            // -----------------------
             
             // send username and password by 'loginUserForum' event
             _loginUser: function() {
@@ -408,14 +400,92 @@ Edit: send id and token
                 return {id: id, token: token};
             },
             
+            // NAVIGATION BAR
+            // -----------------------
+            
+            // go to homepage
+            _goHome: function() {
+                this.subSection = [];
+                this.pageFieldId = undefined;
+                this.previousPageFieldId = undefined;
+                this.$.forumpages.select(0);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // go to previous page
+            _goBack: function() {
+                if(this.trackPage.topic != null && this.pageField != "reply" && 
+                   this.pageField != "editPost" && this.pageField != "editTopic") {
+                    this.trackPage.topic = null;
+                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
+                    this.$.forumpages.select(1);
+                } else if(this.trackPage.topic != null) {
+                    this.pageFieldId = this.trackPage.topic;
+                    this.pageField = "topic";
+                    this._tempTitle = null;
+                    this._tempMessage = null;
+                    this.$.forumpages.select(2);
+                } else if(this.trackPage[0].section.length <= 1 && (this.pageField != "newTopic")) {
+                    this.trackPage[0].section.pop();
+                    this.$.forumpages.select(0);
+                } else if(this.trackPage[0].section.length >= 1) {
+                    if(this.pageField != "newTopic")
+                        this.trackPage[0].section.pop();
+                    else
+                        this.pageField = "section";
+                    this.pageFieldId = this.trackPage[0].section[this.trackPage[0].section.length-1];
+                    this.$.forumpages.select(1);
+                }
+                
+                if(this.$.forumpages.selected == 0) {
+                    this.trackPage[0].section.length = [];
+                    this.pageFieldId = undefined;
+                    this.previousPageFieldId = undefined;
+                }
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // go to edit structure of forum page
+            _goEditForum: function() {
+                this.pageField = "editForum";
+                this._tempArea = this.area;
+                this._tempSection = this.section;
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // SUPPORT FUNCTION
+            // -----------------------
+            
             // filter section to not see subsection
             _checkSubSection: function(sub) {
                 return sub == null || sub == "";
             },
             
-            // filter to see subelements of active element
-            _sectionFilter: function(id1, id2) {  
+            // filter section with id of area
+            _areaFilter: function(id1, id2) {  
                 return id1 == id2;
+            },
+            
+            // filter subsection with id of section
+            _sectionFilter: function(idSection) {
+                return function(section) {
+                    return idSection == section.subsection;
+                };
+            },
+            
+            // filter topics with id of section
+            _topicFilter: function(idSection) {
+                return function(topic) {
+                    return idSection == topic.section;
+                };
+            },
+            
+            // filter posts with id of topic
+            _postFilter: function(idTopic) {
+                return function(post) {
+                    return idTopic == post.topic;
+                };
             },
             
             // show topics of selected section
@@ -431,6 +501,7 @@ Edit: send id and token
                 this.trackPage.topic = e.model.topic.id;
                 this.notifyPath('trackPage.topic');
                 this.pageFieldId = e.model.topic.id;
+                this.topicName = e.model.topic.title;
                 this.$.forumpages.select(2);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -441,13 +512,19 @@ Edit: send id and token
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
-            // SI DEVE AGGIUNGERE IL CASO CHE SIA IL PRIMO POST DEL TOPIC PER VISUALIZZARE ANCHE IL TITOLO
-            // AGGIUNGERE IL COUNT AL TEMPLATE?
+            
+            // 
             _editPost: function(e) {
-                this.pageField = "editPost";
-                this.pageFieldId = e.model.post.id;
-                this._tempTitle = "";
-                this._tempMessage = e.model.post.message;
+                var model = this.$.postList.modelForElement(e.target);
+                if(model.index == 0) {
+                    this.pageField = "editTopic";
+                    this._tempTitle = this.topicName;
+                } else {
+                    this.pageField = "editPost";
+                    this._tempTitle = "";
+                }
+                this.pageFieldId = model.post.id;
+                this._tempMessage = model.post.message;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -475,12 +552,21 @@ Edit: send id and token
                 return element.id == this.pageFieldId;
             },
             
+            // MANAGE RESULT
+            // -----------------------
+            
             // elaborate data received by the 'resultReady' event
             _catchResult: function(data) {
-                this.editEvent = data.detail.result;
-                
-                // Edit message in 'post' array
-                if(this.pageField == "editPost") {
+                var tempPageField = this.pageField;
+
+                // Edit title in 'topic' array and/or message in 'post' array
+                if(this.pageField == "editPost" || this.pageField == "editTopic") {
+                    if(this.pageField == "editTopic") {
+                        data.detail.result.id = this.trackPage.topic;
+                        this.editEvent = data.detail.result;
+                    } else {
+                        this.editEvent = data.detail.result;
+                    }
                     var pos = this.post.findIndex(this._findIndex, this);
                     this.pageFieldId = this.post[pos].topic;
                     this.post[pos].message = this.editEvent.message;
@@ -491,6 +577,7 @@ Edit: send id and token
                     
                 // Add a new record in 'post' array
                 } else if(this.pageField == "reply") {
+                    this.editEvent = data.detail.result;
                     var newid = this.post[this.post.length-1].id + 1;
                     this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: this._userInfo.id});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
@@ -501,6 +588,8 @@ Edit: send id and token
                 // Add a new record in 'topic' and 'post' arrays
                 } else if(this.pageField == "newTopic") {
                     var newid = this.topic[this.topic.length-1].id + 1;
+                    data.detail.result.id = newid;
+                    this.editEvent = data.detail.result;
                     this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open'});
                     this.notifySplices('topic', [{index: (newid - 1), removed: [], addedCount: 1, object: this.topic}]);
                     var newid2 = this.post[this.post.length-1].id + 1;
@@ -509,14 +598,13 @@ Edit: send id and token
                     this.pageField = "section";
                     this.$.forumpages.select(1);
                     this._checkBack = this.$.forumpages.selected != 0;
-                    
+                  
                 // 
                 } else {
                     this.$.forumpages.select(1);
                     this._checkBack = this.$.forumpages.selected != 0;
                 }
-                
-                this.fire('forumEdit');
+                this.fire('forumEdit', {type: tempPageField, auth: this._getCookie()});
             },
             
             // elaborate data received by the 'editArea' event in forum-edit component
@@ -524,11 +612,18 @@ Edit: send id and token
                 this.area = data.detail.result;
                 if(data.detail.type == "newArea") {
                     this.notifySplices('area', [{index: (this.area.length - 1), removed: [], addedCount: 1, object: this.area}]);
+                    this.editEvent = data.detail.result[this.area.length - 1];
+                    
                 } else if(data.detail.type == "editArea") {
                     this.notifyPath('area.' + data.detail.pos + '.title');
+                    this.editEvent = data.detail.result[data.detail.pos];
+                    
                 } else if(data.detail.type == "deleteArea") {
                     this.notifySplices('area', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.area}]);
+                    this.editEvent = data.detail.removed;
                 }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
             },
             
             // elaborate data received by the 'editSection' event in forum-edit component
@@ -537,16 +632,22 @@ Edit: send id and token
                 if(data.detail.type == "newSection") {
                     this.notifySplices('section', [{index: (this.section.length - 1), removed: [], addedCount: 1, 
                                                 object: this.section}]);
+                    this.editEvent = data.detail.result[this.section.length - 1];
+                    
                 } else if(data.detail.type == "editSection") {
                     this.notifyPath('section.' + data.detail.pos + '.title');
                     this.notifyPath('section.' + data.detail.pos + '.description');
                     this.notifyPath('section.' + data.detail.pos + '.area');
                     if(data.detail.oldsub != this.section[data.detail.pos].subsection)
                         this.notifyPath('section.' + data.detail.pos + '.subsection');
+                    this.editEvent = data.detail.result[data.detail.pos];
                       
                 } else if(data.detail.type == "deleteSection") {
                     this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);
+                    this.editEvent = data.detail.removed;
                 }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
             }
 		});
 	</script>

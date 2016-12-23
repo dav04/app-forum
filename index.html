@@ -10,8 +10,10 @@
         
         <script>
             // forumEdit è un evento per ottenere la modifica effettuata
-            document.addEventListener('forumEdit', function() {
-                //alert("Il forum è stato modificato");
+            document.addEventListener('forumEdit', function(data) {
+                alert("Il forum è stato modificato da " + data.detail.auth.id + " - " + data.detail.auth.token + " per " + data.detail.type);
+                var app = document.querySelector('app-forum');
+                alert(JSON.stringify(app.getAttribute('edit-event')));
             });
             
             // loginUserForum è un evento per inviare il login dell'utente e ricevere un token
