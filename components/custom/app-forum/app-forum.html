@@ -552,6 +552,11 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 return element.id == this.pageFieldId;
             },
             
+            // support to find position of an id in an array
+            _findIndex2: function(element) {
+                return element.id == this.trackPage.topic;
+            },
+            
             // MANAGE RESULT
             // -----------------------
             
@@ -564,6 +569,10 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     if(this.pageField == "editTopic") {
                         data.detail.result.id = this.trackPage.topic;
                         this.editEvent = data.detail.result;
+                        var ind = this.topic.findIndex(this._findIndex2, this);
+                        this.topic[ind].title = this.editEvent.title;
+                        this.topicName = this.editEvent.title;
+                        this.notifyPath('topic.' + ind + '.title');
                     } else {
                         this.editEvent = data.detail.result;
                     }
