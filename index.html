@@ -19,7 +19,7 @@
             // loginUserForum è un evento per inviare il login dell'utente e ricevere un token
             document.addEventListener('loginUserForum', function(info) {
                 //alert("L'utente " + info.detail.username + " si è loggato.");
-                var event = new CustomEvent("getToken", {detail: {id: "3", token: "adasfsafa"}});
+                var event = new CustomEvent("getToken", {detail: {id: "1", token: "adasfsafa"}});
                 document.querySelector('app-forum').dispatchEvent(event);
             });
         </script>

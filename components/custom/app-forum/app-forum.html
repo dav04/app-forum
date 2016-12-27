@@ -42,7 +42,7 @@ OUT:
 Type on 'forumEdit':
 - reply                 message / typeid (topic)
 - editPost              message / typeid (post)
-- editTopic             
+- editTopic             id (topic) / title / message / typeid (post)
 - newTopic              id (topic) / title / message / typeid (section)
 - newArea               
 - editArea              
@@ -127,7 +127,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     <template is="dom-if" if="{{_checkBack}}">
                         <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
                     </template>
-                    <template is="dom-if" if="{{_checkUser}}">
+                    <template is="dom-if" if="{{_checkEdit}}">
                         <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
                     </template>
                     
@@ -187,7 +187,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                         <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
                             <forum-post message="{{post.message}}" id="{{post.id}}">
                                 <forum-user info-user={{_findUser(post.user)}}></forum-user>
-                                <template is="dom-if" if="{{_checkUser}}">
+                                <template is="dom-if" if="{{_checkAction}}">
                                     <paper-button on-click="_editPost">
                                         <iron-icon icon="create"></iron-icon>
                                     </paper-button>
@@ -286,22 +286,33 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {id:10, topic: 2, message: "Messaggio Topic 2", user: 4}]
                 },
                 // array with all users of forum
+                // account: 1/admin, 2/mod, 3/user
                 user: {
                     type: Array,
-                    value: [{id:1, nickname: "admin", account: 4, avatar: "images/users/avatar1.jpg"}, 
-                            {id:2, nickname: "dav04", account: 3, avatar: "images/users/avatar2.jpg"},
-                            {id:3, nickname: "poul", account: 2, avatar: "images/users/avatar3.jpg"}, 
-                            {id:4, nickname: "taz", account: 2, avatar: "images/users/avatar4.jpg"}]
+                    value: [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
+                            {id:2, nickname: "dav04", account: 2, avatar: "images/users/avatar2.jpg"},
+                            {id:3, nickname: "poul", account: 3, avatar: "images/users/avatar3.jpg"}, 
+                            {id:4, nickname: "taz", account: 3, avatar: "images/users/avatar4.jpg"}]
                 },
                 // check if user is logged
                 _checkUser: {
                     type: String,
-                    value: false
+                    value: false,
+                    observer: "_checkStatus"
                 },
+                // check if action button have to be visible
+                _checkAction: {
+                    type: Boolean
+                },
+                // check if edit of forum button have to be visible
+                _checkEdit: {
+                    type: Boolean
+                },
+                
                 // information about active user
                 _userInfo: {
                     type: Array,
-                    value: [{id: null, nick: null}]
+                    value: [{id: null, nick: null, account: null}]
                 },
                 // data when an edit event happens inside forum
                 editEvent: {
@@ -345,7 +356,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 if(document.cookie.indexOf('app_forum_user') != -1) {
                     this._userInfo.id = this._getCookie().id;
                     this._userInfo.nick = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].nickname;
+                    this._userInfo.account = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].account;
                     this._checkUser = true;
+                    this._checkEdit = this._userInfo.account == 1;
                 }
             },
             
@@ -378,6 +391,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             _saveIdToken: function(data) {
                 this._checkUser = true;
                 this._userInfo.id = data.detail.id;
+                this._userInfo.account = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].account;
+                this._checkEdit = this._userInfo.account == 1;
                 
                 var d = new Date();
                 d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
@@ -398,6 +413,17 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 var id = document.cookie.substring(15, document.cookie.indexOf('$$'));
                 var token = document.cookie.substring(document.cookie.indexOf('$$')+2);
                 return {id: id, token: token};
+            },
+            
+            // observe status of '_checkUser'
+            _checkStatus: function() {
+                if(!this._checkUser) {
+                    this._checkAction = false;
+                    this._checkEdit = false;
+                } else if(this.trackPage != undefined && this.trackPage.topic != null) {
+                    this._checkAction = this.topic[this.topic.findIndex(this._findId, {id: this.trackPage.topic})].status == 'open';
+                    this._checkEdit = this._userInfo.account == 1;
+                }
             },
             
             // NAVIGATION BAR
@@ -502,6 +528,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this.notifyPath('trackPage.topic');
                 this.pageFieldId = e.model.topic.id;
                 this.topicName = e.model.topic.title;
+                this._checkAction = this._checkUser && (e.model.topic.status == 'open')
                 this.$.forumpages.select(2);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
