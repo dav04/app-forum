@@ -89,8 +89,12 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             }
             .title {
                 padding: 10px;
+                margin-left: auto;
+                margin-right: auto;
                 font-weight: bold;
+                width: 25%;
                 border-bottom: 1px solid var(--forum-secondary-color);
+                border-radius: 5px;
                 text-align: center;
             }
             iron-pages {
@@ -115,6 +119,17 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             }
             .infouser {
                 
+            }
+            .border {
+                margin: 10px;
+                border-left: 5px solid var(--forum-secondary-color);
+                background-color: white;
+            }
+            .border2 {
+                margin: 10px;
+                margin-left: 25px;
+                border-left: 5px solid var(--forum-secondary-color);
+                background-color: white;
             }
 		</style>
 
@@ -172,14 +187,18 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                         <template is="dom-if" if="{{_checkUser}}">
                             <paper-button on-click="_newTopic">New topic</paper-button>
                         </template>
-                        <template is="dom-repeat" items={{section}} as="section" filter="{{_sectionFilter(pageFieldId)}}">
-                            <forum-section name={{section.title}} 
-                                           description={{section.description}}
-                                           on-click="_sectionSelect"></forum-section>
-                        </template>
-                        <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(pageFieldId)}}">
-                                <forum-topic title={{topic.title}} on-click="_topicSelect"></forum-topic>
-                        </template>
+                        <div class="border">
+                            <template is="dom-repeat" items={{section}} as="section" filter="{{_sectionFilter(pageFieldId)}}">
+                                <forum-section name={{section.title}} 
+                                               description={{section.description}}
+                                               on-click="_sectionSelect"></forum-section>
+                            </template>
+                        </div>
+                        <div class="border2">
+                            <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(pageFieldId)}}">
+                                    <forum-topic title={{topic.title}} on-click="_topicSelect"></forum-topic>
+                            </template>
+                        </div>
                     </div>
                     <!-- Page with posts -->
                     <div>

@@ -5,11 +5,19 @@
                 padding: 10px;
                 cursor: pointer;
             }
+            .box {
+                margin-left: 15px;
+            }
+            .description {
+                font-style: oblique;
+            }
 		</style>
-
-		<div>{{name}}</div>
-        <div>{{description}}</div>
-        <content></content>
+        
+        <div class="box">
+            <div>{{name}}</div>
+            <div class="description">{{description}}</div>
+            <content></content>
+        </div>
 	</template>
 
 	<script>

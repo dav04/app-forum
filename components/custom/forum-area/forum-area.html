@@ -5,17 +5,25 @@
                 text-align: left;
             }
             .area {
-                border-bottom: 1px solid #000;
+                
             }
             .title {
                 text-transform: uppercase;
-                padding-bottom: 5px;
+                font-weight: bold;
+                padding: 5px;
+            }
+            .border {
+                margin: 10px;
+                border-left: 5px solid var(--forum-secondary-color);
+                background-color: white;
             }
 		</style>
 
 		<div class="area">
             <div class="title">{{name}}</div>
-            <content></content>
+            <div class="border">
+                <content></content>
+            </div>
         </div>
 	</template>
 
