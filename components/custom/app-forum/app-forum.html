@@ -605,6 +605,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             // show window to reply to a post
             _replyPost: function(e) {
                 this.pageField = "reply";
+                this._tempMessage = "";
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },

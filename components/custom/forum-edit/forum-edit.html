@@ -45,23 +45,42 @@
             .title {
                 font-weight: bold;
             }
-            paper-button {
-                
+            .messageArea {
+                background-color: white;
+                width: 100%;
+            }
+            .formButton {
+                text-align: center;
+            }
+            .actionButton {
+                border: 1px solid black;
+                margin-top: 15px;
             }
 		</style>
-
-		<div>{{type}}</div>
-        <div>{{typeId}}</div>
         
         <!-- Form to insert/edit topic or post -->
         <template is="dom-if" if="{{!_isForumEdit}}">
             <form is="iron-form" id="editForm" method="post">
                 <template is="dom-if" if="{{_isTopic}}">
-                    <div><paper-input name="title" value={{title}} label="Title"></paper-input></div>
+                    <paper-input name="title" value={{title}} label="Title"></paper-input>
                 </template>
-                <div><paper-input name="message" value={{message}} label="Message"></paper-input></div>
+                <input type="hidden" name="message" value={{message}}>
+                <textarea label="Message" rows="20" class="messageArea">{{message}}</textarea>
+                <script>
+                    tinymce.init({ 
+                        target: document.querySelector('textarea'),
+                        menubar: false,
+                        plugins: [
+                            'advlist autolink lists link image charmap print preview anchor',
+                            'searchreplace visualblocks code fullscreen',
+                            'insertdatetime media table contextmenu paste code'
+                        ],
+                        toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist      numlist outdent indent | link image' 
+                    });</script>
                 <input name="typeid" type="hidden" value={{typeId}}>
-                <paper-button on-click="_sendForm">CREA</paper-button>
+                <div class="formButton">
+                    <paper-button on-click="_sendForm" class="actionButton">CREA</paper-button>
+                </div>
             </form>
         </template>
         
@@ -172,7 +191,8 @@
                 // message of a post
 				message: {
 					type: String,
-                    value: ''
+                    value: '',
+                    observer: '_updateMessage'
 				},
                 // list of areas
                 area: {
@@ -192,6 +212,11 @@
             ready: function() {
                 this._tempIdArea = null;
                 this._tempInsert = null;
+            },
+            
+            _trythis: function() {
+                console.log(this.$$('textarea'));
+                tinymce.init({ target: this.$$('textarea') });
             },
             
             behaviors: [
@@ -220,10 +245,22 @@
             // EDITING TOPIC AND POST
             // -----------------------
             
+            //
+            _updateMessage: function() {
+                if(tinymce.activeEditor != null)
+                    if(this.message == null)
+                        tinymce.activeEditor.setContent('');
+                    else
+                        tinymce.activeEditor.setContent(this.message);
+            },
+            
             // submit form of a topic or a post
             _sendForm: function() {
-                this.result = this.$$('#editForm').serialize();
-                this.$$('#editForm').reset();
+                this.message = tinymce.activeEditor.getContent();
+                if(this.$$('#editForm').validate()) {
+                    this.result = this.$$('#editForm').serialize();
+                    this.$$('#editForm').reset();
+                }
             },
             
             // send event 'resultReady' to notify to app-forum component
@@ -442,4 +479,5 @@
             }
 		});
 	</script>
+    <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 </dom-module>

@@ -28,6 +28,7 @@
             <div class="user">
                 <content></content>
             </div>
+            <input id="decodedMessage" type="hidden">
             <div class="message">{{message}}</div>
         </paper-material>
         
@@ -45,9 +46,19 @@
                 // 
 				message: {
 					type: String,
-					value: "Topic message"
+					value: "Topic message",
+                    observer: '_decode'
 				}
-			}
+			},
+            
+            attached: function() {
+                this._decode();
+            },
+            
+            _decode: function() {
+                if(this.$$('.message') != null)
+                    this.$$('.message').innerHTML = this.message;
+            }
 		});
 	</script>
 </dom-module>
