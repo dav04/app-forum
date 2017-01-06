@@ -10,10 +10,21 @@
             }
             .description {
                 font-style: oblique;
+                height: 10px;
+            }
+            .iconsection {
+                float: left;
+                color: var(--forum-secondary-color);
+                margin-right: 15px;
+            }
+            .big {
+                --iron-icon-height: 40px;
+                --iron-icon-width: 40px;
             }
 		</style>
         
         <div class="box">
+            <div class="iconsection"><iron-icon class="big" icon="description"></iron-icon></div>
             <div>{{name}}</div>
             <div class="description">{{description}}</div>
             <content></content>

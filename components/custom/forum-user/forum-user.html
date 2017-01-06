@@ -4,9 +4,23 @@
             :host {
                 
             }
+            .avatar {
+                border-radius: 50px;
+                --iron-icon-height: 40px;
+                --iron-icon-width: 40px;
+            }
+            .nickname {
+                color: black;
+            }
 		</style>
 
-		<div>{{infoUser.nickname}} <img src="{{infoUser.avatar}}" height="50" width="50"></div>
+        <paper-icon-item disabled>
+            <iron-icon src="{{infoUser.avatar}}" class="avatar" item-icon></iron-icon>
+            <paper-item-body two-line>
+                <div class="nickname">{{infoUser.nickname}}</div>
+                <div secondary></div>
+            </paper-item-body>
+        </paper-icon-item>
 	</template>
 
 	<script>

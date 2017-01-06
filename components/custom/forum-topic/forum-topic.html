@@ -8,9 +8,20 @@
             .box {
                 margin-left: 15px;
             }
+            .iconsection {
+                float: left;
+                color: var(--forum-secondary-color);
+                margin-right: 15px;
+                margin-top: -7px;
+            }
+            .big {
+                --iron-icon-height: 40px;
+                --iron-icon-width: 40px;
+            }
 		</style>
         
         <div class="box">
+            <div class="iconsection"><iron-icon class="big" icon="speaker-notes"></iron-icon></div>
             <div>{{title}}</div>
             <content></content>
         </div>
