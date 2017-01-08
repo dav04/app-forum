@@ -18,10 +18,20 @@
                 --iron-icon-height: 40px;
                 --iron-icon-width: 40px;
             }
+            .close {
+                color:red;
+            }
 		</style>
         
         <div class="box">
-            <div class="iconsection"><iron-icon class="big" icon="speaker-notes"></iron-icon></div>
+            <div class="iconsection">
+                <template is="dom-if" if="{{_checkStatus}}">
+                    <iron-icon class="big" title="Topic open" icon="speaker-notes"></iron-icon>
+                </template>
+                <template is="dom-if" if="{{!_checkStatus}}">
+                    <iron-icon class="big close" title="Topic close" icon="speaker-notes"></iron-icon>
+                </template>
+            </div>
             <div>{{title}}</div>
             <content></content>
         </div>
@@ -36,8 +46,20 @@
 				title: {
 					type: String,
 					value: "Forum Topic"
-				}
-			}
+				},
+                status: {
+                    type: String,
+                    observer: '_checkTopic'
+                },
+                _checkStatus: {
+                    type: Boolean
+                }
+			},
+            
+            //
+            _checkTopic: function() {
+                this._checkStatus = this.status == 'open';
+            }
 		});
 	</script>
 </dom-module>

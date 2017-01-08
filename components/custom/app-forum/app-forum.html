@@ -219,7 +219,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                         <div class="border">
                             <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(pageFieldId)}}">
                                 <div class="divider">
-                                    <forum-topic title={{topic.title}} on-click="_topicSelect"></forum-topic>
+                                    <forum-topic title={{topic.title}} status="{{topic.status}}" on-click="_topicSelect"></forum-topic>
                                 </div>
                             </template>
                         </div>
@@ -598,6 +598,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 }
                 this.pageFieldId = model.post.id;
                 this._tempMessage = model.post.message;
+                this.notifyPath('_tempMessage');
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },

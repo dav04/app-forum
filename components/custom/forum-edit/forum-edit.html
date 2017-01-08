@@ -45,6 +45,9 @@
             .title {
                 font-weight: bold;
             }
+            .titleInput {
+                margin-bottom: 15px;
+            }
             .messageArea {
                 background-color: white;
                 width: 100%;
@@ -62,7 +65,7 @@
         <template is="dom-if" if="{{!_isForumEdit}}">
             <form is="iron-form" id="editForm" method="post">
                 <template is="dom-if" if="{{_isTopic}}">
-                    <paper-input name="title" value={{title}} label="Title"></paper-input>
+                    <paper-input name="title" value={{title}} label="Title" class="titleInput" required></paper-input>
                 </template>
                 <input type="hidden" name="message" value={{message}}>
                 <textarea label="Message" rows="20" class="messageArea">{{message}}</textarea>
@@ -76,10 +79,11 @@
                             'insertdatetime media table contextmenu paste code'
                         ],
                         toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist      numlist outdent indent | link image' 
-                    });</script>
+                    });
+                </script>
                 <input name="typeid" type="hidden" value={{typeId}}>
                 <div class="formButton">
-                    <paper-button on-click="_sendForm" class="actionButton">CREA</paper-button>
+                    <paper-button on-click="_sendForm" class="actionButton">{{_textButton}}</paper-button>
                 </div>
             </form>
         </template>
@@ -214,11 +218,6 @@
                 this._tempInsert = null;
             },
             
-            _trythis: function() {
-                console.log(this.$$('textarea'));
-                tinymce.init({ target: this.$$('textarea') });
-            },
-            
             behaviors: [
                 Polymer.IronA11yKeysBehavior
             ],
@@ -240,6 +239,20 @@
             _isNewTopic: function() {
                 this._isForumEdit = this.type == "editForum";
                 this._isTopic = this.type == "newTopic" || this.type == "editTopic";
+                switch(this.type) {
+                    case "newTopic":
+                        this._textButton = "CREATE";
+                        break;
+                    case "editTopic":
+                        this._textButton = "EDIT TOPIC";
+                        break;
+                    case "editPost":
+                        this._textButton = "EDIT POST";
+                        break;
+                    case "reply":
+                        this._textButton = "REPLY";
+                        break;
+                }
             },
             
             // EDITING TOPIC AND POST
@@ -260,6 +273,8 @@
                 if(this.$$('#editForm').validate()) {
                     this.result = this.$$('#editForm').serialize();
                     this.$$('#editForm').reset();
+                    this.title = null;
+                    this.message = null;
                 }
             },
             
