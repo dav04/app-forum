@@ -65,22 +65,10 @@
         <template is="dom-if" if="{{!_isForumEdit}}">
             <form is="iron-form" id="editForm" method="post">
                 <template is="dom-if" if="{{_isTopic}}">
-                    <paper-input name="title" value={{title}} label="Title" class="titleInput" required></paper-input>
+                    <paper-input name="title" value={{title}} label="Title" class="titleInput"></paper-input>
                 </template>
                 <input type="hidden" name="message" value={{message}}>
-                <textarea label="Message" rows="20" class="messageArea">{{message}}</textarea>
-                <script>
-                    tinymce.init({ 
-                        target: document.querySelector('textarea'),
-                        menubar: false,
-                        plugins: [
-                            'advlist autolink lists link image charmap print preview anchor',
-                            'searchreplace visualblocks code fullscreen',
-                            'insertdatetime media table contextmenu paste code'
-                        ],
-                        toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist      numlist outdent indent | link image' 
-                    });
-                </script>
+                <iron-autogrow-textarea label="Message" rows="20" class="messageArea">{{message}}</iron-autogrow-textarea>
                 <input name="typeid" type="hidden" value={{typeId}}>
                 <div class="formButton">
                     <paper-button on-click="_sendForm" class="actionButton">{{_textButton}}</paper-button>
@@ -213,6 +201,10 @@
 				}
 			},
             
+            listeners: {
+                'iron-form-element-register': '_startEditor'
+            },
+            
             ready: function() {
                 this._tempIdArea = null;
                 this._tempInsert = null;
@@ -258,7 +250,21 @@
             // EDITING TOPIC AND POST
             // -----------------------
             
-            //
+            // inizialize text editor
+            _startEditor: function() {
+                tinymce.init({ 
+                    target: document.querySelector('textarea'),
+                    menubar: false,
+                    plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table contextmenu paste code'
+                    ],
+                    toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image' 
+                });
+            },
+            
+            // update message in editor 
             _updateMessage: function() {
                 if(tinymce.activeEditor != null)
                     if(this.message == null)
