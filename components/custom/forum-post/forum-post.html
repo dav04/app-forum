@@ -17,21 +17,49 @@
                 border-right: 1px solid #dbdbdb;
                 padding: 10px;
             }
+            .usermenubut {
+                background-color: white;
+                width: 100%;
+            }
+            .postitem:focus {
+                color: white;
+            }
+            .menuicon {
+                color: black;
+            }
+            .menudrop {
+                padding: 5px;
+                display: flex;
+            }
             .message {
                 background-color: white;
                 width: 100%;
                 padding: 20px;
+                color: black;
             }
 		</style>
-
+        
         <paper-material class="box">
             <div class="user">
-                <content></content>
+                <content select=".user"></content>
             </div>
-            <input id="decodedMessage" type="hidden">
-            <div class="message">{{message}}</div>
+            <div class="usermenubut">
+                <paper-icon-item class="postitem">
+                    <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon" item-icon id="pippo"></iron-icon>
+                    <iron-icon hidden$="{{usermenu}}" item-icon></iron-icon>
+                    <iron-dropdown horizontal-align="left" horizontal-offset="40" vertical-align="top" vertical-offset="-20" id="posteditmenu">
+                        <paper-material class="dropdown-content menuicon menudrop" elevation="0">
+                            <content select=".action"></content>
+                        </paper-material>
+                    </iron-dropdown>
+                        <div class="message">
+                            {{message}}
+                        </div>
+                </paper-icon-item>
+                
+            </div>
+            
         </paper-material>
-        
 	</template>
 
 	<script>
@@ -48,11 +76,21 @@
 					type: String,
 					value: "Topic message",
                     observer: '_decode'
+				},
+                // 
+				usermenu: {
+					type: Boolean,
+					value: false
 				}
 			},
             
             attached: function() {
                 this._decode();
+            },
+            
+            _openmenu: function() {
+                this.$.posteditmenu.positionTarget = this.$.pippo;
+                this.$.posteditmenu.toggle();
             },
             
             _decode: function() {

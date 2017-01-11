@@ -266,11 +266,13 @@
             
             // update message in editor 
             _updateMessage: function() {
-                if(tinymce.activeEditor != null)
+                this.async(function() {
+                    if(tinymce.activeEditor != null)
                     if(this.message == null)
                         tinymce.activeEditor.setContent('');
                     else
                         tinymce.activeEditor.setContent(this.message);
+                });
             },
             
             // submit form of a topic or a post

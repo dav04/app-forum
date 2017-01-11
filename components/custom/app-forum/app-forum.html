@@ -42,6 +42,7 @@ OUT:
 Type on 'forumEdit':
 - reply                 message / typeid (topic)
 - editPost              message / typeid (post)
+- deletePost            
 - editTopic             id (topic) / title / message / typeid (post)
 - newTopic              id (topic) / title / message / typeid (section)
 - newArea               
@@ -132,12 +133,16 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 font-weight: bold;
                 padding: 5px;
             }
+            .action {
+                background-color: var(--forum-secondary-color);
+                margin-right: 20px;
+            }
             .replybutton {
                 float: right;
                 background-color: var(--forum-secondary-color);
                 bottom: 15px;
                 right: 15px;
-                position: absolute;
+                position: relative;
             }
             .editbutton {
                 float: right;
@@ -228,13 +233,15 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     <div>
                         <div class="topicTitle">{{topicName}}</div>
                         <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
-                            <forum-post message="{{post.message}}" id="{{post.id}}">
-                                <forum-user info-user={{_findUser(post.user)}}></forum-user>
+                            <forum-post message="{{post.message}}" id="{{post.id}}" hidden$="{{_checkEditUser(post.user)}}">
+                                <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
                             </forum-post>
-                            <template is="dom-if" if="{{_checkEditUser(post.user)}}">
-                                <paper-fab icon="create" title="Edit post" on-click="_editPost" class="editbutton" mini>
-                                </paper-fab>
-                            </template>
+                            
+                            <forum-post message="{{post.message}}" id="{{post.id}}" usermenu hidden$="{{!_checkEditUser(post.user)}}">
+                                <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
+                                <paper-fab icon="create" title="Edit post" on-click="_editPost" class="action"></paper-fab>
+                                <paper-fab icon="delete" title="Delete post" on-click="_deletePost" class="action"></paper-fab>
+                            </forum-post>
                         </template>
                         <template is="dom-if" if="{{_checkAction}}">
                             <paper-fab icon="reply" title="Reply" on-click="_replyPost" class="replybutton"></paper-fab>
@@ -548,7 +555,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 };
             },
             
-            // filter posts with id of topic
+            // filter posts with id of topic        RISOLVERE BUG DELETE-REPLY POST!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             _postFilter: function(idTopic) {
                 return function(post) {
                     return idTopic == post.topic;
@@ -603,6 +610,16 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
+            //
+            _deletePost: function(e) {
+                var model = this.$.postList.modelForElement(e.target);
+                var pos = this.post.findIndex(this._findId, model.post);
+                var tempPost = this.splice('post', pos, 1);
+                this.notifySplices('post', [{index: pos, removed: [tempPost], addedCount: 0, object: this.post}]);
+                this.editEvent = tempPost;
+                this.fire('forumEdit', {type: "deletePost", auth: this._getCookie()});
+            },
+            
             // show window to reply to a post
             _replyPost: function(e) {
                 this.pageField = "reply";
@@ -618,7 +635,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             },
             
             // support to find position of an id in an array
-            _findId: function(element, index, array) {
+            _findId: function(element) {
                 return element.id == this.id;
             },
             
