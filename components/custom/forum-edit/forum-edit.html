@@ -129,8 +129,10 @@
                     <div class="title">{{_tempDescInsert}}</div>
                     <form is="iron-form" id="editForm2" method="post">
                         <paper-input name="name" value={{_name}} label="Name" required></paper-input>
-                        <div class="toggleBox">
-                            <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">Only for admin</paper-toggle-button>
+                        <div class="toggleBox" hidden$="{{_checkSection}}">
+                            <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">
+                                Only for admin
+                            </paper-toggle-button>
                         </div>
                         <template is="dom-if" if="{{_checkSection}}">
                             <paper-input name="description" value={{_description}} label="Description" required hidden$="{{!_checkSection}}"></paper-input>
@@ -159,7 +161,7 @@
                                     </template>
                                     <paper-item name="null" on-click="_insertSelectedSection">none</paper-item>
                                     <template is="dom-repeat" items={{section}} as="section" 
-                                              filter="{{computeFilter6(_tempIdArea, typeId, _sectionSub)}}">
+                                              filter="{{computeFilter6(_idarea, typeId, _sectionSub)}}">
                                         <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
                                     </template>
                                 </paper-listbox>

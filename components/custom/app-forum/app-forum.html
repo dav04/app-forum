@@ -403,11 +403,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 
                 if(document.cookie.indexOf('app_forum_user') != -1) {
                     this._userInfo.id = this._getCookie().id;
-                    this._userInfo.nick = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].nickname;
-                    this._userInfo.account = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].account;
-                    this.notifyPath('_userInfo.0.id');
-                    this.notifyPath('_userInfo.0.nick');
-                    this.notifyPath('_userInfo.0.account');
+                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                    this._userInfo.nick = this.user[pos].nickname;
+                    this._userInfo.account = this.user[pos].account;
                     this._checkUser = true;
                     this._checkEdit = this._userInfo.account == 1;
                 }
