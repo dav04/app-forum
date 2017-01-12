@@ -7,7 +7,7 @@
             .box {
                 height: auto;
                 background-color: #fff;
-                border: 1px solid #000;
+                border: 1px solid var(--forum-secondary-color);;
                 padding: 10px;
                 margin: 20px;
                 float: left;
@@ -31,6 +31,17 @@
             }
             iron-icon {
                 cursor: pointer;
+            }
+            .toggleBox {
+                margin-left: auto;
+                margin-right: auto;
+                width: 160px;
+            }
+            .toggleButton {
+                margin: 5px;
+                --paper-toggle-button-checked-bar-color:  var(--forum-secondary-color);
+                --paper-toggle-button-checked-button-color:  var(--forum-secondary-color);
+                --paper-toggle-button-checked-ink-color: var(--forum-secondary-color);
             }
             .addButton {
                 margin-top: 20px;
@@ -57,6 +68,11 @@
             }
             .actionButton {
                 border: 1px solid black;
+                margin-top: 15px;
+            }
+            .insertButton {
+                background-color: var(--forum-secondary-color);
+                color: white;
                 margin-top: 15px;
             }
 		</style>
@@ -113,8 +129,12 @@
                     <div class="title">{{_tempDescInsert}}</div>
                     <form is="iron-form" id="editForm2" method="post">
                         <paper-input name="name" value={{_name}} label="Name" required></paper-input>
+                        <div class="toggleBox">
+                            <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">Only for admin</paper-toggle-button>
+                        </div>
                         <template is="dom-if" if="{{_checkSection}}">
-                            <paper-input name="description" value={{_description}} label="Description" required></paper-input>
+                            <paper-input name="description" value={{_description}} label="Description" required hidden$="{{!_checkSection}}"></paper-input>
+                            <paper-input name="description" value={{_description}} label="Description" hidden$="{{_checkSection}}"></paper-input>
                             
                             <paper-dropdown-menu label="Area" selected-item="{{selectedArea}}" 
                                                  vertical-align="top" horizontal-align="left" 
@@ -146,7 +166,7 @@
                             </paper-dropdown-menu>
                             <input type="hidden" name="subsection" value={{_subsection}}>
                         </template>
-                        <paper-button on-click="_insertArSe">Insert</paper-button>
+                        <paper-button on-click="_insertArSe" class="insertButton">Insert</paper-button>
                     </form>
                 </div>
             </template>
@@ -364,6 +384,7 @@
             _editArea: function(e) {
                 this._tempInsert = true;
                 this._name = e.model.area.title;
+                this._checkToggle = e.model.area.priv == 1;
                 this._tempAddField = "editArea";
                 this.typeId = e.model.area.id;
                 this._checkSection = this._tempAddField == "editSection";
@@ -457,6 +478,9 @@
                 if(this.$$('#editForm2').validate()) {
                     var newField = this.$$('#editForm2').serialize();
                     var name = newField.name;
+                    var privilege = 0;
+                    if(newField.privilege != undefined)
+                        var privilege = 1;
                     var description = newField.description;
                     var area = newField.idarea;
                     var subsection = newField.subsection;
@@ -465,7 +489,7 @@
                             var newid = this.area[this.area.length-1].id + 1;
                         else
                             var newid = 1;
-                        this.area.push({id:newid, title: name});
+                        this.area.push({id:newid, title: name, priv: privilege});
                         this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
                         this.fire('editArea', {type: "newArea", result: this.area});
 
@@ -479,6 +503,7 @@
                     } else if(this._tempAddField == "editArea") {
                         var pos = this.area.findIndex(this._findIndex, this);
                         this.area[pos].title = name;
+                        this.area[pos].priv = privilege;
                         this.notifyPath('area.' + pos + '.title');
                         this.fire('editArea', {type: "editArea", pos: pos, result: this.area});
 

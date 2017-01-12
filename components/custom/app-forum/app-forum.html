@@ -189,7 +189,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 <iron-pages id="forumpages" selected="0">
                     <!-- Page with areas and sections -->
                     <div>
-                        <template id="forumarea" is="dom-repeat" items={{area}} as="area">
+                        <template id="forumarea" is="dom-repeat" items={{area}} as="area" filter="{{_checkPrivilege(_userInfo)}}">
                             <forum-area name={{area.title}}>
                                 <template id="forumsection" is="dom-repeat" items={{section}} as="section">
                                     <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
@@ -294,7 +294,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // array with all areas of forum
                 area: {
                     type: Array,
-                    value: [{id:1, title: "Area 1"}, {id:2, title: "Area 2"}]
+                    value: [{id:1, title: "Area 1", priv: 0}, {id:2, title: "Area 2", priv: 0}, {id:3, title: "Area 3", priv: 1}]
                 },
                 // array with all sections of forum
                 section: {
@@ -405,6 +405,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     this._userInfo.id = this._getCookie().id;
                     this._userInfo.nick = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].nickname;
                     this._userInfo.account = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].account;
+                    this.notifyPath('_userInfo.0.id');
+                    this.notifyPath('_userInfo.0.nick');
+                    this.notifyPath('_userInfo.0.account');
                     this._checkUser = true;
                     this._checkEdit = this._userInfo.account == 1;
                 }
@@ -446,6 +449,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
                 var expires = "expires="+ d.toUTCString();
                 document.cookie = "app_forum_user=" + data.detail.id + "$$" + data.detail.token + ";" + expires + "; path=/";
+                
+                this.$.forumarea.render();
             },
             
             // logout user and delete relative cookie
@@ -453,7 +458,11 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this._checkUser = false;
                 this._userInfo.id = null;
                 this._userInfo.nick = null;
+                this._userInfo.account = null;
+                this.notifyPath('area');
                 document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+                
+                this.$.forumarea.render();
             },
             
             // return id and token of user
@@ -530,6 +539,16 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             
             // SUPPORT FUNCTION
             // -----------------------
+            
+            // check privilege to view an area
+            _checkPrivilege: function(user) {
+                return function(area) {
+                    if(user.account == 1)
+                        return true;
+                    else
+                        return area.priv != 1;
+                }
+            },
             
             // filter section to not see subsection
             _checkSubSection: function(sub) {
@@ -714,7 +733,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 if(data.detail.type == "newArea") {
                     this.notifySplices('area', [{index: (this.area.length - 1), removed: [], addedCount: 1, object: this.area}]);
                     this.editEvent = data.detail.result[this.area.length - 1];
-                    
+                    this.$.forumarea.render();
                 } else if(data.detail.type == "editArea") {
                     this.notifyPath('area.' + data.detail.pos + '.title');
                     this.editEvent = data.detail.result[data.detail.pos];
