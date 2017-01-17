@@ -15,7 +15,7 @@
                 text-align: center;
                 float: left;
                 border-right: 1px solid #dbdbdb;
-                padding: 10px;
+                padding: 15px;
             }
             .usermenubut {
                 background-color: white;
@@ -45,7 +45,8 @@
             </div>
             <div class="usermenubut">
                 <paper-icon-item class="postitem">
-                    <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon" item-icon id="pippo"></iron-icon>
+                    <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon" item-icon id="menuVert">
+                    </iron-icon>
                     <iron-icon hidden$="{{usermenu}}" item-icon></iron-icon>
                     <iron-dropdown horizontal-align="left" horizontal-offset="40" 
                                    vertical-align="top" vertical-offset="-20" id="posteditmenu">
@@ -90,7 +91,7 @@
             },
             
             _openmenu: function() {
-                this.$.posteditmenu.positionTarget = this.$.pippo;
+                this.$.posteditmenu.positionTarget = this.$.menuVert;
                 this.$.posteditmenu.toggle();
             },
             

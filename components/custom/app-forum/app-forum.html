@@ -277,7 +277,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
 				// title on top of forum
 				title: {
 					type: String,
-					value: "Test app forum"
+					value: "App forum"
 				},
                 // main color of forum
                 primaryColor: {
@@ -608,9 +608,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
-            // check if user post is equal to active user
+            // check if user post is equal to active user or admin
             _checkEditUser: function(user) {
-                return this._userInfo.id == user;
+                return this._userInfo.id == user || this._userInfo.account == 1;
             },
             
             // show window to edit a post
@@ -630,7 +630,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this._checkBack = this.$.forumpages.selected != 0;
             },
             
-            //
+            // delete selected post
             _deletePost: function(e) {
                 var model = this.$.postList.modelForElement(e.target);
                 var pos = this.post.findIndex(this._findId, model.post);
@@ -659,16 +659,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 return element.id == this.id;
             },
             
-            // support to find position of an id in an array
-            _findIndex: function(element) {
-                return element.id == this.pageFieldId;
-            },
-            
-            // support to find position of an id in an array
-            _findIndex2: function(element) {
-                return element.id == this.trackPage.topic;
-            },
-            
             // MANAGE RESULT
             // -----------------------
             
@@ -681,14 +671,14 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     if(this.pageField == "editTopic") {
                         data.detail.result.id = this.trackPage.topic;
                         this.editEvent = data.detail.result;
-                        var ind = this.topic.findIndex(this._findIndex2, this);
+                        var ind = this.topic.findIndex(this._findId, {id: this.trackPage.topic});
                         this.topic[ind].title = this.editEvent.title;
                         this.topicName = this.editEvent.title;
                         this.notifyPath('topic.' + ind + '.title');
                     } else {
                         this.editEvent = data.detail.result;
                     }
-                    var pos = this.post.findIndex(this._findIndex, this);
+                    var pos = this.post.findIndex(this._findId, {id: this.pageFieldId});
                     this.pageFieldId = this.post[pos].topic;
                     this.post[pos].message = this.editEvent.message;
                     this.notifyPath('post.' + pos + '.message');
@@ -779,7 +769,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     this.notifyPath('topic.' + data.detail.pos + '.title');
                     this.notifyPath('topic.' + data.detail.pos + '.section');
                     this.notifyPath('topic.' + data.detail.pos + '.status');
-                    console.log(this.topic[data.detail.pos]);
                     this.editEvent = this.topic[data.detail.pos];
                     
                 } else if(data.detail.type == "deleteTopic") {
