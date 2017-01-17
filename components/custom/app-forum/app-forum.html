@@ -254,7 +254,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                                     title={{_tempTitle}} 
                                     message={{_tempMessage}}
                                     area={{_tempArea}}
-                                    section={{_tempSection}}>
+                                    section={{_tempSection}}
+                                    topic={{_tempTopic}}>
                         </forum-edit>
                     </div>
                     <!-- Page to edit forum parameters -->
@@ -394,7 +395,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 'getToken':     '_saveIdToken',
                 'resultReady':  '_catchResult',
                 'editArea' :    '_catchArea',
-                'editSection' : '_catchSection'
+                'editSection' : '_catchSection',
+                'editTopic' :   '_catchTopic'
             },
             
             ready: function() {
@@ -531,6 +533,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this.pageField = "editForum";
                 this._tempArea = this.area;
                 this._tempSection = this.section;
+                this._tempTopic = this.topic;
                 this.$.forumpages.select(3);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
@@ -762,6 +765,25 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                       
                 } else if(data.detail.type == "deleteSection") {
                     this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);
+                    this.editEvent = data.detail.removed;
+                }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
+            },
+            
+            // elaborate data received by the 'editArea' event in forum-edit component
+            _catchTopic: function(data) {
+                this.editEvent = null;
+                this.topic = data.detail.result;
+                if(data.detail.type == "editTopic") {
+                    this.notifyPath('topic.' + data.detail.pos + '.title');
+                    this.notifyPath('topic.' + data.detail.pos + '.section');
+                    this.notifyPath('topic.' + data.detail.pos + '.status');
+                    console.log(this.topic[data.detail.pos]);
+                    this.editEvent = this.topic[data.detail.pos];
+                    
+                } else if(data.detail.type == "deleteTopic") {
+                    this.notifySplices('topic', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.topic}]);
                     this.editEvent = data.detail.removed;
                 }
                 
