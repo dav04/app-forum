@@ -477,7 +477,7 @@
                 this.typeId = e.model.area.id;
                 var pos = this.area.findIndex(this._findId, {id: this.typeId});
                 var tempArea = this.splice('area', pos, 1);
-                this.notifySplices('area', [{index: pos, removed: [tempArea], addedCount: 0, object: this.area}]);
+                //this.notifySplices('area', [{index: pos, removed: [tempArea], addedCount: 0, object: this.area}]);
                 this._tempIdArea = null;
                 this.fire('editArea', {type: "deleteArea", pos: pos, removed: tempArea, result: this.area});
             },

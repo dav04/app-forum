@@ -80,7 +80,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 text-align: left;
                 font-family: 'Roboto', sans-serif;
             }
-            paper-material {
+            .forumBox {
                 display: inline-block;
                 width: 100%;
                 height: auto;
@@ -91,9 +91,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             paper-toolbar {
                 background-color: var(--forum-secondary-color);
                 color: white;
-            }
-            .title {
-                text-align: center;
             }
             iron-pages {
                 padding: 20px;
@@ -152,10 +149,29 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 margin-top: -45px;
                 margin-right: 5px;
             }
+            
+            @media (max-width: 800px) {
+                .userMenuBox {
+                    background: white;
+                    color: black;
+                    width: 250px;
+                    height: 170px;
+                    padding: 10px;
+                }
+                .logininput {
+                    width: 150px;
+                    float: none;
+                    margin-left: auto;
+                    margin-right: auto;
+                    --paper-input-container-color: black;
+                    --paper-input-container-focus-color: var(--forum-secondary-color);
+                    --paper-input-container-input-color: black;
+                }
+            }
 		</style>
 
 		<div>
-			<paper-material elevation="2">
+			<paper-material class="forumBox" elevation="2">
                 <paper-toolbar>
                     <!-- Navigation bar -->
                     <div class="navbutton">
@@ -169,7 +185,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     </div>
                     <span class="title">{{title}}</span>
                     <!-- User bar -->
-                    <div class="loginbar">
+                    <div class="loginbar" hidden$="{{smallScreen}}">
                         <template is="dom-if" if="{{!_checkUser}}">
                             <form is="iron-form" id="loginForm" method="post">
                                 <paper-input name="username" label="Username" class="logininput" no-label-float></paper-input>
@@ -181,8 +197,28 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {{_userInfo.nick}}
                             <iron-icon icon="account-circle"></iron-icon>
                             <iron-icon icon="exit-to-app" on-click="_logoutUser"></iron-icon>
-                            
                         </template>
+                    </div>
+                    <div class="loginbar" hidden$="{{!smallScreen}}">
+                        <iron-icon icon="account-circle" on-click="_userMenu" id="avatarmenu"></iron-icon>
+                        <iron-dropdown horizontal-align="right" vertical-align="bottom" 
+                                       vertical-offset="-190" horizontal-offset="-15" id="usermenu"
+                                       entry-animation="scale-down-animation" exit-animation="scale-up-animation" allow-outside-scroll>
+                            <paper-material class="dropdown-content userMenuBox" elevation="2">
+                                <template is="dom-if" if="{{!_checkUser}}">
+                                    <form is="iron-form" id="loginForm" method="post">
+                                        <paper-input name="username" label="Username" class="logininput" no-label-float></paper-input>
+                                        <paper-input name="password" label="Password" class="logininput" no-label-float></paper-input>
+                                        <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
+                                    </form>
+                                </template>
+                                <template is="dom-if" if="{{_checkUser}}">
+                                    {{_userInfo.nick}}
+                                    <iron-icon icon="account-circle"></iron-icon>
+                                    <iron-icon icon="exit-to-app" on-click="_logoutUser"></iron-icon>
+                                </template>
+                            </paper-material>
+                        </iron-dropdown>
                     </div>
                 </paper-toolbar>
                 
@@ -232,6 +268,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     <!-- Page with posts -->
                     <div>
                         <div class="topicTitle">{{topicName}}</div>
+                        
                         <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
                             <forum-post message="{{post.message}}" id="{{post.id}}" hidden$="{{_checkEditUser(post.user)}}">
                                 <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
@@ -258,14 +295,12 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                                     topic={{_tempTopic}}>
                         </forum-edit>
                     </div>
-                    <!-- Page to edit forum parameters -->
-                    <div>
-                        
-                    </div>
                 </iron-pages>
                 
 				<content></content>
 			</paper-material>
+            
+            <iron-media-query query="(max-width: 800px)" query-matches="{{smallScreen}}"></iron-media-query>
 		</div>
 	</template>
 
@@ -388,8 +423,19 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // check to view or not back button
                 _checkBack: {
                     type: Boolean
-                }
+                },
+                animationConfig: {
+                    type: Object,
+                    value: function() {
+                      return {
+                        name: 'scale-down-animation',
+                        node: this
+                      }
+                    }
+                  }
 			},
+            
+            behaviors: [Polymer.NeonAnimationRunnerBehavior],
             
             listeners: {
                 'getToken':     '_saveIdToken',
@@ -398,7 +444,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 'editSection' : '_catchSection',
                 'editTopic' :   '_catchTopic'
             },
-            
+                  
             ready: function() {
                 this._change_primary();
                 this._change_secondary();
@@ -481,6 +527,11 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     this._checkAction = this.topic[this.topic.findIndex(this._findId, {id: this.trackPage.topic})].status == 'open';
                     this._checkEdit = this._userInfo.account == 1;
                 }
+            },
+            
+            _userMenu: function() {
+                this.$.usermenu.positionTarget = this.$.avatarmenu;
+                this.$.usermenu.toggle();
             },
             
             // NAVIGATION BAR
@@ -578,7 +629,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             // filter posts with id of topic        RISOLVERE BUG DELETE-REPLY POST!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             _postFilter: function(idTopic) {
                 return function(post) {
-                    return idTopic == post.topic;
+                    if(post != undefined)
+                        return idTopic == post.topic;
                 };
             },
             
@@ -635,7 +687,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 var model = this.$.postList.modelForElement(e.target);
                 var pos = this.post.findIndex(this._findId, model.post);
                 var tempPost = this.splice('post', pos, 1);
-                this.notifySplices('post', [{index: pos, removed: [tempPost], addedCount: 0, object: this.post}]);
+                //this.notifySplices('post', [{index: pos, removed: [tempPost], addedCount: 0, object: this.post}]);
                 this.editEvent = tempPost;
                 this.fire('forumEdit', {type: "deletePost", auth: this._getCookie()});
             },

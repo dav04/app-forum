@@ -17,11 +17,11 @@
                 border-right: 1px solid #dbdbdb;
                 padding: 15px;
             }
-            .usermenubut {
+            .postItem {
                 background-color: white;
                 width: 100%;
             }
-            .postitem:focus {
+            .postItem:focus {
                 color: white;
             }
             .menuicon {
@@ -43,24 +43,20 @@
             <div class="user">
                 <content select=".user"></content>
             </div>
-            <div class="usermenubut">
-                <paper-icon-item class="postitem">
-                    <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon" item-icon id="menuVert">
-                    </iron-icon>
-                    <iron-icon hidden$="{{usermenu}}" item-icon></iron-icon>
-                    <iron-dropdown horizontal-align="left" horizontal-offset="40" 
-                                   vertical-align="top" vertical-offset="-20" id="posteditmenu">
-                        <paper-material class="dropdown-content menuicon menudrop" elevation="0">
-                            <content select=".action"></content>
-                        </paper-material>
-                    </iron-dropdown>
-                        <div class="message">
-                            {{message}}
-                        </div>
-                </paper-icon-item>
-                
-            </div>
-            
+            <paper-icon-item class="postItem">
+                <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon" item-icon id="menuVert">
+                </iron-icon>
+                <iron-icon hidden$="{{usermenu}}" item-icon></iron-icon>
+                <iron-dropdown horizontal-align="left" horizontal-offset="40" 
+                               vertical-align="top" vertical-offset="-20" id="posteditmenu">
+                    <paper-material class="dropdown-content menuicon menudrop" elevation="0">
+                        <content select=".action"></content>
+                    </paper-material>
+                </iron-dropdown>
+                    <div class="message">
+                        {{message}}
+                    </div>
+            </paper-icon-item>
         </paper-material>
 	</template>
 
