@@ -12,15 +12,22 @@
             .nickname {
                 color: black;
             }
+            .userSmart {
+                color: red;
+                font-size: 12;
+                font-weight: bold;
+            }
 		</style>
 
-        <paper-icon-item disabled>
+        <paper-icon-item disabled hidden$="{{smart}}">
             <iron-icon src="{{infoUser.avatar}}" class="avatar" item-icon></iron-icon>
             <paper-item-body two-line>
                 <div class="nickname">{{infoUser.nickname}}</div>
                 <div secondary></div>
             </paper-item-body>
         </paper-icon-item>
+        
+        <span hidden$="{{!smart}}" class="userSmart">{{infoUser.nickname}}</span>
 	</template>
 
 	<script>
@@ -48,6 +55,10 @@
 				avatar: {
 					type: String
 				},
+                smart: {
+                    type: Boolean,
+					value: false
+                }
 			},
             
             ready: function() {

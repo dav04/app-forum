@@ -21,6 +21,12 @@
             .close {
                 color:red;
             }
+            .date {
+                float: right;
+                font-size: 10;
+                color: #828282;
+                margin-right: 10px;
+            }
 		</style>
         
         <div class="box">
@@ -32,7 +38,9 @@
                     <iron-icon class="big close" title="Topic close" icon="speaker-notes"></iron-icon>
                 </template>
             </div>
+            <div class="date">{{_formatDate}}</div>
             <div>{{title}}</div>
+            
             <content></content>
         </div>
 	</template>
@@ -51,12 +59,24 @@
                     type: String,
                     observer: '_checkTopic'
                 },
+                date: {
+                    type: String,
+                    observer: '_format'
+                },
                 _checkStatus: {
                     type: Boolean
                 }
 			},
             
-            //
+            _format: function() {
+                var date = new Date(this.date);
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                
+                this._formatDate = date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear() + " " + hours + ":" + minutes;
+            },
+            
+            // check if topic is opened or closed
             _checkTopic: function() {
                 this._checkStatus = this.status == 'open';
             }

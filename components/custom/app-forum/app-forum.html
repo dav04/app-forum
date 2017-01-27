@@ -283,7 +283,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                         <div class="border">
                             <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(pageFieldId)}}">
                                 <div class="divider">
-                                    <forum-topic title={{topic.title}} status="{{topic.status}}" on-click="_topicSelect"></forum-topic>
+                                    <forum-topic title={{topic.title}} date="{{topic.date}}" status="{{topic.status}}" 
+                                                 on-click="_topicSelect"></forum-topic>
                                 </div>
                             </template>
                         </div>
@@ -293,12 +294,13 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                         <div class="topicTitle">{{topicName}}</div>
                         
                         <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
-                            <forum-post message="{{post.message}}" id="{{post.id}}" hidden$="{{_checkEditUser(post.user)}}">
+                            <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" hidden$="{{_checkEditUser(post.user)}}">
                                 <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
                             </forum-post>
                             
-                            <forum-post message="{{post.message}}" id="{{post.id}}" usermenu hidden$="{{!_checkEditUser(post.user)}}">
+                            <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" usermenu hidden$="{{!_checkEditUser(post.user)}}">
                                 <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
+                                <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
                                 <paper-fab icon="create" title="Edit post" on-click="_editPost" class="action"></paper-fab>
                                 <paper-fab icon="delete" title="Delete post" on-click="_deletePost" class="action"></paper-fab>
                             </forum-post>
@@ -369,30 +371,30 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // array with all topics of forum
                 topic: {
                     type: Array,
-                    value: [{id:1, section: 3, title: "Topic 1", status: "open"}, 
-                            {id:2, section: 1, title: "Topic 2", status: "close"},
-                            {id:3, section: 4, title: "Topic 3", status: "open"}, 
-                            {id:4, section: 1, title: "Topic 4", status: "open"},
-                            {id:5, section: 1, title: "Topic 5", status: "open"}, 
-                            {id:6, section: 4, title: "Topic 6", status: "open"},
-                            {id:7, section: 3, title: "Topic 7", status: "open"}, 
-                            {id:8, section: 2, title: "Topic 8", status: "close"},
-                            {id:9, section: 5, title: "Topic 9", status: "open"}, 
-                            {id:10, section: 2, title: "Topic 10", status: "close"}]
+                    value: [{id:1, section: 3, title: "Topic 1", status: "open", date: "2017-01-01 00:15:27"}, 
+                            {id:2, section: 1, title: "Topic 2", status: "close", date: "2017-01-11 16:01:00"},
+                            {id:3, section: 4, title: "Topic 3", status: "open", date: "2017-01-12 00:00:00"}, 
+                            {id:4, section: 1, title: "Topic 4", status: "open", date: "2017-01-15 00:00:00"},
+                            {id:5, section: 1, title: "Topic 5", status: "open", date: "2017-01-17 00:00:00"}, 
+                            {id:6, section: 4, title: "Topic 6", status: "open", date: "2017-01-21 00:00:00"},
+                            {id:7, section: 3, title: "Topic 7", status: "open", date: "2017-01-22 00:00:00"}, 
+                            {id:8, section: 2, title: "Topic 8", status: "close", date: "2017-02-03 00:00:00"},
+                            {id:9, section: 5, title: "Topic 9", status: "open", date: "2017-02-04 00:00:00"}, 
+                            {id:10, section: 2, title: "Topic 10", status: "close", date: "2017-02-05 00:00:00"}]
                 },
                 // array with all posts of forum
                 post: {
                     type: Array,
-                    value: [{id:1, topic: 3, message: "Messaggio Topic 3", user: 1}, 
-                            {id:2, topic: 1, message: "Messaggio Topic 1", user: 3},
-                            {id:3, topic: 4, message: "Messaggio Topic 4", user: 4}, 
-                            {id:4, topic: 1, message: "Messaggio Topic 1", user: 2},
-                            {id:5, topic: 9, message: "Messaggio Topic 9", user: 1}, 
-                            {id:6, topic: 4, message: "Messaggio Topic 4", user: 1},
-                            {id:7, topic: 3, message: "Messaggio Topic 3", user: 2}, 
-                            {id:8, topic: 2, message: "Messaggio Topic 2", user: 3},
-                            {id:9, topic: 1, message: "Messaggio Topic 1", user: 4}, 
-                            {id:10, topic: 2, message: "Messaggio Topic 2", user: 4}]
+                    value: [{id:1, topic: 3, message: "Messaggio Topic 3", user: 1, date: "2017-01-12 00:00:00"}, 
+                            {id:2, topic: 1, message: "Messaggio Topic 1", user: 3, date: "2017-01-01 00:15:27"},
+                            {id:3, topic: 4, message: "Messaggio Topic 4", user: 4, date: "2017-01-01 00:00:00"}, 
+                            {id:4, topic: 1, message: "Messaggio Topic 1", user: 2, date: "2017-01-02 09:15:27"},
+                            {id:5, topic: 9, message: "Messaggio Topic 9", user: 1, date: "2017-01-01 00:00:00"}, 
+                            {id:6, topic: 4, message: "Messaggio Topic 4", user: 1, date: "2017-01-01 00:00:00"},
+                            {id:7, topic: 3, message: "Messaggio Topic 3", user: 2, date: "2017-01-15 00:00:00"}, 
+                            {id:8, topic: 2, message: "Messaggio Topic 2", user: 3, date: "2017-01-11 16:01:00"},
+                            {id:9, topic: 1, message: "Messaggio Topic 1", user: 4, date: "2017-01-02 10:45:54"}, 
+                            {id:10, topic: 2, message: "Messaggio Topic 2", user: 4, date: "2017-01-13 22:11:07"}]
                 },
                 // array with all users of forum
                 // account: 1/admin, 2/mod, 3/user
@@ -401,7 +403,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     value: [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
                             {id:2, nickname: "dav04", account: 2, avatar: "images/users/avatar2.jpg"},
                             {id:3, nickname: "poul", account: 3, avatar: "images/users/avatar3.jpg"}, 
-                            {id:4, nickname: "taz", account: 3, avatar: "images/users/avatar4.jpg"}]
+                            {id:4, nickname: "supervegetto86", account: 3, avatar: "images/users/avatar4.jpg"}]
                 },
                 // check if user is logged
                 _checkUser: {
@@ -746,12 +748,28 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 return element.id == this.id;
             },
             
+            // 
+            _formatDate: function(date, type) {
+                var m = date.getMonth()+1;
+                var month = m < 10 ? "0" + m : m; // to avoid '001'
+                var day = date.getDate()+1 < 10 ? "0" + date.getDate() : date.getDate();
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                
+                if(type == "DB")
+                    return date.getFullYear() + "-" + month + "-" + day + " " + hours + ":" + minutes;
+                else if(type == "VIEW")
+                    return month + "/" + day + "/" + date.getFullYear() + " " + hours + ":" + minutes;
+            },
+            
             // MANAGE RESULT
             // -----------------------
             
             // elaborate data received by the 'resultReady' event
             _catchResult: function(data) {
                 var tempPageField = this.pageField;
+                var date = new Date();
 
                 // Edit title in 'topic' array and/or message in 'post' array
                 if(this.pageField == "editPost" || this.pageField == "editTopic") {
@@ -768,7 +786,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     var pos = this.post.findIndex(this._findId, {id: this.pageFieldId});
                     this.pageFieldId = this.post[pos].topic;
                     this.post[pos].message = this.editEvent.message;
+                    this.post[pos].date = this._formatDate(date, "DB");
                     this.notifyPath('post.' + pos + '.message');
+                    this.notifyPath('post.' + pos + '.date');
                     this.pageField = "topic";
                     this.$.forumpages.select(2);
                     this._checkBack = this.$.forumpages.selected != 0;
@@ -777,7 +797,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 } else if(this.pageField == "reply") {
                     this.editEvent = data.detail.result;
                     var newid = this.post[this.post.length-1].id + 1;
-                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, user: this._userInfo.id});
+                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, 
+                                    user: this._userInfo.id, date: this._formatDate(date, "DB")});
                     this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "topic";
                     this.$.forumpages.select(2);
@@ -788,10 +809,12 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     var newid = this.topic[this.topic.length-1].id + 1;
                     data.detail.result.id = newid;
                     this.editEvent = data.detail.result;
-                    this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open'});
+                    this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open',
+                                    date: this._formatDate(date, "DB")});
                     this.notifySplices('topic', [{index: (newid - 1), removed: [], addedCount: 1, object: this.topic}]);
                     var newid2 = this.post[this.post.length-1].id + 1;
-                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: this._userInfo.id});
+                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: this._userInfo.id,
+                                   date: this._formatDate(date, "DB")});
                     this.notifySplices('post', [{index: (newid2 - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "section";
                     this.$.forumpages.select(1);
