@@ -477,7 +477,6 @@
                 this.typeId = e.model.area.id;
                 var pos = this.area.findIndex(this._findId, {id: this.typeId});
                 var tempArea = this.splice('area', pos, 1);
-                //this.notifySplices('area', [{index: pos, removed: [tempArea], addedCount: 0, object: this.area}]);
                 this._tempIdArea = null;
                 this.fire('editArea', {type: "deleteArea", pos: pos, removed: tempArea, result: this.area});
             },
@@ -486,15 +485,13 @@
             _removeSection: function(e) {
                 var pos = this.section.findIndex(this._findId, {id: e.model.section.id});
                 var tempSection = this.splice('section', pos, 1); 
-                this.notifySplices('section', [{index: pos, removed: [tempSection], addedCount: 0, object: this.section}]);
                 this.fire('editSection', {type: "deleteSection", pos: pos, removed: tempSection, result: this.section});
             },
             
             // remove the selected topic
             _removeTopic: function(e) {
                 var pos = this.topic.findIndex(this._findId, {id: e.model.topic.id});
-                var tempTopic = this.splice('topic', pos, 1); 
-                this.notifySplices('topic', [{index: pos, removed: [tempTopic], addedCount: 0, object: this.topic}]);
+                var tempTopic = this.splice('topic', pos, 1);
                 this.fire('editTopic', {type: "deleteTopic", pos: pos, removed: tempTopic, result: this.topic});
             },
             
@@ -558,14 +555,14 @@
                         else
                             var newid = 1;
                         this.area.push({id:newid, title: name, priv: privilege});
-                        this.notifySplices('area', [{index: (newid - 1), removed: [], addedCount: 1, object: this.area}]);
+                        this.notifySplices('area', [{index: (this.area.length - 1), removed: [], addedCount: 1, object: this.area}]);
                         this.fire('editArea', {type: "newArea", result: this.area});
 
                     } else if(this._tempAddField == "section") {    // new section
                         var newid = this.section[this.section.length-1].id + 1;
                         this.section.push({id:newid, area: newField.idarea, title: name, description: description, 
                                            subsection: subsection});
-                        this.notifySplices('section', [{index: (newid - 1), removed: [], addedCount: 1, object: this.section}]);
+                        this.notifySplices('section', [{index: (this.section.length - 1), removed: [], addedCount: 1, object: this.section}]);
                         this.fire('editSection', {type: "newSection", result: this.section});
 
                     } else if(this._tempAddField == "editArea") {

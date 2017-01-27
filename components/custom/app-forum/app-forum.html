@@ -663,11 +663,10 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 };
             },
             
-            // filter posts with id of topic        RISOLVERE BUG DELETE-REPLY POST!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // filter posts with id of topic
             _postFilter: function(idTopic) {
                 return function(post) {
-                    if(post != undefined)
-                        return idTopic == post.topic;
+                    return idTopic == post.topic;
                 };
             },
             
@@ -724,7 +723,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 var model = this.$.postList.modelForElement(e.target);
                 var pos = this.post.findIndex(this._findId, model.post);
                 var tempPost = this.splice('post', pos, 1);
-                //this.notifySplices('post', [{index: pos, removed: [tempPost], addedCount: 0, object: this.post}]);
                 this.editEvent = tempPost;
                 this.fire('forumEdit', {type: "deletePost", auth: this._getCookie()});
             },
@@ -799,7 +797,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     var newid = this.post[this.post.length-1].id + 1;
                     this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, 
                                     user: this._userInfo.id, date: this._formatDate(date, "DB")});
-                    this.notifySplices('post', [{index: (newid - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this.notifySplices('post', [{index: (this.post.length - 1), removed: [], addedCount: 1, object: this.post}]);
                     this.pageField = "topic";
                     this.$.forumpages.select(2);
                     this._checkBack = this.$.forumpages.selected != 0;
