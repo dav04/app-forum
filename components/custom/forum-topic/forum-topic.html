@@ -55,19 +55,23 @@
 					type: String,
 					value: "Forum Topic"
 				},
+                //
                 status: {
                     type: String,
                     observer: '_checkTopic'
                 },
+                //
                 date: {
                     type: String,
                     observer: '_format'
                 },
+                //
                 _checkStatus: {
                     type: Boolean
                 }
 			},
             
+            //
             _format: function() {
                 var date = new Date(this.date);
                 var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();

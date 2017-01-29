@@ -88,7 +88,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 background: var(--forum-primary-color);
                 border-radius: 5px;
             }
-            paper-toolbar {
+            paper-toolbar, .newButton {
                 background-color: var(--forum-secondary-color);
                 color: white;
             }
@@ -121,9 +121,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             }
             .divider {
                 border-bottom: 1px solid #dbdbdb;
-            }
-            .newButton {
-                border: 1px solid black;
             }
             .topicTitle {
                 text-transform: uppercase;
@@ -385,16 +382,16 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // array with all posts of forum
                 post: {
                     type: Array,
-                    value: [{id:1, topic: 3, message: "Messaggio Topic 3", user: 1, date: "2017-01-12 00:00:00"}, 
-                            {id:2, topic: 1, message: "Messaggio Topic 1", user: 3, date: "2017-01-01 00:15:27"},
-                            {id:3, topic: 4, message: "Messaggio Topic 4", user: 4, date: "2017-01-01 00:00:00"}, 
-                            {id:4, topic: 1, message: "Messaggio Topic 1", user: 2, date: "2017-01-02 09:15:27"},
-                            {id:5, topic: 9, message: "Messaggio Topic 9", user: 1, date: "2017-01-01 00:00:00"}, 
-                            {id:6, topic: 4, message: "Messaggio Topic 4", user: 1, date: "2017-01-01 00:00:00"},
-                            {id:7, topic: 3, message: "Messaggio Topic 3", user: 2, date: "2017-01-15 00:00:00"}, 
-                            {id:8, topic: 2, message: "Messaggio Topic 2", user: 3, date: "2017-01-11 16:01:00"},
-                            {id:9, topic: 1, message: "Messaggio Topic 1", user: 4, date: "2017-01-02 10:45:54"}, 
-                            {id:10, topic: 2, message: "Messaggio Topic 2", user: 4, date: "2017-01-13 22:11:07"}]
+                    value: [{id:1, topic: 3, message: "<p>Messaggio Topic 3</p>", user: 1, date: "2017-01-12 00:00:00"}, 
+                            {id:2, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 3, date: "2017-01-01 00:15:27"},
+                            {id:3, topic: 4, message: "<p>Messaggio Topic 4</p>", user: 4, date: "2017-01-01 00:00:00"}, 
+                            {id:4, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 2, date: "2017-01-02 09:15:27"},
+                            {id:5, topic: 9, message: "<p>Messaggio Topic 9</p>", user: 1, date: "2017-01-01 00:00:00"}, 
+                            {id:6, topic: 4, message: "<p>Messaggio Topic 4</p>", user: 1, date: "2017-01-01 00:00:00"},
+                            {id:7, topic: 3, message: "<p>Messaggio Topic 3</p>", user: 2, date: "2017-01-15 00:00:00"}, 
+                            {id:8, topic: 2, message: "<p>Messaggio Topic 2</p>", user: 3, date: "2017-01-11 16:01:00"},
+                            {id:9, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 4, date: "2017-01-02 10:45:54"}, 
+                            {id:10, topic: 2, message: "<p>Messaggio Topic 2</p>", user: 4, date: "2017-01-13 22:11:07"}]
                 },
                 // array with all users of forum
                 // account: 1/admin, 2/mod, 3/user
@@ -449,19 +446,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // check to view or not back button
                 _checkBack: {
                     type: Boolean
-                },
-                animationConfig: {
-                    type: Object,
-                    value: function() {
-                      return {
-                        name: 'scale-down-animation',
-                        node: this
-                      }
-                    }
-                  }
+                }
 			},
-            
-            behaviors: [Polymer.NeonAnimationRunnerBehavior],
             
             listeners: {
                 'getToken':     '_saveIdToken',
@@ -470,7 +456,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 'editSection' : '_catchSection',
                 'editTopic' :   '_catchTopic'
             },
-                  
+            
             ready: function() {
                 this._change_primary();
                 this._change_secondary();
@@ -746,7 +732,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 return element.id == this.id;
             },
             
-            // 
+            // format a date for DB (YYYY-MM-DD HH:MI:SS) or for a VIEW (MM/DD/YYYY HH:MI:SS)
             _formatDate: function(date, type) {
                 var m = date.getMonth()+1;
                 var month = m < 10 ? "0" + m : m; // to avoid '001'

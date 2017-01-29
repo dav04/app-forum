@@ -6,11 +6,12 @@
             }
             .avatar {
                 border-radius: 50px;
-                --iron-icon-height: 40px;
-                --iron-icon-width: 40px;
+                --iron-icon-height: 30px;
+                --iron-icon-width: 30px;
             }
             .nickname {
                 color: black;
+                font-size: 14;
             }
             .userSmart {
                 color: red;
@@ -21,9 +22,8 @@
 
         <paper-icon-item disabled hidden$="{{smart}}">
             <iron-icon src="{{infoUser.avatar}}" class="avatar" item-icon></iron-icon>
-            <paper-item-body two-line>
+            <paper-item-body>
                 <div class="nickname">{{infoUser.nickname}}</div>
-                <div secondary></div>
             </paper-item-body>
         </paper-icon-item>
         
@@ -55,6 +55,7 @@
 				avatar: {
 					type: String
 				},
+                //
                 smart: {
                     type: Boolean,
 					value: false

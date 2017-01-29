@@ -7,8 +7,6 @@
             .box {
                 height: auto;
                 background-color: #fff;
-                /*border: 1px solid var(--forum-secondary-color);;
-                padding: 10px;*/
                 margin: 20px;
                 float: left;
                 text-align: center;
@@ -28,9 +26,6 @@
             .itemList iron-icon {
                 margin-right: 5px;
             }
-            /*.itemList:hover + .action {
-                visibility: visible;
-            }*/
             .toggleBox {
                 margin-left: auto;
                 margin-right: auto;
@@ -64,10 +59,6 @@
             .formButton {
                 text-align: center;
             }
-            .actionButton {
-                border: 1px solid black;
-                margin-top: 15px;
-            }
             .insertButton {
                 background-color: var(--forum-secondary-color);
                 color: white;
@@ -85,7 +76,7 @@
                 <iron-autogrow-textarea label="Message" rows="20" class="messageArea">{{message}}</iron-autogrow-textarea>
                 <input name="typeid" type="hidden" value={{typeId}}>
                 <div class="formButton">
-                    <paper-button on-click="_sendForm" class="actionButton">{{_textButton}}</paper-button>
+                    <paper-button on-click="_sendForm" class="insertButton">{{_textButton}}</paper-button>
                 </div>
             </form>
         </template>
@@ -137,64 +128,64 @@
                     </paper-icon-item>
                 </template>
             </paper-material>
-            
-                <paper-material class="box boxInsert" hidden$="{{!_tempInsert}}">
-                    <div class="title">{{_tempDescInsert}}</div>
-                    <form is="iron-form" id="editForm2" method="post">
-                        <paper-input name="name" value={{_name}} label="Name" required></paper-input>
-                        <div class="toggleBox" hidden$="{{_checkSection}}">
-                            <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">
-                                Only for admin
-                            </paper-toggle-button>
-                        </div>
-                        <template is="dom-if" if="{{_checkSection}}">
-                            <paper-input id="descrReq" name="description" value={{_description}} label="Description" 
-                                         hidden$="{{_hiddenNone}}"></paper-input>
-                            
-                            <paper-dropdown-menu label="Area" selected-item="{{selectedArea}}" 
-                                                 vertical-align="top" horizontal-align="left" 
-                                                 dynamic-align>
-                                <paper-listbox class="dropdown-content" selected="{{_indexSelectArea}}">
-                                    <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter3(_tempIdArea)}}">
-                                        <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
-                                    </template>
-                                    <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter4(_tempIdArea)}}">
-                                        <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
-                                    </template>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                            <input type="hidden" name="idarea" value={{_idarea}}>
-                            
-                            <paper-dropdown-menu label="{{_labelSection}}" selected-item="{{selectedSection}}" 
-                                                 vertical-align="top" horizontal-align="left" 
-                                                 dynamic-align>
-                                <paper-listbox class="dropdown-content" selected="{{_indexSelectSection}}">
-                                    <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter5(_sectionSub)}}">
-                                        <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
-                                    </template>
-                                    <paper-item name="null" on-click="_insertSelectedSection" hidden$="{{_hiddenNone}}">none</paper-item>
-                                    <template is="dom-repeat" items={{section}} as="section" 
-                                              filter="{{computeFilter6(_idarea, _subselect, _sectionSub)}}">
-                                        <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
-                                    </template>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                            <input type="hidden" name="subsection" value={{_subsection}}>
-                            
-                            <paper-dropdown-menu label="Status" selected-item="{{selectedStatus}}" 
-                                                 vertical-align="top" horizontal-align="left" 
-                                                 dynamic-align hidden$="{{!_hiddenNone}}">
-                                <paper-listbox class="dropdown-content" selected="{{_indexSelectStatus}}">
-                                    <template is="dom-repeat" items={{topicStatus}} as="status">
-                                        <paper-item name="{{status.value}}" on-click="_insertSelectedStatus">{{status.name}}</paper-item>
-                                    </template>
-                                </paper-listbox>
-                            </paper-dropdown-menu>
-                            <input type="hidden" name="status" value={{_status}}>
-                        </template>
-                        <paper-button on-click="_insertArSe" class="insertButton">Insert</paper-button>
-                    </form>
-                </paper-material>
+            <!-- form for editing -->
+            <paper-material class="box boxInsert" hidden$="{{!_tempInsert}}">
+                <div class="title">{{_tempDescInsert}}</div>
+                <form is="iron-form" id="editForm2" method="post">
+                    <paper-input name="name" value={{_name}} label="Name" required></paper-input>
+                    <div class="toggleBox" hidden$="{{_checkSection}}">
+                        <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">
+                            Only for admin
+                        </paper-toggle-button>
+                    </div>
+                    <template is="dom-if" if="{{_checkSection}}">
+                        <paper-input id="descrReq" name="description" value={{_description}} label="Description" 
+                                     hidden$="{{_hiddenNone}}"></paper-input>
+
+                        <paper-dropdown-menu label="Area" selected-item="{{selectedArea}}" 
+                                             vertical-align="top" horizontal-align="left" 
+                                             dynamic-align>
+                            <paper-listbox class="dropdown-content" selected="{{_indexSelectArea}}">
+                                <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter3(_tempIdArea)}}">
+                                    <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
+                                </template>
+                                <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter4(_tempIdArea)}}">
+                                    <paper-item name="{{area.id}}" on-click="_insertSelectedArea">{{area.title}}</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <input type="hidden" name="idarea" value={{_idarea}}>
+
+                        <paper-dropdown-menu label="{{_labelSection}}" selected-item="{{selectedSection}}" 
+                                             vertical-align="top" horizontal-align="left" 
+                                             dynamic-align>
+                            <paper-listbox class="dropdown-content" selected="{{_indexSelectSection}}">
+                                <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter5(_sectionSub)}}">
+                                    <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
+                                </template>
+                                <paper-item name="null" on-click="_insertSelectedSection" hidden$="{{_hiddenNone}}">none</paper-item>
+                                <template is="dom-repeat" items={{section}} as="section" 
+                                          filter="{{computeFilter6(_idarea, _subselect, _sectionSub)}}">
+                                    <paper-item name="{{section.id}}" on-click="_insertSelectedSection">{{section.title}}</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <input type="hidden" name="subsection" value={{_subsection}}>
+
+                        <paper-dropdown-menu label="Status" selected-item="{{selectedStatus}}" 
+                                             vertical-align="top" horizontal-align="left" 
+                                             dynamic-align hidden$="{{!_hiddenNone}}">
+                            <paper-listbox class="dropdown-content" selected="{{_indexSelectStatus}}">
+                                <template is="dom-repeat" items={{topicStatus}} as="status">
+                                    <paper-item name="{{status.value}}" on-click="_insertSelectedStatus">{{status.name}}</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <input type="hidden" name="status" value={{_status}}>
+                    </template>
+                    <paper-button on-click="_insertArSe" class="insertButton">Insert</paper-button>
+                </form>
+            </paper-material>
             
         </template>
 	</template>
@@ -449,7 +440,7 @@
                 this._indexSelectSection = 0;
             },
             
-            //
+            // set window to edit a topic
             _editTopic: function(e) {
                 this._setVarInsert(true, "editTopic", "Edit name and position of topic:", true, e.model.topic.title, null, e.model.topic.id);
                 this._sectionArea = this._tempIdArea;
@@ -514,7 +505,7 @@
                 this._indexSelectSection = 0;
             },
             
-            //
+            // set main value of variable about editing window
             _setVarInsert: function(insert, field, titleInsert, section, name, description, id) {
                 this._tempInsert = insert;
                 this._tempAddField = field;
