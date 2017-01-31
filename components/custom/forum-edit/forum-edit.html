@@ -41,10 +41,15 @@
                 margin-left: auto;
                 margin-right: auto;
                 padding: 10px;
+                width: 100%;
+                border-bottom: 1px solid #dbdbdb;
             }
             .boxInsert {
                 width: 300px;
                 padding: 10px;
+            }
+            paper-dropdown-menu {
+                width: 280px;
             }
             .title {
                 font-weight: bold;
@@ -63,6 +68,35 @@
                 background-color: var(--forum-secondary-color);
                 color: white;
                 margin-top: 15px;
+            }
+            
+            @media (max-width: 800px) {
+                .box {
+                    float: none;
+                }   
+                .boxArea {
+                    width: 75%;
+                    min-width: 250px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                .boxInsert {
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+            }
+            @media (max-width: 500px) {
+                .boxArea {
+                    width: 100%;
+                }
+                .boxInsert {
+                    width: 100%;
+                    min-width: 300px;
+                    padding: 10px 0px 10px 0px;
+                }
+                paper-dropdown-menu {
+                    width: 80%;
+                }
             }
 		</style>
         
@@ -85,8 +119,13 @@
         <template is="dom-if" if="{{_isForumEdit}}">
             <!-- List of areas -->
             <paper-material class="box boxArea">
+                <paper-button class="addButton" on-click="_addArea" noink>
+                    <iron-icon icon="add"></iron-icon>
+                    Add area
+                </paper-button>
+                
                 <template is="dom-repeat" items={{area}} as="area" filter="{{computeFilter2()}}">
-                    <paper-icon-item class="itemList">
+                    <paper-icon-item class="itemList" flex>
                         <iron-icon icon="delete" title="Remove" on-click="_removeArea" item-icon></iron-icon>
                         <iron-icon icon="create" title="Edit" on-click="_editArea" item-icon></iron-icon>
                         <paper-item-body on-click="_showSection">
@@ -94,13 +133,14 @@
                         </paper-item-body>
                     </paper-icon-item>
                 </template>
-                <paper-button class="addButton" on-click="_addArea" noink>
-                    <iron-icon icon="add"></iron-icon>
-                    Add area
-                </paper-button>
             </paper-material>
             <!-- List of sections -->
             <paper-material class="box boxArea" hidden$="{{!_tempIdArea}}">
+                <paper-button class="addButton" on-click="_addSection" noink>
+                    <iron-icon icon="add"></iron-icon>
+                    Add section
+                </paper-button>
+                
                 <template is="dom-repeat" items={{section}} as="section" filter="{{computeFilter(_tempIdArea)}}" 
                           observe="area">
                     <paper-icon-item class="itemList">
@@ -111,10 +151,6 @@
                         </paper-item-body>
                     </paper-icon-item>
                 </template>
-                <paper-button class="addButton" on-click="_addSection" noink>
-                    <iron-icon icon="add"></iron-icon>
-                    Add section
-                </paper-button>
             </paper-material>
            <!-- List of topics -->
             <paper-material class="box boxArea" hidden$="{{!_tempIdSection}}">
