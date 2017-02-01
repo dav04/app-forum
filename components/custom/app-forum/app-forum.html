@@ -65,6 +65,15 @@ LOGOUT:
     unset cookie
 
 ------------------
+Style
+------------------
+--forum-primary-color
+--forum-primary-text-color
+--forum-secondary-color
+--forum-secondary-text-color
+--app-forum
+
+------------------
 Dependencies
 ------------------
 
@@ -79,6 +88,10 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             :host {
                 text-align: left;
                 font-family: 'Roboto', sans-serif;
+                --forum-primary-color: #82bfc8;
+                --forum-secondary-color: #1d7fa9;
+                --forum-primary-text-color: black;
+                --forum-secondary-text-color: white;
             }
             .forumBox {
                 display: inline-block;
@@ -87,10 +100,12 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 min-height: 100%;
                 background: var(--forum-primary-color);
                 border-radius: 5px;
+                
+                @apply(--app-forum);
             }
             paper-toolbar, .newButton {
                 background-color: var(--forum-secondary-color);
-                color: white;
+                color: var(--forum-secondary-text-color);
             }
             iron-pages {
                 padding: 20px;
@@ -107,9 +122,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 width:100px; 
                 float:left; 
                 margin-left: 15px;
-                --paper-input-container-color: white;
+                --paper-input-container-color: var(--forum-secondary-text-color);
                 --paper-input-container-focus-color: var(--forum-primary-color);
-                --paper-input-container-input-color: white;
+                --paper-input-container-input-color: var(--forum-secondary-text-color);
             }
             .loginicon {
                 margin-top: 15px;
@@ -123,17 +138,20 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 border-bottom: 1px solid #dbdbdb;
             }
             .topicTitle {
+                color: var(--forum-primary-text-color);
                 text-transform: uppercase;
                 font-weight: bold;
                 padding: 5px;
             }
             .action {
                 background-color: var(--forum-secondary-color);
+                color: var(--forum-secondary-text-color);
                 margin-right: 20px;
             }
             .replybutton {
                 float: right;
                 background-color: var(--forum-secondary-color);
+                color: var(--forum-secondary-text-color);
                 bottom: 15px;
                 right: 15px;
                 position: relative;
@@ -150,7 +168,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             @media (max-width: 800px) {
                 .userToolbar {
                     background-color: white;
-                    color: black;
+                    color: var(--forum-primary-text-color);
                 }
                 .userMenuBox {
                     display: flex;
@@ -163,13 +181,13 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     float: left;
                     margin-top: 10px;
                     margin-left: 15px;
-                    --paper-input-container-color: black;
+                    --paper-input-container-color: var(--forum-primary-text-color);
                     --paper-input-container-focus-color: var(--forum-secondary-color);
-                    --paper-input-container-input-color: black;
+                    --paper-input-container-input-color: var(--forum-primary-text-color);
                 }
                 .loginButton {
                     background-color: var(--forum-secondary-color);
-                    color: white;
+                    color: var(--forum-secondary-text-color);
                     height: 25px;
                     margin-left: 15px;
                 }
@@ -180,6 +198,11 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             @media (max-width: 700px) {
                 .logininputM {
                     width: 120px;
+                }
+                .replybutton {
+                    bottom: 20px;
+                    right: 30px;
+                    position: fixed;
                 }
             }
 		</style>
@@ -341,19 +364,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
 					type: String,
 					value: "App forum"
 				},
-                // main color of forum
-                primaryColor: {
-                    type: String,
-                    value: "#82bfc8",
-                    notify: true,
-                    observer: "_change_primary"
-                },
-                // secondary color of forum
-                secondaryColor: {
-                    type: String,
-                    value: "#1d7fa9",
-                    observer: "_change_secondary"
-                },
                 // array with all areas of forum
                 area: {
                     type: Array,
@@ -462,8 +472,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             },
             
             ready: function() {
-                this._change_primary();
-                this._change_secondary();
                 this.userToolbar = false;
                 
                 if(document.cookie.indexOf('app_forum_user') != -1) {
@@ -474,21 +482,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     this._checkUser = true;
                     this._checkEdit = this._userInfo.account == 1;
                 }
-            },
-            
-            // STYLE
-            // -----------------------
-            
-            // change primary color of app-forum
-            _change_primary: function() {
-                this.customStyle['--forum-primary-color'] = this.primaryColor;
-                this.updateStyles();
-            },
-            
-            // change secondary color of app-forum
-            _change_secondary: function() {
-                this.customStyle['--forum-secondary-color'] = this.secondaryColor;
-                this.updateStyles();
             },
             
             // USER
