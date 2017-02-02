@@ -129,6 +129,14 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             .loginicon {
                 margin-top: 15px;
             }
+            .toolbarIcon {
+                --iron-icon-height: 27px;
+                --iron-icon-width: 27px;
+            }
+            .avatar {
+                --iron-icon-height: 35px;
+                --iron-icon-width: 35px;
+            }
             .border {
                 margin: 15px;
                 border-left: 5px solid var(--forum-secondary-color);
@@ -213,12 +221,12 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     <paper-toolbar id="forumToolbar" hidden$="{{_checkUserToolbar(userToolbar, smallScreen)}}">
                         <!-- Navigation bar -->
                         <div class="navbutton">
-                            <iron-icon icon="home" on-click="_goHome"></iron-icon>
+                            <iron-icon icon="home" class="toolbarIcon" on-click="_goHome"></iron-icon>
                             <template is="dom-if" if="{{_checkBack}}">
-                                <iron-icon icon="arrow-back" on-click="_goBack"></iron-icon>
+                                <iron-icon icon="arrow-back" class="toolbarIcon" on-click="_goBack"></iron-icon>
                             </template>
                             <template is="dom-if" if="{{_checkEdit}}">
-                                <iron-icon icon="create" on-click="_goEditForum"></iron-icon>
+                                <iron-icon icon="create" class="toolbarIcon" on-click="_goEditForum"></iron-icon>
                             </template>
                         </div>
                         <span class="title">{{title}}</span>
@@ -233,19 +241,22 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             </template>
                             <template is="dom-if" if="{{_checkUser}}">
                                 {{_userInfo.nick}}
-                                <iron-icon icon="account-circle"></iron-icon>
-                                <paper-button icon="send" on-click="_logoutUser">LOGOUT</paper-button>
+                                <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
+                                <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
                             </template>
                         </div>
                         <div class="loginbar" hidden$="{{!smallScreen}}">
-                            <iron-icon icon="account-circle" on-click="_userMenu" id="avatarmenu"></iron-icon>
+                            <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
+                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
+                            <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
+                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
                         </div>
                     </paper-toolbar>
 
                     <!-- User Toolbar for screen < 800px -->
                     <paper-toolbar class="userToolbar" hidden$="{{!_checkUserToolbar(userToolbar, smallScreen)}}">
                         <div>
-                            <iron-icon icon="arrow-back" class="colorIcon" on-click="_userMenuClose"></iron-icon>
+                            <iron-icon icon="arrow-back" class="colorIcon toolbarIcon" on-click="_userMenuClose"></iron-icon>
                         </div>
                         <div class="userMenuBox">
                             <template is="dom-if" if="{{!_checkUser}}">
@@ -260,7 +271,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             </template>
                             <template is="dom-if" if="{{_checkUser}}">
                                 {{_userInfo.nick}}
-                                <iron-icon icon="account-circle"></iron-icon>
+                                <iron-icon src="{{_userInfo.avatar}}" class="avatar"></iron-icon>
                                 <paper-button icon="send" class="loginButton" on-click="_logoutUser">LOGOUT</paper-button>
                             </template>
                         </div>
@@ -433,7 +444,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 // information about active user
                 _userInfo: {
                     type: Array,
-                    value: [{id: null, nick: null, account: null}]
+                    value: [{id: null, nick: null, account: null, avatar: null}]
                 },
                 // data when an edit event happens inside forum
                 editEvent: {
@@ -479,6 +490,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
                     this._userInfo.nick = this.user[pos].nickname;
                     this._userInfo.account = this.user[pos].account;
+                    this._userInfo.avatar = this.user[pos].avatar;
+                    this.notifyPath('_userInfo.avatar');
                     this._checkUser = true;
                     this._checkEdit = this._userInfo.account == 1;
                 }
@@ -498,7 +511,10 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             _saveIdToken: function(data) {
                 this._checkUser = true;
                 this._userInfo.id = data.detail.id;
-                this._userInfo.account = this.user[this.user.findIndex(this._findId, {id: this._userInfo.id})].account;
+                var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                this._userInfo.account = this.user[pos].account;
+                this._userInfo.avatar = this.user[pos].avatar;
+                this.notifyPath('_userInfo.avatar');
                 this._checkEdit = this._userInfo.account == 1;
                 
                 var d = new Date();
@@ -512,9 +528,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             // logout user and delete relative cookie
             _logoutUser: function() {
                 this._checkUser = false;
-                this._userInfo.id = null;
-                this._userInfo.nick = null;
-                this._userInfo.account = null;
+                this._userInfo = [{id: null, nick: null, account: null, avatar: null}];
                 this.notifyPath('area');
                 document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
                 
@@ -562,6 +576,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 this.subSection = [];
                 this.pageFieldId = undefined;
                 this.previousPageFieldId = undefined;
+                this.trackPage = [{section: [], topic: null}];
                 this.$.forumpages.select(0);
                 this._checkBack = this.$.forumpages.selected != 0;
             },
