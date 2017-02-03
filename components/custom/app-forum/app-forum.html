@@ -156,6 +156,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 color: var(--forum-secondary-text-color);
                 margin-right: 20px;
             }
+            .quote {
+                color: black;
+            }
             .replybutton {
                 float: right;
                 background-color: var(--forum-secondary-color);
@@ -327,15 +330,18 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                                 <div class="topicTitle">{{topicName}}</div>
 
                                 <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
-                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" hidden$="{{_checkEditUser(post.user)}}">
+                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" 
+                                                hidden$="{{_checkEditUser(post.user)}}">
                                         <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
                                     </forum-post>
 
-                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" usermenu hidden$="{{!_checkEditUser(post.user)}}">
+                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" usermenu 
+                                                hidden$="{{!_checkEditUser(post.user)}}">
                                         <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
                                         <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
                                         <paper-fab icon="create" title="Edit post" on-click="_editPost" class="action"></paper-fab>
                                         <paper-fab icon="delete" title="Delete post" on-click="_deletePost" class="action"></paper-fab>
+                                        <iron-icon icon="editor:format-quote" title="Quote" on-click="_quotePost" class="quote"></iron-icon>
                                     </forum-post>
                                 </template>
                                 <template is="dom-if" if="{{_checkAction}}">
@@ -723,6 +729,19 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 var tempPost = this.splice('post', pos, 1);
                 this.editEvent = tempPost;
                 this.fire('forumEdit', {type: "deletePost", auth: this._getCookie()});
+            },
+            
+            //
+            _quotePost: function(e) {
+                this.pageField = "reply";
+                this._tempMessage = "<div style=\"border-left: 5px solid #b3cad0; border-bottom: 1px solid #b3cad0;" + 
+                                    "padding-left:15px; margin-top: 15px\"><b>" + 
+                                    this._findUser(e.model.post.user).nickname + 
+                                    " said:</b>\n " + 
+                                    e.model.post.message + 
+                                    "</div>\<p></p>";
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
             },
             
             // show window to reply to a post
