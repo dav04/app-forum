@@ -284,7 +284,24 @@ This code may only be used under the BSD style license found at http://polymer.g
                     observer: "_resultReady"
 				}
 			},
-            
+
+            /**
+             * Fired when an edit passes to app-forum
+             * and to receive back token of access 
+             * @event resultReady
+             */
+            /**
+             * Fired when an area is created, modified or deleted
+             * @event editArea
+             */
+            /**
+             * Fired when a section is created, modified or deleted
+             * @event editSection
+             */
+            /**
+             * Fired when a topic is modified or deleted
+             * @event editTopic
+             */
             listeners: {
                 'iron-form-element-register': '_startEditor'
             },

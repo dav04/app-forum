@@ -40,71 +40,86 @@ Repository: [GitHub](https://github.com/dav04/Forum-Polymer)
 
 `app-forum` is a component to create a simple forum integrable in a site that 
 uses any type of database thanks to the inside use of json array.
-It allows to integrate all users of site which uses `app-forum`. 
+It allows to integrate all users of site that uses `app-forum`. 
 Every single operation is protected by id and token of user (inside `forumEdit` event) that allow 
 to server to check authenticity of user and to catch editing operation in `editEvent` property.
 
 ### Login
-It's possible login inside forum, where a `loginUserForum` event is fired and username and password are
-passed to server to check them and respon
+
+It's possible login inside forum, where a `loginUserForum` event is fired passing username (data.detail.username)
+and password (data.detail.password) to server to check them and to response with id and token of user.
+
+If user login in main site, server have to fire `getToken` event sending to `app-forum`
+id and token of user who will be automatically authenticated.
+
+Example:
+    
+    ...
+    var event = new CustomEvent("getToken", {detail: {id: "1", token: "abc1234"}});
+    document.querySelector('app-forum').dispatchEvent(event);
+
+__Important:__ `getToken` event must have this structure of data with `id` and `token`.
 
 ### Elements
 
+The first element that has to be set as property is `user`; for every user in this array, 
+it must have these fields: `id`, `nickname`, `account`, `avatar`; `account` is can set to 1
+for admins, who can edit forum structure, and 2 for users.
+
+Example:
+
+    [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
+    {id:2, nickname: "user1", account: 2, avatar: "images/users/avatar2.jpg"}, ...]
+
+The other elements that can be set are:
+
+Property    | Fields
+----        |----------
+`area`      | `id`, `title`, `priv`
+` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
+`section`   | `id`, `area`, `title`, `description`, `subsection`
+`topic`     | `id`, `section`, `title`, `status`, `date`
+` `         | `status` can be only 'open' or 'close'
+`post`      | `id`, `topic`, `message`, `user`, `date`
+
+Format of `date` field is `YYYY-MM-DD HH:MI:SS`
+
+Example with `area` property:
+
+    <app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
 
 ### Forum edit operations
 
+When a `forumEdit` event is fired, two fields are passed: `type` and `auth`. 
 
-Type | Description 
-----------------|-------------
-`--forum-primary-color` | Background color 
+`auth` has id and token of user to allow server to check if authentication is correct and to catch from `editForum`
+property the element edited in forum.
 
+`type` field lets to recognize the operation; see list below:
 
-### Events
-
-IN:
-- 'getToken'        -> from client/server
-- 'resultReady'     -> from 'forum-edit'
-- 'editArea'        -> from 'forum-edit'
-- 'editSection'     -> from 'forum-edit'
-OUT:
-- 'loginUserForum'  -> to client/server
-- 'forumEdit'       -> to client/server
-
-Type on 'forumEdit':
-- reply                 message / typeid (topic)
-- editPost              message / typeid (post)
-- deletePost            
-- editTopic             id (topic) / title / message / typeid (post)
-- newTopic              id (topic) / title / message / typeid (section)
-- newArea               
-- editArea              
-- deleteArea            
-- newSection            
-- editSection           
-- deleteSection         
-
-------------------
-User
-------------------
-LOGIN: 
-    user/password  ->  check in db  ->  return token  ->  save id and token in cookie
-
-EDIT: 
-    every editing send id and token
-
-LOGOUT:
-    unset cookie
-
+Type            | Description           | Fields
+----------      |-------------          |----------
+`reply`         | Reply to a post       | `message`, `typeid` (topic id)
+`editPost`      | Post edited           | `message`, `typeid` (post id)
+`deletePost`    | Post deleted          | `id`, `topic`, `message`, `user`, `date`
+`editTopic`     | Topic edited          | `id` (topic id), `title`, `message`, `typeid` (post id)
+`newTopic`      | New topic created     | `title', `message`, `typeid` (section id)
+`newArea`       | New area created      | `id`, `title`, `priv`
+`editArea`      | Area edited           | `id`, `title`, `priv`
+`deleteArea`    | Area deleted          | `id`, `title`, `priv`
+`newSection`    | New Section created   | `id`, `area`, `title`, `description`, `subsection`
+`editSection`   | Section edited        | `id`, `area`, `title`, `description`, `subsection`
+`deleteSection` | Section deleted       | `id`, `area`, `title`, `description`, `subsection`        
 
 ### Style
 
-Custom property | Description | Default
-----------------|-------------|----------
-`--forum-primary-color` | Background color | #82bfc8
-`--forum-primary-text-color` | Text color on background | black
-`--forum-secondary-color` | Toolbar, buttons and inputs color | #1d7fa9
-`--forum-secondary-text-color` | Text color on toolbar, buttons and inputs | white
-`--app-forum` | Mixin applied to forum | {}
+Custom property                 | Description                               | Default
+----------------                |-------------                              |----------
+`--forum-primary-color`         | Background color                          | #82bfc8
+`--forum-primary-text-color`    | Text color on background                  | black
+`--forum-secondary-color`       | Toolbar, buttons and inputs color         | #1d7fa9
+`--forum-secondary-text-color`  | Text color on toolbar, buttons and inputs | white
+`--app-forum`                   | Mixin applied to forum                    | {}
 
 @demo demo/index.html
 -->
@@ -559,13 +574,17 @@ Custom property | Description | Default
                 }
 			},
             /**
-             * Fired when an user log in to check username/password
-             * and to receive back token of access 
+             * Fired when an user log in, so to check username/password
+             * and to receive back token of access. 
+             *
+             * `username`: data.detail.username, `password`: data.detail.password
              * @event loginUserForum
              */
             /**
              * Fired when an action happens in forum and this action
              * is available in `editEvent` attribute
+             *
+             * `type`: data.detail.type, `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
              * @event forumEdit
              */
             listeners: {
@@ -597,7 +616,6 @@ Custom property | Description | Default
             // send username and password by 'loginUserForum' event
             _loginUser: function() {
                 var info = this.$$('#loginForm').serialize();
-                this._userInfo.nick = info.username;
                 this.fire('loginUserForum', {username: info.username, password: info.password});
             },
             
@@ -606,6 +624,7 @@ Custom property | Description | Default
                 this._checkUser = true;
                 this._userInfo.id = data.detail.id;
                 var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                this._userInfo.nick = this.user[pos].nickname;
                 this._userInfo.account = this.user[pos].account;
                 this._userInfo.avatar = this.user[pos].avatar;
                 this.notifyPath('_userInfo.avatar');
@@ -631,8 +650,12 @@ Custom property | Description | Default
             
             // return id and token of user
             _getCookie: function() {
-                var id = document.cookie.substring(15, document.cookie.indexOf('$$'));
-                var token = document.cookie.substring(document.cookie.indexOf('$$')+2);
+                var cookie = document.cookie.substring(document.cookie.indexOf('app_forum_user=')+15);
+                var id = cookie.substring(0, cookie.indexOf('$$'));
+                if(cookie.indexOf(';') != -1)
+                    var token = cookie.substring(cookie.indexOf('$$')+2, cookie.indexOf(';'));
+                else
+                    var token = cookie.substring(cookie.indexOf('$$')+2);
                 return {id: id, token: token};
             },
             
@@ -911,7 +934,6 @@ Custom property | Description | Default
                 // Add a new record in 'topic' and 'post' arrays
                 } else if(this.pageField == "newTopic") {
                     var newid = this.topic[this.topic.length-1].id + 1;
-                    data.detail.result.id = newid;
                     this.editEvent = data.detail.result;
                     this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open',
                                     date: this._formatDate(date, "DB")});
