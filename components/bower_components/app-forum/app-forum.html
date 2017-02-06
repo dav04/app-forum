@@ -35,37 +35,15 @@ This component is created with The Polymer Project distributed by Google
 <link rel="import" href="components/forum-user/forum-user.html">
 
 <!--
-------------------
-Structure
-------------------
-    app-forum
-        forum-area
+Repository: [GitHub](https://github.com/dav04/Forum-Polymer)
 
-Pages:
-    - 0: area and section
-    - 1: section and topic
-    - 2: message
-    - 3: create topic or post
-    - 4: forum parameters
+`app-forum` is a component to create a simple forum integrable in a site that 
+uses any type of database thanks to the inside use of json array.
+It allows to integrate all users of site which uses `app-forum`.
 
-Example:
-    area = [{id:1, title: "Area 1"}, {id:2, title: "Area 2"}]
 
-    section = [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1"}, 
-               {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2"}]
+### Events
 
-    topic = [{id:1, section: 1, title: "Topic 1", status: "open"}, 
-            {id:2, section: 1, title: "Topic 2", status: "close"}]
-
-area 1      
-section2        id1
-    section 8
-    topic 1
-    topic 2
-
-------------------
-Events
-------------------
 IN:
 - 'getToken'        -> from client/server
 - 'resultReady'     -> from 'forum-edit'
@@ -100,14 +78,16 @@ EDIT:
 LOGOUT:
     unset cookie
 
-------------------
-Style
-------------------
---forum-primary-color
---forum-primary-text-color
---forum-secondary-color
---forum-secondary-text-color
---app-forum
+
+### Style
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--forum-primary-color` | Background color | #82bfc8
+`--forum-primary-text-color` | Text color on background | black
+`--forum-secondary-color` | Toolbar, buttons and inputs color | #1d7fa9
+`--forum-secondary-text-color` | Text color on toolbar, buttons and inputs | white
+`--app-forum` | Mixin applied to forum | {}
 
 
 -->
@@ -561,7 +541,16 @@ Style
                     type: Boolean
                 }
 			},
-            
+            /**
+             * Fired when an user log in to check username/password
+             * and to receive back token of access 
+             * @event loginUserForum
+             */
+            /**
+             * Fired when an action happens in forum and this action
+             * is available in `editEvent` attribute
+             * @event forumEdit
+             */
             listeners: {
                 'getToken':     '_saveIdToken',
                 'resultReady':  '_catchResult',
