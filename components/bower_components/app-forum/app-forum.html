@@ -1,4 +1,40 @@
 <!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/Forum-Polymer
+This component is created with The Polymer Project distributed by Google
+-->
+
+<!-- Iron components -->
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-form/iron-form.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<!-- Paper components -->
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<!-- Custom components -->
+<link rel="import" href="components/forum-area/forum-area.html">
+<link rel="import" href="components/forum-section/forum-section.html">
+<link rel="import" href="components/forum-topic/forum-topic.html">
+<link rel="import" href="components/forum-post/forum-post.html">
+<link rel="import" href="components/forum-edit/forum-edit.html">
+<link rel="import" href="components/forum-user/forum-user.html">
+
+<!--
 ------------------
 Structure
 ------------------
@@ -73,13 +109,7 @@ Style
 --forum-secondary-text-color
 --app-forum
 
-------------------
-Dependencies
-------------------
 
-DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
-
-<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 -->
 
 <dom-module id="app-forum">
@@ -396,17 +426,23 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
 			is: "app-forum",
 
 			properties: {
-				// title on top of forum
+				/**
+                 * title on top of forum
+                 */
 				title: {
 					type: String,
 					value: "App forum"
 				},
-                // array with all areas of forum
+                /**
+                 * array with all areas of forum
+                 */
                 area: {
                     type: Array,
                     value: [{id:1, title: "Area 1", priv: 0}, {id:2, title: "Area 2", priv: 0}, {id:3, title: "Area 3", priv: 1}]
                 },
-                // array with all sections of forum
+                /**
+                 * array with all sections of forum
+                 */
                 section: {
                     type: Array,
                     value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1", subsection: null}, 
@@ -416,7 +452,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {id:5, area: 2, title: "Sezione 5", description: "Descrizione 5", subsection: 3}, 
                             {id:6, area: 2, title: "Sezione 6", description: "Descrizione 6", subsection: 5}]
                 },
-                // array with all topics of forum
+                /**
+                 * array with all topics of forum
+                 */
                 topic: {
                     type: Array,
                     value: [{id:1, section: 3, title: "Topic 1", status: "open", date: "2017-01-01 00:15:27"}, 
@@ -430,7 +468,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {id:9, section: 5, title: "Topic 9", status: "open", date: "2017-02-04 00:00:00"}, 
                             {id:10, section: 2, title: "Topic 10", status: "close", date: "2017-02-05 00:00:00"}]
                 },
-                // array with all posts of forum
+                /**
+                 * array with all posts of forum
+                 */
                 post: {
                     type: Array,
                     value: [{id:1, topic: 3, message: "<p>Messaggio Topic 3</p>", user: 1, date: "2017-01-12 00:00:00"}, 
@@ -444,8 +484,10 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {id:9, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 4, date: "2017-01-02 10:45:54"}, 
                             {id:10, topic: 2, message: "<p>Messaggio Topic 2</p>", user: 4, date: "2017-01-13 22:11:07"}]
                 },
-                // array with all users of forum
-                // account: 1/admin, 2/mod, 3/user
+                /**
+                 * array with all users of forum
+                 * account: 1/admin, 2/mod, 3/user
+                 */
                 user: {
                     type: Array,
                     value: [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
@@ -453,48 +495,68 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                             {id:3, nickname: "poul", account: 3, avatar: "images/users/avatar3.jpg"}, 
                             {id:4, nickname: "supervegetto86", account: 3, avatar: "images/users/avatar4.jpg"}]
                 },
-                // check if user is logged
+                /**
+                 * check if user is logged
+                 */
                 _checkUser: {
                     type: String,
                     value: false,
                     observer: "_checkStatus"
                 },
-                // check if action button about active user post have to be visible
+                /**
+                 * check if action button about active user post have to be visible
+                 */
                 _checkActionUser: {
                     type: Boolean
                 },
-                // check if edit of forum button have to be visible
+                /**
+                 * check if edit of forum button have to be visible
+                 */
                 _checkEdit: {
                     type: Boolean
                 },
-                // information about active user
+                /**
+                 * information about active user
+                 */
                 _userInfo: {
                     type: Array,
                     value: [{id: null, nick: null, account: null, avatar: null}]
                 },
-                // data when an edit event happens inside forum
+                /**
+                 * data when an edit event happens inside forum
+                 */
                 editEvent: {
                     type: Array,
                     reflectToAttribute: true
                 },
-                // name of active page
+                /**
+                 * name of active page
+                 */
                 pageField: {
                     type: String
                 },
-                // id of active section or topic
+                /**
+                 * id of active section or topic
+                 */
                 pageFieldId: {
                     type: Number
                 },
-                // title of active topic
+                /**
+                 * title of active topic
+                 */
                 topicName: {
                     type: String
                 },
-                // trace path of browsing
+                /**
+                 * trace path of browsing
+                 */
                 trackPage: {
                     type: Array,
                     value: [{section: [], topic: null}]
                 },
-                // check to view or not back button
+                /**
+                 * check to view or not back button
+                 */
                 _checkBack: {
                     type: Boolean
                 }
