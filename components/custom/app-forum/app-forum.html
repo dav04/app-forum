@@ -331,12 +331,13 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
 
                                 <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(trackPage.topic)}}">
                                     <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" 
-                                                hidden$="{{_checkEditUser(post.user)}}">
+                                                hidden$="{{_checkEditUser(post.user, post.topic)}}">
                                         <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
+                                        <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
                                     </forum-post>
 
                                     <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" usermenu 
-                                                hidden$="{{!_checkEditUser(post.user)}}">
+                                                hidden$="{{!_checkEditUser(post.user, post.topic)}}">
                                         <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
                                         <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
                                         <paper-fab icon="create" title="Edit post" on-click="_editPost" class="action"></paper-fab>
@@ -401,7 +402,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     type: Array,
                     value: [{id:1, section: 3, title: "Topic 1", status: "open", date: "2017-01-01 00:15:27"}, 
                             {id:2, section: 1, title: "Topic 2", status: "close", date: "2017-01-11 16:01:00"},
-                            {id:3, section: 4, title: "Topic 3", status: "open", date: "2017-01-12 00:00:00"}, 
+                            {id:3, section: 4, title: "Topic 3", status: "close", date: "2017-01-12 00:00:00"}, 
                             {id:4, section: 1, title: "Topic 4", status: "open", date: "2017-01-15 00:00:00"},
                             {id:5, section: 1, title: "Topic 5", status: "open", date: "2017-01-17 00:00:00"}, 
                             {id:6, section: 4, title: "Topic 6", status: "open", date: "2017-01-21 00:00:00"},
@@ -701,8 +702,9 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
             },
             
             // check if user post is equal to active user or admin
-            _checkEditUser: function(user) {
-                return this._userInfo.id == user || this._userInfo.account == 1;
+            _checkEditUser: function(user, topic) {
+                return (this._userInfo.id == user || this._userInfo.account == 1) && 
+                    this.topic[this.topic.findIndex(this._findId, {id: topic})].status == 'open';
             },
             
             // show window to edit a post
