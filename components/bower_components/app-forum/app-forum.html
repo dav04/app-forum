@@ -3,6 +3,7 @@
 Copyright (c) 2017 Author: Davide Medina. All rights reserved.
 The complete code may be found at https://github.com/dav04/Forum-Polymer
 This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
 -->
 
 <!-- Iron components -->
@@ -39,7 +40,23 @@ Repository: [GitHub](https://github.com/dav04/Forum-Polymer)
 
 `app-forum` is a component to create a simple forum integrable in a site that 
 uses any type of database thanks to the inside use of json array.
-It allows to integrate all users of site which uses `app-forum`.
+It allows to integrate all users of site which uses `app-forum`. 
+Every single operation is protected by id and token of user (inside `forumEdit` event) that allow 
+to server to check authenticity of user and to catch editing operation in `editEvent` property.
+
+### Login
+It's possible login inside forum, where a `loginUserForum` event is fired and username and password are
+passed to server to check them and respon
+
+### Elements
+
+
+### Forum edit operations
+
+
+Type | Description 
+----------------|-------------
+`--forum-primary-color` | Background color 
 
 
 ### Events
@@ -89,7 +106,7 @@ Custom property | Description | Default
 `--forum-secondary-text-color` | Text color on toolbar, buttons and inputs | white
 `--app-forum` | Mixin applied to forum | {}
 
-
+@demo demo/index.html
 -->
 
 <dom-module id="app-forum">
