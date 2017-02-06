@@ -183,6 +183,8 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 }
                 .userMenuBox {
                     display: flex;
+                    align-items: center;
+                    justify-content: center;
                     margin-right: auto;
                     margin-left: auto;
                     padding: 10px;
@@ -190,7 +192,6 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                 .logininputM {
                     width: 200px;
                     float: left;
-                    margin-top: 10px;
                     margin-left: 15px;
                     --paper-input-container-color: var(--forum-primary-text-color);
                     --paper-input-container-focus-color: var(--forum-secondary-color);
@@ -214,6 +215,24 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                     bottom: 20px;
                     right: 30px;
                     position: fixed;
+                }
+                .toolbarIcon {
+                    --iron-icon-height: 20px;
+                    --iron-icon-width: 20px;
+                }
+            }
+            @media (max-width: 500px) {
+                paper-toolbar {
+                    --paper-toolbar-title: {
+                        margin-left: 0px;
+                    }
+                }
+                .logininputM {
+                    width: 100px;
+                    margin-left: 5px;
+                }
+                .loginIconSmall {
+                    padding: 0px 0px 0px 10px;
                 }
             }
 		</style>
@@ -269,7 +288,7 @@ DA AGGIUNGERE DA QUA INVECE CHE NELL'INDEX
                                     <paper-button icon="send" class="loginButton loginicon" on-click="_loginUser" hidden$="{{mobileScreen}}">
                                         LOGIN
                                     </paper-button>
-                                    <iron-icon icon="send" class="loginicon colorIcon" on-click="_loginUser" hidden$="{{!mobileScreen}}"></iron-icon>
+                                    <iron-icon icon="send" class="loginicon colorIcon loginIconSmall" on-click="_loginUser" hidden$="{{!mobileScreen}}"></iron-icon>
                                 </form>
                             </template>
                             <template is="dom-if" if="{{_checkUser}}">
