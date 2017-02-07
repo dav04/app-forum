@@ -1,0 +1,95 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+		
+		<title>Forum</title>
+		
+		<script src="components/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="components/bower_components/app-forum/app-forum.html">
+        <!--<style is="custom-style">
+            app-forum {
+                --forum-primary-color: red;
+                --forum-secondary-color: green;
+                --forum-primary-text-color: blue;
+                --forum-secondary-text-color: orange;
+            }
+        </style>-->
+        
+        <!--area: {type: Array,
+                    value: [{id:1, title: "Area 1", priv: 0}, {id:2, title: "Area 2", priv: 0}, {id:3, title: "Area 3", priv: 1}]
+                },
+        section: {
+                    type: Array,
+                    value: [{id:1, area: 1, title: "Sezione 1", description: "Descrizione 1", subsection: null}, 
+                            {id:2, area: 1, title: "Sezione 2", description: "Descrizione 2", subsection: null},
+                            {id:3, area: 2, title: "Sezione 3", description: "Descrizione 3", subsection: null}, 
+                            {id:4, area: 2, title: "Sezione 4", description: "Descrizione 4", subsection: null}, 
+                            {id:5, area: 2, title: "Sezione 5", description: "Descrizione 5", subsection: 3}, 
+                            {id:6, area: 2, title: "Sezione 6", description: "Descrizione 6", subsection: 5}]
+                },
+                /**
+                 * array with all topics of forum
+                 */
+                topic: {
+                    type: Array,
+                    value: [{id:1, section: 3, title: "Topic 1", status: "open", date: "2017-01-01 00:15:27"}, 
+                            {id:2, section: 1, title: "Topic 2", status: "close", date: "2017-01-11 16:01:00"},
+                            {id:3, section: 4, title: "Topic 3", status: "close", date: "2017-01-12 00:00:00"}, 
+                            {id:4, section: 1, title: "Topic 4", status: "open", date: "2017-01-15 00:00:00"},
+                            {id:5, section: 1, title: "Topic 5", status: "open", date: "2017-01-17 00:00:00"}, 
+                            {id:6, section: 4, title: "Topic 6", status: "open", date: "2017-01-21 00:00:00"},
+                            {id:7, section: 3, title: "Topic 7", status: "open", date: "2017-01-22 00:00:00"}, 
+                            {id:8, section: 2, title: "Topic 8", status: "close", date: "2017-02-03 00:00:00"},
+                            {id:9, section: 5, title: "Topic 9", status: "open", date: "2017-02-04 00:00:00"}, 
+                            {id:10, section: 2, title: "Topic 10", status: "close", date: "2017-02-05 00:00:00"}]
+                },
+                /**
+                 * array with all posts of forum
+                 */
+                post: {
+                    type: Array,
+                    value: [{id:1, topic: 3, message: "<p>Messaggio Topic 3</p>", user: 1, date: "2017-01-12 00:00:00"}, 
+                            {id:2, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 3, date: "2017-01-01 00:15:27"},
+                            {id:3, topic: 4, message: "<p>Messaggio Topic 4</p>", user: 4, date: "2017-01-01 00:00:00"}, 
+                            {id:4, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 2, date: "2017-01-02 09:15:27"},
+                            {id:5, topic: 9, message: "<p>Messaggio Topic 9</p>", user: 1, date: "2017-01-01 00:00:00"}, 
+                            {id:6, topic: 4, message: "<p>Messaggio Topic 4</p>", user: 1, date: "2017-01-01 00:00:00"},
+                            {id:7, topic: 3, message: "<p>Messaggio Topic 3</p>", user: 2, date: "2017-01-15 00:00:00"}, 
+                            {id:8, topic: 2, message: "<p>Messaggio Topic 2</p>", user: 3, date: "2017-01-11 16:01:00"},
+                            {id:9, topic: 1, message: "<p>Messaggio Topic 1</p>", user: 4, date: "2017-01-02 10:45:54"}, 
+                            {id:10, topic: 2, message: "<p>Messaggio Topic 2</p>", user: 4, date: "2017-01-13 22:11:07"}]
+                },
+                /**
+                 * array with all users of forum
+                 * account: 1/admin, 2/mod, 3/user
+                 */
+                user: {
+                    type: Array,
+                    value: [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
+                            {id:2, nickname: "dav04", account: 2, avatar: "images/users/avatar2.jpg"},
+                            {id:3, nickname: "poul", account: 3, avatar: "images/users/avatar3.jpg"}, 
+                            {id:4, nickname: "supervegetto86", account: 3, avatar: "images/users/avatar4.jpg"}]
+                },-->
+        <script>
+            // forumEdit è un evento per ottenere la modifica effettuata
+            document.addEventListener('forumEdit', function(data) {
+                alert("Il forum è stato modificato da " + data.detail.auth.id + " - " + data.detail.auth.token + " per " + data.detail.type);
+                var app = document.querySelector('app-forum');
+                alert(JSON.stringify(app.getAttribute('edit-event')));
+            });
+            
+            // loginUserForum è un evento per inviare il login dell'utente e ricevere un token
+            document.addEventListener('loginUserForum', function(info) {
+                //alert("L'utente " + info.detail.username + " si è loggato.");
+                var event = new CustomEvent("getToken", {detail: {id: "1", token: "adasfsafa"}});
+                document.querySelector('app-forum').dispatchEvent(event);
+            });
+        </script>
+	</head>
+	<body>
+		<template is="dom-bind">
+            <app-forum></app-forum>
+		</template>
+	</body>
+</html>
