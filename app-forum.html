@@ -603,6 +603,7 @@ Custom property                 | Description                               | De
                 this._userInfo.nick = this.user[pos].nickname;
                 this._userInfo.account = this.user[pos].account;
                 this._userInfo.avatar = this.user[pos].avatar;
+                this.notifyPath('_userInfo.nick');
                 this.notifyPath('_userInfo.avatar');
                 this._checkEdit = this._userInfo.account == 1;
                 
