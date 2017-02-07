@@ -301,7 +301,8 @@ Custom property                 | Description                               | De
                             <template is="dom-if" if="{{!_checkUser}}">
                                 <form is="iron-form" id="loginForm" method="post">
                                     <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
-                                    <paper-input name="password" label="Password" class="logininput loginicon" no-label-float></paper-input>
+                                    <paper-input name="password" type="password" label="Password" 
+                                                 class="logininput loginicon" no-label-float></paper-input>
                                     <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
                                 </form>
                             </template>
