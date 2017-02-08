@@ -38,11 +38,41 @@ This code may only be used under the BSD style license found at http://polymer.g
 <!--
 Source: [GitHub](https://github.com/dav04/Forum-Polymer)
 
-`app-forum` is a component to create a simple forum and it can be used in a site that 
-uses any type of database through the inside use of json array.
-It allows to integrate all users of a site that uses `app-forum`. 
+`app-forum` is a component that allows to create a simple forum receiving json data and integrating 
+all users of a site without a user have to sign in again.
 Every single operation is protected by id and token of user (`forumEdit` event) that allow 
 to server to check authenticity of user and to catch editing operation in `editEvent` property.
+
+### Elements
+
+The first element that has to be set as property is `user`; for every user in this array, 
+it must have these fields: `id`, `nickname`, `account`, `avatar`.
+
+`account` is can set to '1' for admins, who can edit forum structure, or '2' for users.
+
+Example:
+
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'></app-forum>
+
+The other elements that can be set are:
+
+Property    | Fields
+----        |----------
+`area`      | `id`, `title`, `priv`
+` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
+`section`   | `id`, `area`, `title`, `description`, `subsection`
+`topic`     | `id`, `section`, `title`, `status`, `date`
+` `         | `status` can be only 'open' or 'close'
+`post`      | `id`, `topic`, `message`, `user`, `date`
+
+Format of `date` field is `YYYY-MM-DD HH:MI:SS`
+
+Example with `area` and `section` property:
+
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'
+               area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]' 
+               section='[{"id":1, "area": 1, "title": "Section 1", "description": "Description 1", "subsection": null}, {"id":2, "area": 2, "title": "Section 2", "description": "Description 2", "subsection": null}, {"id":3, "area": 1, "title": "Section 3", "description": "Description 3", "subsection": null}, {"id":4, "area": 1, "title": "Section 4", "description": "Description 4", "subsection": 1}]'>
+    </app-forum>
 
 ### Login
 
@@ -60,35 +90,6 @@ Example:
     document.querySelector('app-forum').dispatchEvent(event);
 
 __Important:__ `getToken` event must have this structure of data with `id` and `token`.
-
-### Elements
-
-The first element that has to be set as property is `user`; for every user in this array, 
-it must have these fields: `id`, `nickname`, `account`, `avatar`.
-
-`account` is can set to '1' for admins, who can edit forum structure, or '2' for users.
-
-Example:
-
-    [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
-    {id:2, nickname: "user1", account: 2, avatar: "images/users/avatar2.jpg"}, ...]
-
-The other elements that can be set are:
-
-Property    | Fields
-----        |----------
-`area`      | `id`, `title`, `priv`
-` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
-`section`   | `id`, `area`, `title`, `description`, `subsection`
-`topic`     | `id`, `section`, `title`, `status`, `date`
-` `         | `status` can be only 'open' or 'close'
-`post`      | `id`, `topic`, `message`, `user`, `date`
-
-Format of `date` field is `YYYY-MM-DD HH:MI:SS`
-
-Example with `area` property:
-
-    <app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
 
 ### Forum edit operations
 
