@@ -302,27 +302,29 @@ Custom property                 | Description                               | De
                             </template>
                         </div>
                         <span class="title">{{title}}</span>
-                        <!-- User bar -->
-                        <div class="loginbar" hidden$="{{smallScreen}}">
-                            <template is="dom-if" if="{{!_checkUser}}">
-                                <form is="iron-form" id="loginForm" method="post">
-                                    <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
-                                    <paper-input name="password" type="password" label="Password" 
-                                                 class="logininput loginicon" no-label-float></paper-input>
-                                    <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
-                                </form>
-                            </template>
-                            <template is="dom-if" if="{{_checkUser}}">
-                                {{_userInfo.nick}}
-                                <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
-                                <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
-                            </template>
-                        </div>
-                        <div class="loginbar" hidden$="{{!smallScreen}}">
-                            <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
-                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
-                            <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
-                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
+                        <div hidden$="{{hideLogUser}}">
+                            <!-- User bar -->
+                            <div class="loginbar" hidden$="{{smallScreen}}">
+                                <template is="dom-if" if="{{!_checkUser}}">
+                                    <form is="iron-form" id="loginForm" method="post">
+                                        <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
+                                        <paper-input name="password" type="password" label="Password" 
+                                                     class="logininput loginicon" no-label-float></paper-input>
+                                        <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
+                                    </form>
+                                </template>
+                                <template is="dom-if" if="{{_checkUser}}">
+                                    {{_userInfo.nick}}
+                                    <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
+                                    <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
+                                </template>
+                            </div>
+                            <div class="loginbar" hidden$="{{!smallScreen}}">
+                                <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
+                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
+                                <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
+                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
+                            </div>
                         </div>
                     </paper-toolbar>
 
@@ -564,6 +566,13 @@ Custom property                 | Description                               | De
                  */
                 _checkBack: {
                     type: Boolean
+                },
+                /**
+                 * If true, user can login and logout only from the main site
+                 */
+                hideLogUser: {
+                    type: Boolean,
+                    value: false
                 }
 			},
             /**
