@@ -91,6 +91,11 @@ Example:
 
 __Important:__ `getToken` event must have this structure of data with `id` and `token`.
 
+### Logout
+
+User can logout from the forum where a `logoutUserForum` event is fired and authentication data (id and token of user) are passed.
+Otherwise user can log out from the main site and server has to fire `logoutUser` event to sent to forum the action of the user.
+
 ### Forum edit operations
 
 When a `forumEdit` event is fired, two fields are passed: `type` and `auth`. 
@@ -569,6 +574,12 @@ Custom property                 | Description                               | De
              * @event loginUserForum
              */
             /**
+             * Fired when an user log out
+             *
+             * `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
+             * @event logoutUserForum
+             */
+            /**
              * Fired when an action happens in forum and this action
              * is available in `editEvent` attribute
              *
@@ -577,6 +588,7 @@ Custom property                 | Description                               | De
              */
             listeners: {
                 'getToken':     '_saveIdToken',
+                'logoutUser':   '_logoutUser',
                 'resultReady':  '_catchResult',
                 'editArea' :    '_catchArea',
                 'editSection' : '_catchSection',
@@ -589,12 +601,14 @@ Custom property                 | Description                               | De
                 if(document.cookie.indexOf('app_forum_user') != -1) {
                     this._userInfo.id = this._getCookie().id;
                     var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                    this._userInfo.nick = this.user[pos].nickname;
-                    this._userInfo.account = this.user[pos].account;
-                    this._userInfo.avatar = this.user[pos].avatar;
-                    this.notifyPath('_userInfo.avatar');
-                    this._checkUser = true;
-                    this._checkEdit = this._userInfo.account == 1;
+                    if(pos != -1) {
+                        this._userInfo.nick = this.user[pos].nickname;
+                        this._userInfo.account = this.user[pos].account;
+                        this._userInfo.avatar = this.user[pos].avatar;
+                        this.notifyPath('_userInfo.avatar');
+                        this._checkUser = true;
+                        this._checkEdit = this._userInfo.account == 1;
+                    }
                 }
             },
             
@@ -633,6 +647,7 @@ Custom property                 | Description                               | De
                 this._userInfo = [{id: null, nick: null, account: null, avatar: null}];
                 this.notifyPath('area');
                 document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+                this.fire('logoutUserForum', {auth: this._getCookie()});
                 
                 this.$.forumarea.render();
             },
