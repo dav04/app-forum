@@ -589,6 +589,20 @@ Custom property                 | Description                               | De
              * @event logoutUserForum
              */
             /**
+             * Fired when a section is opened to load only relative subsections and topics. 
+             * Id of section is passed
+             *
+             * `id`: data.detail.id
+             * @event openSection
+             */
+            /**
+             * Fired when a topic is opened to load only relative posts. 
+             * Id of topic is passed
+             *
+             * `id`: data.detail.id
+             * @event openTopic
+             */
+            /**
              * Fired when an action happens in forum and this action
              * is available in `editEvent` attribute
              *
@@ -632,15 +646,19 @@ Custom property                 | Description                               | De
             
             // save id and token into a cookie
             _saveIdToken: function(data) {
-                this._checkUser = true;
-                this._userInfo.id = data.detail.id;
-                var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                this._userInfo.nick = this.user[pos].nickname;
-                this._userInfo.account = this.user[pos].account;
-                this._userInfo.avatar = this.user[pos].avatar;
-                this.notifyPath('_userInfo.nick');
-                this.notifyPath('_userInfo.avatar');
-                this._checkEdit = this._userInfo.account == 1;
+                try {
+                    this._userInfo.id = data.detail.id;
+                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                    this._userInfo.nick = this.user[pos].nickname;
+                    this._userInfo.account = this.user[pos].account;
+                    this._userInfo.avatar = this.user[pos].avatar;
+                    this.notifyPath('_userInfo.nick');
+                    this.notifyPath('_userInfo.avatar');
+                    this._checkUser = true;
+                    this._checkEdit = this._userInfo.account == 1;
+                } catch(err) {
+                    console.log("User's array is not updated.");
+                }
                 
                 var d = new Date();
                 d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
@@ -801,6 +819,7 @@ Custom property                 | Description                               | De
             // show topics of selected section
             _sectionSelect: function(e) {
                 this.push('_trackPage.0.section', e.model.section.id);
+                this.fire('openSection', {id: e.model.section.id});
                 this._pageFieldId = e.model.section.id;
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
@@ -810,6 +829,7 @@ Custom property                 | Description                               | De
             _topicSelect: function(e) {
                 this._trackPage.topic = e.model.topic.id;
                 this.notifyPath('_trackPage.topic');
+                this.fire('openTopic', {id: e.model.topic.id});
                 this._pageFieldId = e.model.topic.id;
                 this.__topicName = e.model.topic.title;
                 this._checkAction = this._checkUser && (e.model.topic.status == 'open')
