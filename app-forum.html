@@ -38,41 +38,11 @@ This code may only be used under the BSD style license found at http://polymer.g
 <!--
 Source: [GitHub](https://github.com/dav04/Forum-Polymer)
 
-`app-forum` is a component that allows to create a simple forum receiving json data and integrating 
-all users of a site without a user have to sign in again.
+`app-forum` is a component to create a simple forum and it can be used in a site that 
+uses any type of database through the inside use of json array.
+It allows to integrate all users of a site that uses `app-forum`. 
 Every single operation is protected by id and token of user (`forumEdit` event) that allow 
 to server to check authenticity of user and to catch editing operation in `editEvent` property.
-
-### Elements
-
-The first element that has to be set as property is `user`; for every user in this array, 
-it must have these fields: `id`, `nickname`, `account`, `avatar`.
-
-`account` is can set to '1' for admins, who can edit forum structure, or '2' for users.
-
-Example:
-
-    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'></app-forum>
-
-The other elements that can be set are:
-
-Property    | Fields
-----        |----------
-`area`      | `id`, `title`, `priv`
-` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
-`section`   | `id`, `area`, `title`, `description`, `subsection`
-`topic`     | `id`, `section`, `title`, `status`, `date`
-` `         | `status` can be only 'open' or 'close'
-`post`      | `id`, `topic`, `message`, `user`, `date`
-
-Format of `date` field is `YYYY-MM-DD HH:MI:SS`
-
-Example with `area` and `section` property:
-
-    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'
-               area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]' 
-               section='[{"id":1, "area": 1, "title": "Section 1", "description": "Description 1", "subsection": null}, {"id":2, "area": 2, "title": "Section 2", "description": "Description 2", "subsection": null}, {"id":3, "area": 1, "title": "Section 3", "description": "Description 3", "subsection": null}, {"id":4, "area": 1, "title": "Section 4", "description": "Description 4", "subsection": 1}]'>
-    </app-forum>
 
 ### Login
 
@@ -91,10 +61,34 @@ Example:
 
 __Important:__ `getToken` event must have this structure of data with `id` and `token`.
 
-### Logout
+### Elements
 
-User can logout from the forum where a `logoutUserForum` event is fired and authentication data (id and token of user) are passed.
-Otherwise user can log out from the main site and server has to fire `logoutUser` event to sent to forum the action of the user.
+The first element that has to be set as property is `user`; for every user in this array, 
+it must have these fields: `id`, `nickname`, `account`, `avatar`.
+
+`account` is can set to '1' for admins, who can edit forum structure, or '2' for users.
+
+Example:
+
+    [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
+    {id:2, nickname: "user1", account: 2, avatar: "images/users/avatar2.jpg"}, ...]
+
+The other elements that can be set are:
+
+Property    | Fields
+----        |----------
+`area`      | `id`, `title`, `priv`
+` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
+`section`   | `id`, `area`, `title`, `description`, `subsection`
+`topic`     | `id`, `section`, `title`, `status`, `date`
+` `         | `status` can be only 'open' or 'close'
+`post`      | `id`, `topic`, `message`, `user`, `date`
+
+Format of `date` field is `YYYY-MM-DD HH:MI:SS`
+
+Example with `area` property:
+
+    <app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
 
 ### Forum edit operations
 
@@ -107,11 +101,11 @@ property the element edited in forum.
 
 Type            | Description           | Fields
 ----------      |-------------          |----------
-`reply`         | Reply to a post       | `message`, `typeid` (topic id)
+`reply`         | Reply to a post       | `id`, `message`, `typeid` (topic id)
 `editPost`      | Post edited           | `message`, `typeid` (post id)
 `deletePost`    | Post deleted          | `id`, `topic`, `message`, `user`, `date`
 `editTopic`     | Topic edited          | `id` (topic id), `title`, `message`, `typeid` (post id)
-`newTopic`      | New topic created     | `title`, `message`, `typeid` (section id)
+`newTopic`      | New topic created     | `id`, `title`, `message`, `typeid` (section id)
 `newArea`       | New area created      | `id`, `title`, `priv`
 `editArea`      | Area edited           | `id`, `title`, `priv`
 `deleteArea`    | Area deleted          | `id`, `title`, `priv`
@@ -302,29 +296,27 @@ Custom property                 | Description                               | De
                             </template>
                         </div>
                         <span class="title">{{title}}</span>
-                        <div hidden$="{{hideLogUser}}">
-                            <!-- User bar -->
-                            <div class="loginbar" hidden$="{{smallScreen}}">
-                                <template is="dom-if" if="{{!_checkUser}}">
-                                    <form is="iron-form" id="loginForm" method="post">
-                                        <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
-                                        <paper-input name="password" type="password" label="Password" 
-                                                     class="logininput loginicon" no-label-float></paper-input>
-                                        <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
-                                    </form>
-                                </template>
-                                <template is="dom-if" if="{{_checkUser}}">
-                                    {{_userInfo.nick}}
-                                    <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
-                                    <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
-                                </template>
-                            </div>
-                            <div class="loginbar" hidden$="{{!smallScreen}}">
-                                <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
-                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
-                                <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
-                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
-                            </div>
+                        <!-- User bar -->
+                        <div class="loginbar" hidden$="{{smallScreen}}">
+                            <template is="dom-if" if="{{!_checkUser}}">
+                                <form is="iron-form" id="loginForm" method="post">
+                                    <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
+                                    <paper-input name="password" type="password" label="Password" 
+                                                 class="logininput loginicon" no-label-float></paper-input>
+                                    <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
+                                </form>
+                            </template>
+                            <template is="dom-if" if="{{_checkUser}}">
+                                {{_userInfo.nick}}
+                                <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
+                                <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
+                            </template>
+                        </div>
+                        <div class="loginbar" hidden$="{{!smallScreen}}">
+                            <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
+                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
+                            <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
+                                       on-click="_userMenu" id="avatarmenu"></iron-icon>
                         </div>
                     </paper-toolbar>
 
@@ -566,13 +558,6 @@ Custom property                 | Description                               | De
                  */
                 _checkBack: {
                     type: Boolean
-                },
-                /**
-                 * If true, user can login and logout only from the main site
-                 */
-                hideLogUser: {
-                    type: Boolean,
-                    value: false
                 }
 			},
             /**
@@ -583,26 +568,6 @@ Custom property                 | Description                               | De
              * @event loginUserForum
              */
             /**
-             * Fired when an user log out
-             *
-             * `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
-             * @event logoutUserForum
-             */
-            /**
-             * Fired when a section is opened to load only relative subsections and topics. 
-             * Id of section is passed
-             *
-             * `id`: data.detail.id
-             * @event openSection
-             */
-            /**
-             * Fired when a topic is opened to load only relative posts. 
-             * Id of topic is passed
-             *
-             * `id`: data.detail.id
-             * @event openTopic
-             */
-            /**
              * Fired when an action happens in forum and this action
              * is available in `editEvent` attribute
              *
@@ -611,7 +576,6 @@ Custom property                 | Description                               | De
              */
             listeners: {
                 'getToken':     '_saveIdToken',
-                'logoutUser':   '_logoutUser',
                 'resultReady':  '_catchResult',
                 'editArea' :    '_catchArea',
                 'editSection' : '_catchSection',
@@ -624,14 +588,12 @@ Custom property                 | Description                               | De
                 if(document.cookie.indexOf('app_forum_user') != -1) {
                     this._userInfo.id = this._getCookie().id;
                     var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                    if(pos != -1) {
-                        this._userInfo.nick = this.user[pos].nickname;
-                        this._userInfo.account = this.user[pos].account;
-                        this._userInfo.avatar = this.user[pos].avatar;
-                        this.notifyPath('_userInfo.avatar');
-                        this._checkUser = true;
-                        this._checkEdit = this._userInfo.account == 1;
-                    }
+                    this._userInfo.nick = this.user[pos].nickname;
+                    this._userInfo.account = this.user[pos].account;
+                    this._userInfo.avatar = this.user[pos].avatar;
+                    this.notifyPath('_userInfo.avatar');
+                    this._checkUser = true;
+                    this._checkEdit = this._userInfo.account == 1;
                 }
             },
             
@@ -646,19 +608,15 @@ Custom property                 | Description                               | De
             
             // save id and token into a cookie
             _saveIdToken: function(data) {
-                try {
-                    this._userInfo.id = data.detail.id;
-                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                    this._userInfo.nick = this.user[pos].nickname;
-                    this._userInfo.account = this.user[pos].account;
-                    this._userInfo.avatar = this.user[pos].avatar;
-                    this.notifyPath('_userInfo.nick');
-                    this.notifyPath('_userInfo.avatar');
-                    this._checkUser = true;
-                    this._checkEdit = this._userInfo.account == 1;
-                } catch(err) {
-                    console.log("User's array is not updated.");
-                }
+                this._checkUser = true;
+                this._userInfo.id = data.detail.id;
+                var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                this._userInfo.nick = this.user[pos].nickname;
+                this._userInfo.account = this.user[pos].account;
+                this._userInfo.avatar = this.user[pos].avatar;
+                this.notifyPath('_userInfo.nick');
+                this.notifyPath('_userInfo.avatar');
+                this._checkEdit = this._userInfo.account == 1;
                 
                 var d = new Date();
                 d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
@@ -674,7 +632,6 @@ Custom property                 | Description                               | De
                 this._userInfo = [{id: null, nick: null, account: null, avatar: null}];
                 this.notifyPath('area');
                 document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
-                this.fire('logoutUserForum', {auth: this._getCookie()});
                 
                 this.$.forumarea.render();
             },
@@ -819,7 +776,6 @@ Custom property                 | Description                               | De
             // show topics of selected section
             _sectionSelect: function(e) {
                 this.push('_trackPage.0.section', e.model.section.id);
-                this.fire('openSection', {id: e.model.section.id});
                 this._pageFieldId = e.model.section.id;
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
@@ -829,7 +785,6 @@ Custom property                 | Description                               | De
             _topicSelect: function(e) {
                 this._trackPage.topic = e.model.topic.id;
                 this.notifyPath('_trackPage.topic');
-                this.fire('openTopic', {id: e.model.topic.id});
                 this._pageFieldId = e.model.topic.id;
                 this.__topicName = e.model.topic.title;
                 this._checkAction = this._checkUser && (e.model.topic.status == 'open')
@@ -955,8 +910,9 @@ Custom property                 | Description                               | De
                     
                 // Add a new record in 'post' array
                 } else if(this._pageField == "reply") {
-                    this.editEvent = data.detail.result;
                     var newid = this.post[this.post.length-1].id + 1;
+                    data.detail.result.id = newid;
+                    this.editEvent = data.detail.result;
                     this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, 
                                     user: this._userInfo.id, date: this._formatDate(date, "DB")});
                     this.notifySplices('post', [{index: (this.post.length - 1), removed: [], addedCount: 1, object: this.post}]);
@@ -970,6 +926,7 @@ Custom property                 | Description                               | De
                         var newid = this.topic[this.topic.length-1].id + 1;
                     else
                         var newid = 1;
+                    data.detail.result.id = newid;
                     this.editEvent = data.detail.result;
                     this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open',
                                     date: this._formatDate(date, "DB")});
