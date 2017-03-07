@@ -105,7 +105,7 @@ Type            | Description           | Fields
 `editPost`      | Post edited           | `message`, `typeid` (post id)
 `deletePost`    | Post deleted          | `id`, `topic`, `message`, `user`, `date`
 `editTopic`     | Topic edited          | `id` (topic id), `title`, `message`, `typeid` (post id)
-`newTopic`      | New topic created     | `id`, `title`, `message`, `typeid` (section id)
+`newTopic`      | New topic created     | `id`, `title`, `message`, `postid`, `typeid` (section id)
 `newArea`       | New area created      | `id`, `title`, `priv`
 `editArea`      | Area edited           | `id`, `title`, `priv`
 `deleteArea`    | Area deleted          | `id`, `title`, `priv`
@@ -926,16 +926,17 @@ Custom property                 | Description                               | De
                         var newid = this.topic[this.topic.length-1].id + 1;
                     else
                         var newid = 1;
-                    data.detail.result.id = newid;
-                    this.editEvent = data.detail.result;
-                    this.topic.push({id: newid, section: this.editEvent.typeid, title: this.editEvent.title, status: 'open',
+                    this.topic.push({id: newid, section: data.detail.result.typeid, title: data.detail.result.title, status: 'open',
                                     date: this._formatDate(date, "DB")});
                     this.notifySplices('topic', [{index: (this.topic.length - 1), removed: [], addedCount: 1, object: this.topic}]);
                     if(this.post[this.post.length-1] != undefined)
                         var newid2 = this.post[this.post.length-1].id + 1;
                     else
                         var newid2 = 1;
-                    this.post.push({id: newid2, topic: newid, message: this.editEvent.message, user: this._userInfo.id,
+                    data.detail.result.id = newid;
+                    data.detail.result.postid = newid2;
+                    this.editEvent = data.detail.result;
+                    this.post.push({id: newid2, topic: newid, message: data.detail.result.message, user: this._userInfo.id,
                                    date: this._formatDate(date, "DB")});
                     this.notifySplices('post', [{index: (this.post.length - 1), removed: [], addedCount: 1, object: this.post}]);
                     this._pageField = "section";
