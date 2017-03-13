@@ -7,6 +7,8 @@ This code may only be used under the BSD style license found at http://polymer.g
 -->
 
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
 <!-- Iron components -->
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-icons/editor-icons.html">
@@ -284,8 +286,8 @@ Custom property                 | Description                               | De
 
 		<div>
 			<paper-material class="forumBox" elevation="2">
-                <paper-header-panel mode="waterfall">
-                    <paper-toolbar id="forumToolbar" hidden$="{{_checkUserToolbar(userToolbar, smallScreen)}}">
+                <app-header effects="waterfall">
+                    <app-toolbar id="forumToolbar" hidden$="{{_checkUserToolbar(userToolbar, smallScreen)}}">
                         <!-- Navigation bar -->
                         <div class="navbutton">
                             <iron-icon icon="home" class="toolbarIcon" on-click="_goHome"></iron-icon>
@@ -319,10 +321,10 @@ Custom property                 | Description                               | De
                             <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
                                        on-click="_userMenu" id="avatarmenu"></iron-icon>
                         </div>
-                    </paper-toolbar>
+                    </app-toolbar>
 
                     <!-- User Toolbar for screen < 800px -->
-                    <paper-toolbar class="userToolbar" hidden$="{{!_checkUserToolbar(userToolbar, smallScreen)}}">
+                    <app-toolbar class="userToolbar" hidden$="{{!_checkUserToolbar(userToolbar, smallScreen)}}">
                         <div>
                             <iron-icon icon="arrow-back" class="colorIcon toolbarIcon" on-click="_userMenuClose"></iron-icon>
                         </div>
@@ -343,7 +345,7 @@ Custom property                 | Description                               | De
                                 <paper-button icon="send" class="loginButton" on-click="_logoutUser">LOGOUT</paper-button>
                             </dom-if>
                         </div>
-                    </paper-toolbar>
+                    </app-toolbar>
 
                     <div>
                         <iron-pages id="forumpages" selected="0">
@@ -429,7 +431,7 @@ Custom property                 | Description                               | De
 
                         <slot></slot>
                     </div>
-                </paper-header-panel>
+                </app-header>
 			</paper-material>
             
             <iron-media-query query="(max-width: 800px)" query-matches="{{smallScreen}}"></iron-media-query>
@@ -802,8 +804,9 @@ Custom property                 | Description                               | De
             
             // check if user post is equal to active user or admin
             _checkEditUser: function(user, topic) {
-                return (this._userInfo.id == user || this._userInfo.account == 1) && 
-                    this.topic[this.topic.findIndex(this._findId, {id: topic})].status == 'open';
+                if(!(user === undefined || topic === undefined)) 
+                    return (this._userInfo.id == user || this._userInfo.account == 1) && 
+                        this.topic[this.topic.findIndex(this._findId, {id: topic})].status == 'open';
             },
             
             // show window to edit a post
