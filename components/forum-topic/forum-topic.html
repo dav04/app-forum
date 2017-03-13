@@ -38,17 +38,17 @@ This code may only be used under the BSD style license found at http://polymer.g
         
         <div class="box">
             <div class="iconsection">
-                <template is="dom-if" if="{{_checkStatus}}">
+                <dom-if if="{{_checkStatus}}">
                     <iron-icon class="big" title="Topic open" icon="speaker-notes"></iron-icon>
-                </template>
-                <template is="dom-if" if="{{!_checkStatus}}">
+                </dom-if>
+                <dom-if if="{{!_checkStatus}}">
                     <iron-icon class="big close" title="Topic close" icon="speaker-notes"></iron-icon>
-                </template>
+                </dom-if>
             </div>
             <div class="date">{{_formatDate}}</div>
             <div>{{title}}</div>
             
-            <content></content>
+            <slot></slot>
         </div>
 	</template>
 

@@ -74,7 +74,7 @@ This code may only be used under the BSD style license found at http://polymer.g
         
         <paper-material class="box">
             <div class="user" hidden$="{{smallScreen}}">
-                <content select=".user"></content>
+                <slot name=".user"></slot>
             </div>
             <paper-icon-item class="postItem">
                 <iron-icon icon="more-vert" hidden$="{{!usermenu}}" on-click="_openmenu" class="menuicon menuvert" item-icon id="menuVert">
@@ -83,17 +83,17 @@ This code may only be used under the BSD style license found at http://polymer.g
                 <iron-dropdown horizontal-align="left" horizontal-offset="40" 
                                vertical-align="top" vertical-offset="-20" id="posteditmenu">
                     <paper-material class="dropdown-content menuicon menudrop" elevation="0">
-                        <content select=".action"></content>
+                        <slot select=".action"></slot>
                     </paper-material>
                 </iron-dropdown>
                 <div class="date">
                     <span hidden$="{{!smallScreen}}">
-                        <content select=".userSmall"></content>
+                        <slot name=".userSmall"></slot>
                     </span> {{_formatDate}}
                 </div>
                 <div class="message">{{message}}</div>
                 <div class="quote">
-                    <content select=".quote"></content>
+                    <slot name=".quote"></slot>
                 </div>
             </paper-icon-item>
         </paper-material>
@@ -142,6 +142,10 @@ This code may only be used under the BSD style license found at http://polymer.g
             _openmenu: function() {
                 this.$.posteditmenu.positionTarget = this.$.menuVert;
                 this.$.posteditmenu.toggle();
+            },
+            
+            _closemenu: function() {
+                this.$.posteditmenu.close();
             },
             
             _decode: function() {
