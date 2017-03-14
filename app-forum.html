@@ -61,6 +61,13 @@ Example:
 
 __Important:__ `getToken` event must have this structure of data with `id` and `token`.
 
+### Logout
+
+User can logout from the forum where a `logoutUserForum` event is fired and authentication data 
+(id and token of user) are passed.
+Otherwise user can log out from the main site and server has to fire `logoutUser` event to sent to forum 
+the action of the user.
+
 ### Elements
 
 The first element that has to be set as property is `user`; for every user in this array, 
@@ -577,6 +584,26 @@ Custom property                 | Description                               | De
              * @event loginUserForum
              */
             /**
+             * Fired when an user log out
+             *
+             * `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
+             * @event logoutUserForum
+             */
+            /**
+             * Fired when a section is opened to load only relative subsections and topics. 
+             * Id of section is passed
+             *
+             * `id`: data.detail.id
+             * @event openSection
+             */
+            /**
+             * Fired when a topic is opened to load only relative posts. 
+             * Id of topic is passed
+             *
+             * `id`: data.detail.id
+             * @event openTopic
+             */
+            /**
              * Fired when an action happens in forum and this action
              * is available in `editEvent` attribute
              *
@@ -585,6 +612,7 @@ Custom property                 | Description                               | De
              */
             listeners: {
                 'getToken':     '_saveIdToken',
+                'logoutUser':   '_logoutUser',
                 'resultReady':  '_catchResult',
                 'editArea' :    '_catchArea',
                 'editSection' : '_catchSection',
@@ -597,12 +625,14 @@ Custom property                 | Description                               | De
                 if(document.cookie.indexOf('app_forum_user') != -1) {
                     this._userInfo.id = this._getCookie().id;
                     var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                    this._userInfo.nick = this.user[pos].nickname;
-                    this._userInfo.account = this.user[pos].account;
-                    this._userInfo.avatar = this.user[pos].avatar;
-                    this.notifyPath('_userInfo.avatar');
-                    this._checkUser = true;
-                    this._checkEdit = this._userInfo.account == 1;
+                    if(pos != -1) {
+                        this._userInfo.nick = this.user[pos].nickname;
+                        this._userInfo.account = this.user[pos].account;
+                        this._userInfo.avatar = this.user[pos].avatar;
+                        this.notifyPath('_userInfo.avatar');
+                        this._checkUser = true;
+                        this._checkEdit = this._userInfo.account == 1;
+                    }
                 }
             },
             
@@ -618,14 +648,18 @@ Custom property                 | Description                               | De
             // save id and token into a cookie
             _saveIdToken: function(data) {
                 this._checkUser = true;
-                this._userInfo.id = data.detail.id;
-                var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
-                this._userInfo.nick = this.user[pos].nickname;
-                this._userInfo.account = this.user[pos].account;
-                this._userInfo.avatar = this.user[pos].avatar;
-                this.notifyPath('_userInfo.nick');
-                this.notifyPath('_userInfo.avatar');
-                this._checkEdit = this._userInfo.account == 1;
+                try {
+                    this._userInfo.id = data.detail.id;
+                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                    this._userInfo.nick = this.user[pos].nickname;
+                    this._userInfo.account = this.user[pos].account;
+                    this._userInfo.avatar = this.user[pos].avatar;
+                    this.notifyPath('_userInfo.nick');
+                    this.notifyPath('_userInfo.avatar');
+                    this._checkEdit = this._userInfo.account == 1;
+                } catch(err) {
+                    console.log("User's array is not updated.");
+                }
                 
                 var d = new Date();
                 d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
@@ -641,6 +675,7 @@ Custom property                 | Description                               | De
                 this._userInfo = [{id: null, nick: null, account: null, avatar: null}];
                 this.notifyPath('area');
                 document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+                this.fire('logoutUserForum', {auth: this._getCookie()});
                 
                 this.$.forumarea.render();
             },
@@ -785,6 +820,7 @@ Custom property                 | Description                               | De
             // show topics of selected section
             _sectionSelect: function(e) {
                 this.push('_trackPage.0.section', e.model.section.id);
+                this.fire('openSection', {id: e.model.section.id});
                 this._pageFieldId = e.model.section.id;
                 this.$.forumpages.select(1);
                 this._checkBack = this.$.forumpages.selected != 0;
@@ -794,6 +830,7 @@ Custom property                 | Description                               | De
             _topicSelect: function(e) {
                 this._trackPage.topic = e.model.topic.id;
                 this.notifyPath('_trackPage.topic');
+                this.fire('openTopic', {id: e.model.topic.id});
                 this._pageFieldId = e.model.topic.id;
                 this.__topicName = e.model.topic.title;
                 this._checkAction = this._checkUser && (e.model.topic.status == 'open')
