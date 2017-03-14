@@ -7,6 +7,7 @@ This code may only be used under the BSD style license found at http://polymer.g
 -->
 
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../app-layout/app-layout.html">
 <link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
 <!-- Iron components -->
@@ -150,7 +151,7 @@ Custom property                 | Description                               | De
                 
                 @apply(--app-forum);
             }
-            paper-toolbar, .newButton {
+            app-toolbar, .newButton {
                 background-color: var(--forum-secondary-color);
                 color: var(--forum-secondary-text-color);
             }
@@ -291,29 +292,29 @@ Custom property                 | Description                               | De
                         <!-- Navigation bar -->
                         <div class="navbutton">
                             <iron-icon icon="home" class="toolbarIcon" on-click="_goHome"></iron-icon>
-                            <dom-if if="{{_checkBack}}">
+                            <template is="dom-if" if="{{_checkBack}}">
                                 <iron-icon icon="arrow-back" class="toolbarIcon" on-click="_goBack"></iron-icon>
-                            </dom-if>
-                            <dom-if if="{{_checkEdit}}">
+                            </template>
+                            <template is="dom-if" if="{{_checkEdit}}">
                                 <iron-icon icon="create" class="toolbarIcon" on-click="_goEditForum"></iron-icon>
-                            </dom-if>
+                            </template>
                         </div>
-                        <span class="title">{{title}}</span>
+                        <span main-title spacer>{{title}}</span>
                         <!-- User bar -->
                         <div class="loginbar" hidden$="{{smallScreen}}">
-                            <dom-if if="{{!_checkUser}}">
-                                <iron-form id="loginForm" method="post">
+                            <template is="dom-if" if="{{!_checkUser}}">
+                                <form is="iron-form" id="loginForm">
                                     <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
                                     <paper-input name="password" type="password" label="Password" 
                                                  class="logininput loginicon" no-label-float></paper-input>
                                     <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
                                 </iron-form>
-                            </dom-if>
-                            <dom-if if="{{_checkUser}}">
+                            </template>
+                            <template is="dom-if" if="{{_checkUser}}">
                                 {{_userInfo.nick}}
                                 <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
                                 <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
-                            </dom-if>
+                            </template>
                         </div>
                         <div class="loginbar" hidden$="{{!smallScreen}}">
                             <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
@@ -324,79 +325,80 @@ Custom property                 | Description                               | De
                     </app-toolbar>
 
                     <!-- User Toolbar for screen < 800px -->
-                    <app-toolbar class="userToolbar" hidden$="{{!_checkUserToolbar(userToolbar, smallScreen)}}">
-                        <div>
-                            <iron-icon icon="arrow-back" class="colorIcon toolbarIcon" on-click="_userMenuClose"></iron-icon>
-                        </div>
-                        <div class="userMenuBox">
-                            <dom-if if="{{!_checkUser}}">
-                                <iron-form id="loginForm" method="post">
-                                    <paper-input name="username" label="Username" class="logininputM" no-label-float></paper-input>
-                                    <paper-input name="password" label="Password" class="logininputM" no-label-float></paper-input>
-                                    <paper-button icon="send" class="loginButton loginicon" on-click="_loginUser" hidden$="{{mobileScreen}}">
-                                        LOGIN
-                                    </paper-button>
-                                    <iron-icon icon="send" class="loginicon colorIcon loginIconSmall" on-click="_loginUser" hidden$="{{!mobileScreen}}"></iron-icon>
-                                </iron-form>
-                            </dom-if>
-                            <dom-if if="{{_checkUser}}">
-                                {{_userInfo.nick}}
-                                <iron-icon src="{{_userInfo.avatar}}" class="avatar"></iron-icon>
-                                <paper-button icon="send" class="loginButton" on-click="_logoutUser">LOGOUT</paper-button>
-                            </dom-if>
-                        </div>
-                    </app-toolbar>
+                    <template is="dom-if" if="{{_checkUserToolbar(userToolbar, smallScreen)}}">
+                        <app-toolbar class="userToolbar">
+                            <div>
+                                <iron-icon icon="arrow-back" class="colorIcon toolbarIcon" on-click="_userMenuClose"></iron-icon>
+                            </div>
+                            <div class="userMenuBox">
+                                <template is="dom-if" if="{{!_checkUser}}">
+                                    <form is="iron-form" id="loginForm" method="post">
+                                        <paper-input name="username" label="Username" class="logininputM" no-label-float></paper-input>
+                                        <paper-input name="password" label="Password" class="logininputM" no-label-float></paper-input>
+                                        <paper-button icon="send" class="loginButton loginicon" on-click="_loginUser" 
+                                                      hidden$="{{mobileScreen}}">LOGIN</paper-button>
+                                        <iron-icon icon="send" class="loginicon colorIcon loginIconSmall" on-click="_loginUser" hidden$="{{!mobileScreen}}"></iron-icon>
+                                    </form>
+                                </template>
+                                <template is="dom-if" if="{{_checkUser}}">
+                                    {{_userInfo.nick}}
+                                    <iron-icon src="{{_userInfo.avatar}}" class="avatar"></iron-icon>
+                                    <paper-button icon="send" class="loginButton" on-click="_logoutUser">LOGOUT</paper-button>
+                                </template>
+                            </div>
+                        </app-toolbar>
+                    </template>
 
                     <div>
                         <iron-pages id="forumpages" selected="0">
                             <!-- Page with areas and sections -->
                             <div>
-                                <dom-repeat id="forumarea" items={{area}} as="area" filter="{{_checkPrivilege(_userInfo)}}">
+                                <template is="dom-repeat" id="forumarea" items={{area}} as="area" filter="{{_checkPrivilege(_userInfo)}}">
                                     <forum-area name={{area.title}}>
-                                        <dom-repeat id="forumsection" items={{section}} as="section">
-                                            <dom-if if="{{_checkSubSection(section.subsection)}}">
-                                                <dom-if if="{{_areaFilter(area.id, section.area)}}">
+                                        <template is="dom-repeat" id="forumsection" items={{section}} as="section">
+                                            <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
+                                                <template is="dom-if" if="{{_areaFilter(area.id, section.area)}}">
                                                     <div class="divider">
                                                         <forum-section name={{section.title}} 
                                                                        description={{section.description}}
                                                                        on-click="_sectionSelect">
                                                         </forum-section>
                                                     </div>
-                                                </dom-if>
-                                            </dom-if>
-                                        </dom-repeat>
+                                                </template>
+                                            </template>
+                                        </template>
                                     </forum-area>
-                                </dom-repeat>
+                                </template>
                             </div>
                             <!-- Page with sections and topics-->
                             <div>
-                                <dom-if if="{{_checkUser}}">
+                                <template is="dom-if" if="{{_checkUser}}">
                                     <paper-button class="newButton" on-click="_newTopic">New topic</paper-button>
-                                </dom-if>
+                                </template>
                                 <div class="border">
-                                    <dom-repeat items={{section}} as="section" filter="{{_sectionFilter(_pageFieldId)}}">
+                                    <template is="dom-repeat" items={{section}} as="section" filter="{{_sectionFilter(_pageFieldId)}}">
                                         <div class="divider">
                                             <forum-section name={{section.title}} 
                                                            description={{section.description}}
                                                            on-click="_sectionSelect">
                                             </forum-section>
                                         </div>
-                                    </dom-repeat>
+                                    </template>
                                 </div>
                                 <div class="border">
-                                    <dom-repeat id="topicList" items={{topic}} as="topic" filter="{{_topicFilter(_pageFieldId)}}">
+                                    <template is="dom-repeat" id="topicList" items={{topic}} as="topic" filter="{{_topicFilter(_pageFieldId)}}">
                                         <div class="divider">
                                             <forum-topic title={{topic.title}} date="{{topic.date}}" status="{{topic.status}}" 
                                                          on-click="_topicSelect"></forum-topic>
                                         </div>
-                                    </dom-repeat>
+                                    </template>
                                 </div>
                             </div>
                             <!-- Page with posts -->
                             <div>
                                 <div class="topicTitle">{{_topicName}}</div>
 
-                                <dom-repeat id="postList" items={{post}} as="post" filter="{{_postFilter(_trackPage.topic)}}">
+                                <template is="dom-repeat" id="postList" items={{post}} as="post" filter="{{_postFilter(_trackPage.topic)}}">
                                     <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" 
                                                 hidden$="{{_checkEditUser(post.user, post.topic)}}">
                                         <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
@@ -411,10 +413,10 @@ Custom property                 | Description                               | De
                                         <paper-fab icon="delete" title="Delete post" on-click="_deletePost" slot="action"></paper-fab>
                                         <iron-icon icon="editor:format-quote" title="Quote" on-click="_quotePost" slot="quote"></iron-icon>
                                     </forum-post>
-                                </dom-repeat>
-                                <dom-if if="{{_checkAction}}">
+                                </template>
+                                <template is="dom-if" if="{{_checkAction}}">
                                     <paper-fab icon="reply" title="Reply" on-click="_replyPost" class="replybutton"></paper-fab>
-                                </dom-if>
+                                </template>
                             </div>
                             <!-- Page to create topic or write post -->
                             <div>
@@ -606,6 +608,7 @@ Custom property                 | Description                               | De
             // send username and password by 'loginUserForum' event
             _loginUser: function() {
                 var info = this.$$('#loginForm').serialize();
+                console.log(this.$$('#loginForm').serialize());
                 this.fire('loginUserForum', {username: info.username, password: info.password});
             },
             
