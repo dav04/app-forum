@@ -109,7 +109,7 @@ This code may only be used under the BSD style license found at http://polymer.g
         
         <!-- Form to insert/edit topic or post -->
         <template is="dom-if" if="{{!_isForumEdit}}">
-            <form is="iron-form" id="editForm" method="post">
+            <iron-form id="editForm" method="post">
                 <template is="dom-if" if="{{_isTopic}}">
                     <paper-input name="title" value={{title}} label="Title" class="titleInput"></paper-input>
                 </template>
@@ -119,7 +119,7 @@ This code may only be used under the BSD style license found at http://polymer.g
                 <div class="formButton">
                     <paper-button on-click="_sendForm" class="insertButton">{{_textButton}}</paper-button>
                 </div>
-            </form>
+            </iron-form>
         </template>
         
         <!-- Form to insert/remove new area or section -->
@@ -174,7 +174,7 @@ This code may only be used under the BSD style license found at http://polymer.g
             <!-- form for editing -->
             <paper-material class="box boxInsert" hidden$="{{!_tempInsert}}">
                 <div class="title">{{_tempDescInsert}}</div>
-                <form is="iron-form" id="editForm2" method="post">
+                <iron-form id="editForm2" method="post">
                     <paper-input name="name" value={{_name}} label="Name" required></paper-input>
                     <div class="toggleBox" hidden$="{{_checkSection}}">
                         <paper-toggle-button name="privilege" class="toggleButton" checked="{{_checkToggle}}">
@@ -227,7 +227,7 @@ This code may only be used under the BSD style license found at http://polymer.g
                         <input type="hidden" name="status" value={{_status}}>
                     </template>
                     <paper-button on-click="_insertArSe" class="insertButton">Insert</paper-button>
-                </form>
+                </iron-form>
             </paper-material>
             
         </template>
@@ -559,7 +559,6 @@ This code may only be used under the BSD style license found at http://polymer.g
                 this._tempIdSection = null;
                 this._hiddenNone = false;
                 this._sectionSub = null;
-                this._labelSection = "SubSection";
                 this._indexSelectArea = undefined;
                 this._indexSelectArea = 0;
                 this._indexSelectSection = undefined;
