@@ -11,7 +11,7 @@ Example:
 var event = new CustomEvent("getToken", {detail: {id: "1", token: "abc1234"}});
 document.querySelector('app-forum').dispatchEvent(event);
 ```
-##### Important: 
+### Important: 
 **getToken** event must have the data structure as shown above, with **id** and **token** in the object.
  
 ## Logout
@@ -31,6 +31,7 @@ Example:
 ]
 ```
 The other elements that can be set are:
+
 |Property    | Fields|
 |----        |----------|
 |**area**      | **id**, **title**, **priv**|
@@ -49,6 +50,7 @@ When a **forumEdit** event is fired, two fields are passed through: **type** and
 **auth** has **id** and **token** of a user, allowing server to check if authentication is correct and catch from **editForum** property the element edited in forum.
  
 **type** field lets you recognize the operation, following the list below:
+
 |Type            | Description           | Fields|
 |----------      |-------------          |----------|
 |**reply**         | Reply to a post       | **id**, **message**, **typeid** (topic id)|
