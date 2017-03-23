@@ -1,9 +1,11 @@
 ## Introduction
 **app-forum** is a Polymer Web Component that can be used to create a simple forum in a website that uses any type of database through the inner use of json array as data structures. It also allows to integrate all users of a site that uses **app-forum**.
+
 Every single operation is protected by an **id** and a **token** of each user (**forumEdit** event) that allows the server to check authenticity of the user and catch any editing operation in **editEvent** property.
  
 ## Login
 It is possible to login inside the forum by listening to the **loginUserForum** event, where you will receive the username (**data.detail.username**) and password (**data.detail.password**) and send them to your server, check correctness and respond with an **id** and **token** of the authenticated user using the **getToken** event.
+
 If a user logs in main site, your server has to fire a new **getToken** event, sending to **app-forum** the user id and token who will be automatically authenticated.
 Example:
 ```javascript
@@ -16,11 +18,13 @@ document.querySelector('app-forum').dispatchEvent(event);
  
 ## Logout
 Users can logout from the forum by listening to **logoutUserForum** event, authentication data (id and token of user) will be passed in the object.
+
 In addition a user can log out from the main website, in this case the server has to fire a new **logoutUser** event to be sent to forum component.
  
 ## Elements
 The first element that has to be set as property is **user**; for every user in this array,
 it must have these fields: **id**, **nickname**, **account**, **avatar**.
+
 **account** field can be set to **1** for __admins__, who can edit forum structure, or **2** for __users__.
 Example:
 ```javascript
@@ -40,13 +44,16 @@ The other elements that can be set are:
 |**topic**     | **id**, **section**, **title**, **status**, **date**|
 |              | **status** can only be **open** or **close**|
 |**post**      | **id**, **topic**, **message**, **user**, **date**|
+
 Format of **date** field is **YYYY-MM-DD HH:MI:SS**
+
 Example with **area** property:
 ```html
 <app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
 ```
 ## Forum edit operations
 When a **forumEdit** event is fired, two fields are passed through: **type** and **auth**.
+
 **auth** has **id** and **token** of a user, allowing server to check if authentication is correct and catch from **editForum** property the element edited in forum.
  
 **type** field lets you recognize the operation, following the list below:
