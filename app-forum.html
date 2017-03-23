@@ -38,20 +38,16 @@ This code may only be used under the BSD style license found at http://polymer.g
 <!--
 Source: [GitHub](https://github.com/dav04/Forum-Polymer)
 
-`app-forum` is a component to create a simple forum and it can be used in a site that 
-uses any type of database through the inside use of json array.
-It allows to integrate all users of a site that uses `app-forum`. 
-Every single operation is protected by id and token of user (`forumEdit` event) that allow 
-to server to check authenticity of user and to catch editing operation in `editEvent` property.
+### Introduction
+`app-forum` is a Polymer Web Component that can be used to create a simple forum in a website that uses any type of database through the inner use of json array as data structures. It also allows to integrate all users of a site that uses `app-forum`.
+
+Every single operation is protected by an *id* and a *token* of each user (`forumEdit` event) that allows the server to check authenticity of the user and catch any editing operation in `editEvent` property.
 
 ### Login
 
-It's possible login inside forum, where a `loginUserForum` event is fired passing username (data.detail.username)
-and password (data.detail.password) to server to check them and to response with id and token of user with
-`getToken` event.
+It is possible to login inside the forum by listening to the `loginUserForum` event, where you will receive the username (`data.detail.username`) and password (`data.detail.password`) and send them to your server, check correctness and respond with an `id` and `token` of the authenticated user using the `getToken` event.
 
-If user login in main site, server have to fire `getToken` event sending to `app-forum`
-id and token of user who will be automatically authenticated.
+If a user logs in main site, your server has to fire a new `getToken` event, sending to `app-forum` the user id and token who will be automatically authenticated.
 
 Example:
     
@@ -59,21 +55,20 @@ Example:
     var event = new CustomEvent("getToken", {detail: {id: "1", token: "abc1234"}});
     document.querySelector('app-forum').dispatchEvent(event);
 
-__Important:__ `getToken` event must have this structure of data with `id` and `token`.
+__Important:__ `getToken` event must have the data structure as shown above, with `id` and `token` in the object.
 
 ### Logout
 
-User can logout from the forum where a `logoutUserForum` event is fired and authentication data 
-(id and token of user) are passed.
-Otherwise user can log out from the main site and server has to fire `logoutUser` event to sent to forum 
-the action of the user.
+Users can logout from the forum by listening to `logoutUserForum` event, authentication data (id and token of user) will be passed in the object.
+
+In addition a user can log out from the main website, in this case the server has to fire a new `logoutUser` event to be sent to forum component.
 
 ### Elements
 
-The first element that has to be set as property is `user`; for every user in this array, 
+The first element that has to be set as property is `user`; for every user in this array,
 it must have these fields: `id`, `nickname`, `account`, `avatar`.
 
-`account` is can set to '1' for admins, who can edit forum structure, or '2' for users.
+`account` field can be set to `1` for __admins__, who can edit forum structure, or `2` for __users__.
 
 Example:
 
@@ -99,9 +94,9 @@ Example with `area` property:
 
 ### Forum edit operations
 
-When a `forumEdit` event is fired, two fields are passed: `type` and `auth`. 
+When a `forumEdit` event is fired, two fields are passed through: `type` and `auth`.
 
-`auth` has id and token of user to allow server to check if authentication is correct and to catch from `editForum`
+`auth` has `id` and `token` of a user, allowing server to check if authentication is correct and catch from `editForum`
 property the element edited in forum.
 
 `type` field lets to recognize the operation; see list below:
