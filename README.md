@@ -27,12 +27,8 @@ it must have these fields: **id**, **nickname**, **account**, **avatar**.
 
 **account** field can be set to **1** for __admins__, who can edit forum structure, or **2** for __users__.
 Example:
-```javascript
-[
-    {id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"},
-    {id:2, nickname: "user1", account: 2, avatar: "images/users/avatar2.jpg"},
-    ...
-]
+```html
+<app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'></app-forum>
 ```
 The other elements that can be set are:
 
@@ -47,9 +43,12 @@ The other elements that can be set are:
 
 Format of **date** field is **YYYY-MM-DD HH:MI:SS**
 
-Example with **area** property:
+Example with **area** and **section** property:
 ```html
-<app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
+<app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]' 
+area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]' 
+section='[{"id":1, "area": 1, "title": "Section 1", "description": "Description 1", "subsection": null}, {"id":2, "area": 2, "title": "Section 2", "description": "Description 2", "subsection": null}, {"id":3, "area": 1, "title": "Section 3", "description": "Description 3", "subsection": null}, {"id":4, "area": 1, "title": "Section 4", "description": "Description 4", "subsection": 1}]'>
+</app-forum>
 ```
 ## Forum edit operations
 When a **forumEdit** event is fired, two fields are passed through: **type** and **auth**.
@@ -62,7 +61,7 @@ When a **forumEdit** event is fired, two fields are passed through: **type** and
 |----------      |-------------          |----------|
 |**reply**         | Reply to a post       | **id**, **message**, **typeid** (topic id)|
 |**editPost**      | Post edited           | **message**, **typeid** (post id)|
-|**deletePost**    | Post deleted          | **id**, **topic**, **message**, **user**, **dat|e**|
+|**deletePost**    | Post deleted          | **id**, **topic**, **message**, **user**, **date**|
 |**editTopic**     | Topic edited          | **id** (topic id), **title**, **message**, **typeid** (post id)|
 |**newTopic**      | New topic created     | **id**, **title**, **message**, **postid**, **typeid** (section id)|
 |**newArea**       | New area created      | **id**, **title**, **priv**|

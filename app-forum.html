@@ -72,8 +72,7 @@ it must have these fields: `id`, `nickname`, `account`, `avatar`.
 
 Example:
 
-    [{id:1, nickname: "admin", account: 1, avatar: "images/users/avatar1.jpg"}, 
-    {id:2, nickname: "user1", account: 2, avatar: "images/users/avatar2.jpg"}, ...]
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'></app-forum>
 
 The other elements that can be set are:
 
@@ -88,9 +87,12 @@ Property    | Fields
 
 Format of `date` field is `YYYY-MM-DD HH:MI:SS`
 
-Example with `area` property:
+Example with `area` and `section` property:
 
-    <app-forum area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]'></app-forum>
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'
+                area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]' 
+                section='[{"id":1, "area": 1, "title": "Section 1", "description": "Description 1", "subsection": null}, {"id":2, "area": 2, "title": "Section 2", "description": "Description 2", "subsection": null}, {"id":3, "area": 1, "title": "Section 3", "description": "Description 3", "subsection": null}, {"id":4, "area": 1, "title": "Section 4", "description": "Description 4", "subsection": 1}]'>
+     </app-forum>
 
 ### Forum edit operations
 
