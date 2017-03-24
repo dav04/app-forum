@@ -64,7 +64,7 @@ When a **forumEdit** event is fired, two fields are passed through: **type** and
 |----------      |-------------          |----------|
 |**reply**         | Reply to a post       | **id**, **message**, **typeid** (topic id)|
 |**editPost**      | Post edited           | **message**, **typeid** (post id)|
-|**deletePost**    | Post deleted          | **id**, **topic**, **message**, **user**, **dat|e**|
+|**deletePost**    | Post deleted          | **id**, **topic**, **message**, **user**, **date**|
 |**editTopic**     | Topic edited          | **id** (topic id), **title**, **message**, **typeid** (post id)|
 |**newTopic**      | New topic created     | **id**, **title**, **message**, **postid**, **typeid** (section id)|
 |**newArea**       | New area created      | **id**, **title**, **priv**|
