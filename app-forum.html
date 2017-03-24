@@ -642,7 +642,6 @@ Custom property                 | Description                               | De
             
             // save id and token into a cookie
             _saveIdToken: function(data) {
-                this._checkUser = true;
                 try {
                     this._userInfo.id = data.detail.id;
                     var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
@@ -652,6 +651,7 @@ Custom property                 | Description                               | De
                     this.notifyPath('_userInfo.nick');
                     this.notifyPath('_userInfo.avatar');
                     this._checkEdit = this._userInfo.account == 1;
+                    this._checkUser = true;
                 } catch(err) {
                     console.log("User's array is not updated.");
                 }

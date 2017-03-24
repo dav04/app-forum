@@ -17,14 +17,15 @@
         </style>-->
         
         <script>
-            // forumEdit è un evento per ottenere la modifica effettuata
+            // forumEdit event to catch edit operation
             document.addEventListener('forumEdit', function(data) {
-                alert("Il forum è stato modificato da " + data.detail.auth.id + " - " + data.detail.auth.token + " per " + data.detail.type);
+                alert("Forum edit operation from user " + data.detail.auth.id + " with token " + data.detail.auth.token + ": " + data.detail.type);
                 var app = document.querySelector('app-forum');
                 alert(JSON.stringify(app.getAttribute('edit-event')));
             });
             
-            // loginUserForum è un evento per inviare il login dell'utente e ricevere un token
+            // loginUserForum event to catch login parameters
+            // getToken event to send id and token of user
             document.addEventListener('loginUserForum', function(info) {
                 console.log("Check token: OK!");
                 if(info.detail.username == "admin" && info.detail.password == "admin")
