@@ -15,12 +15,12 @@
     "main": "app-forum.html",
     "repository": {
         "type": "git",
-        "url": "git://github.com/dav04/Forum-Polymer"
+        "url": "git://github.com/dav04/app-forum"
     },
     "license": "BSD",
-    "homepage": "https://github.com/dav04/Forum-Polymer",
+    "homepage": "https://github.com/dav04/app-forum",
     "dependencies": {
-        "iron-icons": "PolymerElements/paper-icons#^1.1.3",
+        "iron-icons": "PolymerElements/iron-icons#^1.1.3",
         "iron-form": "PolymerElements/iron-form#^1.1.4",
         "iron-dropdown": "PolymerElements/iron-dropdown#^1.5.2",
         "iron-pages": "PolymerElements/iron-pages#^1.0.8",
