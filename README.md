@@ -1,3 +1,5 @@
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/dav04/app-forum)
+
 ## Introduction
 **app-forum** is a Polymer Web Component that can be used to create a simple forum in a website that uses any type of database through the inner use of json array as data structures. It also allows to integrate all users of a site that uses **app-forum**.
 
