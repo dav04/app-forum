@@ -549,7 +549,7 @@ Custom property                 | Description                               | De
                 /**
                  * title of active topic
                  */
-                __topicName: {
+                _topicName: {
                     type: String
                 },
                 /**
@@ -829,7 +829,7 @@ Custom property                 | Description                               | De
                 this.notifyPath('_trackPage.topic');
                 this.fire('openTopic', {id: e.model.topic.id});
                 this._pageFieldId = e.model.topic.id;
-                this.__topicName = e.model.topic.title;
+                this._topicName = e.model.topic.title;
                 this._checkAction = this._checkUser && (e.model.topic.status == 'open')
                 this.$.forumpages.select(2);
                 this._checkBack = this.$.forumpages.selected != 0;
@@ -853,7 +853,7 @@ Custom property                 | Description                               | De
                 var model = this.$.postList.modelForElement(e.target);
                 if(model.index == 0) {
                     this._pageField = "editTopic";
-                    this._tempTitle = this.__topicName;
+                    this._tempTitle = this._topicName;
                 } else {
                     this._pageField = "editPost";
                     this._tempTitle = "";
@@ -936,7 +936,7 @@ Custom property                 | Description                               | De
                         this.editEvent = data.detail.result;
                         var ind = this.topic.findIndex(this._findId, {id: this._trackPage.topic});
                         this.topic[ind].title = this.editEvent.title;
-                        this.__topicName = this.editEvent.title;
+                        this._topicName = this.editEvent.title;
                         this.notifyPath('topic.' + ind + '.title');
                     } else {
                         this.editEvent = data.detail.result;
