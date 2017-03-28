@@ -1,3 +1,7 @@
+## Release 1.0.4
+
+- Added local files for tinyMCE editor
+
 ## Release 1.0.3
 
 - Added API and demo link in README
