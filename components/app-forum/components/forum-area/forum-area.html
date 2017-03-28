@@ -1,0 +1,48 @@
+<!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/app-forum
+This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+<dom-module id="forum-area">
+	<template>
+		<style>
+            :host {
+                text-align: left;
+            }
+            .title {
+                color: var(--forum-primary-text-color);
+                text-transform: uppercase;
+                font-weight: bold;
+                padding: 5px;
+            }
+            .border {
+                margin: 15px;
+                border-left: 5px solid var(--forum-secondary-color);
+                background-color: white;
+            }
+		</style>
+
+		<div class="area">
+            <div class="title">{{name}}</div>
+            <div class="border">
+                <content></content>
+            </div>
+        </div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-area",
+
+			properties: {
+                //
+				name: {
+					type: String,
+                    value: "Forum Area"
+				}
+			}
+		});
+	</script>
+</dom-module>

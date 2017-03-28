@@ -1,0 +1,1059 @@
+<!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/app-forum
+This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+
+<!-- Iron components -->
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-form/iron-form.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<!-- Paper components -->
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<!-- Custom components -->
+<link rel="import" href="components/forum-area/forum-area.html">
+<link rel="import" href="components/forum-section/forum-section.html">
+<link rel="import" href="components/forum-topic/forum-topic.html">
+<link rel="import" href="components/forum-post/forum-post.html">
+<link rel="import" href="components/forum-edit/forum-edit.html">
+<link rel="import" href="components/forum-user/forum-user.html">
+
+<!--
+Source: [GitHub](https://github.com/dav04/app-forum)
+
+### Introduction
+`app-forum` is a Polymer Web Component that can be used to create a simple forum in a website that uses any type of database through the inner use of json array as data structures. It also allows to integrate all users of a site that uses `app-forum`.
+
+Every single operation is protected by an *id* and a *token* of each user (`forumEdit` event) that allows the server to check authenticity of the user and catch any editing operation in `editEvent` property.
+
+### Login
+
+It is possible to login inside the forum by listening to the `loginUserForum` event, where you will receive the username (`data.detail.username`) and password (`data.detail.password`) and send them to your server, check correctness and respond with an `id` and `token` of the authenticated user using the `getToken` event.
+
+If a user logs in main site, your server has to fire a new `getToken` event, sending to `app-forum` the user id and token who will be automatically authenticated.
+
+Example:
+    
+    ...
+    var event = new CustomEvent("getToken", {detail: {id: "1", token: "abc1234"}});
+    document.querySelector('app-forum').dispatchEvent(event);
+
+__Important:__ `getToken` event must have the data structure as shown above, with `id` and `token` in the object.
+
+### Logout
+
+Users can logout from the forum by listening to `logoutUserForum` event, authentication data (id and token of user) will be passed in the object.
+
+In addition a user can log out from the main website, in this case the server has to fire a new `logoutUser` event to be sent to forum component.
+
+### Elements
+
+The first element that has to be set as property is `user`; for every user in this array,
+it must have these fields: `id`, `nickname`, `account`, `avatar`.
+
+`account` field can be set to `1` for __admins__, who can edit forum structure, or `2` for __users__.
+
+Example:
+
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'></app-forum>
+
+The other elements that can be set are:
+
+Property    | Fields
+----        |----------
+`area`      | `id`, `title`, `priv`
+` `         | `priv` is privilege: '0' can see it by all users, '1' can see it only by admins
+`section`   | `id`, `area`, `title`, `description`, `subsection`
+`topic`     | `id`, `section`, `title`, `status`, `date`
+` `         | `status` can be only 'open' or 'close'
+`post`      | `id`, `topic`, `message`, `user`, `date`
+
+Format of `date` field is `YYYY-MM-DD HH:MI:SS`
+
+Example with `area` and `section` property:
+
+    <app-forum user='[{"id":1,"nickname": "admin", "account": 1, "avatar": "images/users/avatar1.png"}, {"id":2, "nickname": "user", "account": 2, "avatar": "images/users/avatar2.png"}]'
+                area='[{"id":1, "title": "Area 1", "priv": 0}, {"id":2, "title": "Area 2", "priv": 1}]' 
+                section='[{"id":1, "area": 1, "title": "Section 1", "description": "Description 1", "subsection": null}, {"id":2, "area": 2, "title": "Section 2", "description": "Description 2", "subsection": null}, {"id":3, "area": 1, "title": "Section 3", "description": "Description 3", "subsection": null}, {"id":4, "area": 1, "title": "Section 4", "description": "Description 4", "subsection": 1}]'>
+     </app-forum>
+
+### Forum edit operations
+
+When a `forumEdit` event is fired, two fields are passed through: `type` and `auth`.
+
+`auth` has `id` and `token` of a user, allowing server to check if authentication is correct and catch from `editForum`
+property the element edited in forum.
+
+`type` field lets to recognize the operation; see list below:
+
+Type            | Description           | Fields
+----------      |-------------          |----------
+`reply`         | Reply to a post       | `id`, `message`, `typeid` (topic id)
+`editPost`      | Post edited           | `message`, `typeid` (post id)
+`deletePost`    | Post deleted          | `id`, `topic`, `message`, `user`, `date`
+`editTopic`     | Topic edited          | `id` (topic id), `title`, `message`, `typeid` (post id)
+`newTopic`      | New topic created     | `id`, `title`, `message`, `postid`, `typeid` (section id)
+`newArea`       | New area created      | `id`, `title`, `priv`
+`editArea`      | Area edited           | `id`, `title`, `priv`
+`deleteArea`    | Area deleted          | `id`, `title`, `priv`
+`newSection`    | New Section created   | `id`, `area`, `title`, `description`, `subsection`
+`editSection`   | Section edited        | `id`, `area`, `title`, `description`, `subsection`
+`deleteSection` | Section deleted       | `id`, `area`, `title`, `description`, `subsection`        
+
+### Style
+
+Custom property                 | Description                               | Default
+----------------                |-------------                              |----------
+`--forum-primary-color`         | Background color                          | #82bfc8
+`--forum-primary-text-color`    | Text color on background                  | black
+`--forum-secondary-color`       | Toolbar, buttons and inputs color         | #1d7fa9
+`--forum-secondary-text-color`  | Text color on toolbar, buttons and inputs | white
+`--app-forum`                   | Mixin applied to forum                    | {}
+
+@demo demo/index.html
+-->
+
+<dom-module id="app-forum">
+	<template>
+		<style>
+            :host {
+                text-align: left;
+                font-family: 'Roboto', sans-serif;
+                --forum-primary-color: #82bfc8;
+                --forum-secondary-color: #1d7fa9;
+                --forum-primary-text-color: black;
+                --forum-secondary-text-color: white;
+            }
+            .forumBox {
+                display: inline-block;
+                width: 100%;
+                height: auto;
+                min-height: 100%;
+                background: var(--forum-primary-color);
+                border-radius: 5px;
+                
+                @apply(--app-forum);
+            }
+            paper-toolbar, .newButton {
+                background-color: var(--forum-secondary-color);
+                color: var(--forum-secondary-text-color);
+            }
+            iron-pages {
+                padding: 20px;
+            }
+            iron-icon {
+                cursor: pointer;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .loginbar {
+                text-align: center;
+            }
+            .logininput {
+                width:100px; 
+                float:left; 
+                margin-left: 15px;
+                --paper-input-container-color: var(--forum-secondary-text-color);
+                --paper-input-container-focus-color: var(--forum-primary-color);
+                --paper-input-container-input-color: var(--forum-secondary-text-color);
+            }
+            .loginicon {
+                margin-top: 15px;
+            }
+            .toolbarIcon {
+                --iron-icon-height: 27px;
+                --iron-icon-width: 27px;
+            }
+            .avatar {
+                --iron-icon-height: 35px;
+                --iron-icon-width: 35px;
+            }
+            .border {
+                margin: 15px;
+                border-left: 5px solid var(--forum-secondary-color);
+                background-color: white;
+            }
+            .divider {
+                border-bottom: 1px solid #dbdbdb;
+            }
+            .topicTitle {
+                color: var(--forum-primary-text-color);
+                text-transform: uppercase;
+                font-weight: bold;
+                padding: 5px;
+            }
+            .action {
+                background-color: var(--forum-secondary-color);
+                color: var(--forum-secondary-text-color);
+                margin-right: 20px;
+            }
+            .quote {
+                color: black;
+            }
+            .replybutton {
+                float: right;
+                background-color: var(--forum-secondary-color);
+                color: var(--forum-secondary-text-color);
+                bottom: 15px;
+                right: 15px;
+                position: relative;
+            }
+            .editbutton {
+                float: right;
+                background-color: white;
+                color: var(--forum-secondary-color);
+                border: 1px solid var(--forum-secondary-color);
+                margin-top: -45px;
+                margin-right: 5px;
+            }
+            
+            @media (max-width: 800px) {
+                .userToolbar {
+                    background-color: white;
+                    color: var(--forum-primary-text-color);
+                }
+                .userMenuBox {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: auto;
+                    margin-left: auto;
+                    padding: 10px;
+                }
+                .logininputM {
+                    width: 200px;
+                    float: left;
+                    margin-left: 15px;
+                    --paper-input-container-color: var(--forum-primary-text-color);
+                    --paper-input-container-focus-color: var(--forum-secondary-color);
+                    --paper-input-container-input-color: var(--forum-primary-text-color);
+                }
+                .loginButton {
+                    background-color: var(--forum-secondary-color);
+                    color: var(--forum-secondary-text-color);
+                    height: 25px;
+                    margin-left: 15px;
+                }
+                .colorIcon {
+                    color: var(--forum-secondary-color);
+                }
+            }
+            @media (max-width: 700px) {
+                .logininputM {
+                    width: 120px;
+                }
+                .replybutton {
+                    bottom: 20px;
+                    right: 30px;
+                    position: fixed;
+                }
+                .toolbarIcon {
+                    --iron-icon-height: 20px;
+                    --iron-icon-width: 20px;
+                }
+            }
+            @media (max-width: 500px) {
+                paper-toolbar {
+                    --paper-toolbar-title: {
+                        margin-left: 0px;
+                    }
+                }
+                .logininputM {
+                    width: 100px;
+                    margin-left: 5px;
+                }
+                .loginIconSmall {
+                    padding: 0px 0px 0px 10px;
+                }
+            }
+		</style>
+
+		<div>
+			<paper-material class="forumBox" elevation="2">
+                <paper-header-panel mode="waterfall">
+                    <paper-toolbar id="forumToolbar" hidden$="{{_checkUserToolbar(userToolbar, smallScreen)}}">
+                        <!-- Navigation bar -->
+                        <div class="navbutton">
+                            <iron-icon icon="home" class="toolbarIcon" on-click="_goHome"></iron-icon>
+                            <template is="dom-if" if="{{_checkBack}}">
+                                <iron-icon icon="arrow-back" class="toolbarIcon" on-click="_goBack"></iron-icon>
+                            </template>
+                            <template is="dom-if" if="{{_checkEdit}}">
+                                <iron-icon icon="create" class="toolbarIcon" on-click="_goEditForum"></iron-icon>
+                            </template>
+                        </div>
+                        <span class="title">{{title}}</span>
+                        <div hidden$="{{hideLogUser}}">
+                            <!-- User bar -->
+                            <div class="loginbar" hidden$="{{smallScreen}}">
+                                <template is="dom-if" if="{{!_checkUser}}">
+                                    <form is="iron-form" id="loginForm" method="post">
+                                        <paper-input name="username" label="Username" class="logininput loginicon" no-label-float></paper-input>
+                                        <paper-input name="password" type="password" label="Password" 
+                                                     class="logininput loginicon" no-label-float></paper-input>
+                                        <paper-button icon="send" class="loginicon" on-click="_loginUser">LOGIN</paper-button>
+                                    </form>
+                                </template>
+                                <template is="dom-if" if="{{_checkUser}}">
+                                    {{_userInfo.nick}}
+                                    <iron-icon src="{{_userInfo.avatar}}" class="toolbarIcon"></iron-icon>
+                                    <paper-button icon="send" class="avatar" on-click="_logoutUser">LOGOUT</paper-button>
+                                </template>
+                            </div>
+                            <div class="loginbar" hidden$="{{!smallScreen}}">
+                                <iron-icon icon="account-circle" class="avatar" hidden$="{{_checkUser}}" 
+                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
+                                <iron-icon src="{{_userInfo.avatar}}" class="avatar" hidden$="{{!_checkUser}}" 
+                                           on-click="_userMenu" id="avatarmenu"></iron-icon>
+                            </div>
+                        </div>
+                    </paper-toolbar>
+
+                    <!-- User Toolbar for screen < 800px -->
+                    <paper-toolbar class="userToolbar" hidden$="{{!_checkUserToolbar(userToolbar, smallScreen)}}">
+                        <div>
+                            <iron-icon icon="arrow-back" class="colorIcon toolbarIcon" on-click="_userMenuClose"></iron-icon>
+                        </div>
+                        <div class="userMenuBox">
+                            <template is="dom-if" if="{{!_checkUser}}">
+                                <form is="iron-form" id="loginForm" method="post">
+                                    <paper-input name="username" label="Username" class="logininputM" no-label-float></paper-input>
+                                    <paper-input name="password" label="Password" class="logininputM" no-label-float></paper-input>
+                                    <paper-button icon="send" class="loginButton loginicon" on-click="_loginUser" hidden$="{{mobileScreen}}">
+                                        LOGIN
+                                    </paper-button>
+                                    <iron-icon icon="send" class="loginicon colorIcon loginIconSmall" on-click="_loginUser" hidden$="{{!mobileScreen}}"></iron-icon>
+                                </form>
+                            </template>
+                            <template is="dom-if" if="{{_checkUser}}">
+                                {{_userInfo.nick}}
+                                <iron-icon src="{{_userInfo.avatar}}" class="avatar"></iron-icon>
+                                <paper-button icon="send" class="loginButton" on-click="_logoutUser">LOGOUT</paper-button>
+                            </template>
+                        </div>
+                    </paper-toolbar>
+
+                    <div>
+                        <iron-pages id="forumpages" selected="0">
+                            <!-- Page with areas and sections -->
+                            <div>
+                                <template id="forumarea" is="dom-repeat" items={{area}} as="area" filter="{{_checkPrivilege(_userInfo)}}">
+                                    <forum-area name={{area.title}}>
+                                        <template id="forumsection" is="dom-repeat" items={{section}} as="section">
+                                            <template is="dom-if" if="{{_checkSubSection(section.subsection)}}">
+                                                <template is="dom-if" if="{{_areaFilter(area.id, section.area)}}">
+                                                    <div class="divider">
+                                                        <forum-section name={{section.title}} 
+                                                                       description={{section.description}}
+                                                                       on-click="_sectionSelect">
+                                                        </forum-section>
+                                                    </div>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </forum-area>
+                                </template>
+                            </div>
+                            <!-- Page with sections and topics-->
+                            <div>
+                                <template is="dom-if" if="{{_checkUser}}">
+                                    <paper-button class="newButton" on-click="_newTopic">New topic</paper-button>
+                                </template>
+                                <div class="border">
+                                    <template is="dom-repeat" items={{section}} as="section" filter="{{_sectionFilter(_pageFieldId)}}">
+                                        <div class="divider">
+                                            <forum-section name={{section.title}} 
+                                                           description={{section.description}}
+                                                           on-click="_sectionSelect">
+                                            </forum-section>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="border">
+                                    <template id="topicList" is="dom-repeat" items={{topic}} as="topic" filter="{{_topicFilter(_pageFieldId)}}">
+                                        <div class="divider">
+                                            <forum-topic title={{topic.title}} date="{{topic.date}}" status="{{topic.status}}" 
+                                                         on-click="_topicSelect"></forum-topic>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <!-- Page with posts -->
+                            <div>
+                                <div class="topicTitle">{{_topicName}}</div>
+
+                                <template id="postList" is="dom-repeat" items={{post}} as="post" filter="{{_postFilter(_trackPage.topic)}}">
+                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" 
+                                                hidden$="{{_checkEditUser(post.user, post.topic)}}">
+                                        <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
+                                        <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
+                                    </forum-post>
+
+                                    <forum-post message="{{post.message}}" date="{{post.date}}" id="{{post.id}}" usermenu 
+                                                hidden$="{{!_checkEditUser(post.user, post.topic)}}">
+                                        <forum-user info-user={{_findUser(post.user)}} class="user"></forum-user>
+                                        <forum-user info-user={{_findUser(post.user)}} class="userSmall" smart></forum-user>
+                                        <paper-fab icon="create" title="Edit post" on-click="_editPost" class="action"></paper-fab>
+                                        <paper-fab icon="delete" title="Delete post" on-click="_deletePost" class="action"></paper-fab>
+                                        <iron-icon icon="editor:format-quote" title="Quote" on-click="_quotePost" class="quote"></iron-icon>
+                                    </forum-post>
+                                </template>
+                                <template is="dom-if" if="{{_checkAction}}">
+                                    <paper-fab icon="reply" title="Reply" on-click="_replyPost" class="replybutton"></paper-fab>
+                                </template>
+                            </div>
+                            <!-- Page to create topic or write post -->
+                            <div>
+                                <forum-edit type={{_pageField}} 
+                                            type-id={{_pageFieldId}} 
+                                            title={{_tempTitle}} 
+                                            message={{_tempMessage}}
+                                            area={{_tempArea}}
+                                            section={{_tempSection}}
+                                            topic={{_tempTopic}}>
+                                </forum-edit>
+                            </div>
+                        </iron-pages>
+
+                        <content></content>
+                    </div>
+                </paper-header-panel>
+			</paper-material>
+            
+            <iron-media-query query="(max-width: 800px)" query-matches="{{smallScreen}}"></iron-media-query>
+            <iron-media-query query="(max-width: 500px)" query-matches="{{mobileScreen}}"></iron-media-query>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "app-forum",
+
+			properties: {
+				/**
+                 * Title of forum
+                 */
+				title: {
+					type: String,
+					value: "App forum"
+				},
+                /**
+                 * Array with all areas of forum.
+                 *
+                 * Fields single area: `id`, `title`, `priv`.
+                 */
+                area: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Array with all sections of forum.
+                 *
+                 * Fields single section: `id`, `area`, `title`, `description`, `subsection`.
+                 */
+                section: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Array with all topics of forum.
+                 *
+                 * Fields single topic: `id`, `section`, `title`, `status`, `date`.
+                 */
+                topic: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Array with all posts of forum.
+                 *
+                 * Fields single post: `id`, `topic`, `message`, `user`, `date`.
+                 */
+                post: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Array with all users of forum.
+                 *
+                 * Fields single user: `id`, `nickname`, `account`, `avatar`.
+                 */
+                user: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * check if user is logged
+                 */
+                _checkUser: {
+                    type: String,
+                    value: false,
+                    observer: "_checkStatus"
+                },
+                /**
+                 * check if action button about active user post have to be visible
+                 */
+                _checkActionUser: {
+                    type: Boolean
+                },
+                /**
+                 * check if edit of forum button have to be visible
+                 */
+                _checkEdit: {
+                    type: Boolean
+                },
+                /**
+                 * information about active user
+                 */
+                _userInfo: {
+                    type: Array,
+                    value: [{id: null, nick: null, account: null, avatar: null}]
+                },
+                /**
+                 * Array with modified element when a `forumEdit` event is fired
+                 */
+                editEvent: {
+                    type: Array,
+                    value: [],
+                    reflectToAttribute: true
+                },
+                /**
+                 * name of active page
+                 */
+                _pageField: {
+                    type: String
+                },
+                /**
+                 * id of active section or topic
+                 */
+                _pageFieldId: {
+                    type: Number
+                },
+                /**
+                 * title of active topic
+                 */
+                _topicName: {
+                    type: String
+                },
+                /**
+                 * trace path of browsing
+                 */
+                _trackPage: {
+                    type: Array,
+                    value: [{section: [], topic: null}]
+                },
+                /**
+                 * check to view or not back button
+                 */
+                _checkBack: {
+                    type: Boolean
+                },
+                /**
+                 * If true, user can login and logout only from the main site
+                 */
+                hideLogUser: {
+                    type: Boolean,
+                    value: false
+                }
+			},
+            /**
+             * Fired when an user log in, so to check username/password
+             * and to receive back token of access. 
+             *
+             * `username`: data.detail.username, `password`: data.detail.password
+             * @event loginUserForum
+             */
+            /**
+             * Fired when an user log out
+             *
+             * `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
+             * @event logoutUserForum
+             */
+            /**
+             * Fired when a section is opened to load only relative subsections and topics. 
+             * Id of section is passed
+             *
+             * `id`: data.detail.id
+             * @event openSection
+             */
+            /**
+             * Fired when a topic is opened to load only relative posts. 
+             * Id of topic is passed
+             *
+             * `id`: data.detail.id
+             * @event openTopic
+             */
+            /**
+             * Fired when an action happens in forum and this action
+             * is available in `editEvent` attribute
+             *
+             * `type`: data.detail.type, `auth.id`: data.detail.auth.id, `auth.token`: data.detail.auth.token
+             * @event forumEdit
+             */
+            listeners: {
+                'getToken':     '_saveIdToken',
+                'logoutUser':   '_logoutUser',
+                'resultReady':  '_catchResult',
+                'editArea' :    '_catchArea',
+                'editSection' : '_catchSection',
+                'editTopic' :   '_catchTopic'
+            },
+            
+            ready: function() {
+                this.userToolbar = false;
+                
+                if(document.cookie.indexOf('app_forum_user') != -1) {
+                    this._userInfo.id = this._getCookie().id;
+                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                    if(pos != -1) {
+                        this._userInfo.nick = this.user[pos].nickname;
+                        this._userInfo.account = this.user[pos].account;
+                        this._userInfo.avatar = this.user[pos].avatar;
+                        this.notifyPath('_userInfo.avatar');
+                        this._checkUser = true;
+                        this._checkEdit = this._userInfo.account == 1;
+                    }
+                }
+            },
+            
+            // USER
+            // -----------------------
+            
+            // send username and password by 'loginUserForum' event
+            _loginUser: function() {
+                var info = this.$$('#loginForm').serialize();
+                this.fire('loginUserForum', {username: info.username, password: info.password});
+            },
+            
+            // save id and token into a cookie
+            _saveIdToken: function(data) {
+                try {
+                    this._userInfo.id = data.detail.id;
+                    var pos = this.user.findIndex(this._findId, {id: this._userInfo.id});
+                    this._userInfo.nick = this.user[pos].nickname;
+                    this._userInfo.account = this.user[pos].account;
+                    this._userInfo.avatar = this.user[pos].avatar;
+                    this.notifyPath('_userInfo.nick');
+                    this.notifyPath('_userInfo.avatar');
+                    this._checkEdit = this._userInfo.account == 1;
+                    this._checkUser = true;
+                } catch(err) {
+                    console.log("User's array is not updated.");
+                }
+                
+                var d = new Date();
+                d.setTime(d.getTime() + (30*24*60*60*1000)); // 30 days from now
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = "app_forum_user=" + data.detail.id + "$$" + data.detail.token + ";" + expires + "; path=/";
+                
+                this.$.forumarea.render();
+            },
+            
+            // logout user and delete relative cookie
+            _logoutUser: function() {
+                this._checkUser = false;
+                this._userInfo = [{id: null, nick: null, account: null, avatar: null}];
+                this.notifyPath('area');
+                document.cookie = "app_forum_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+                this.fire('logoutUserForum', {auth: this._getCookie()});
+                
+                this.$.forumarea.render();
+            },
+            
+            // return id and token of user
+            _getCookie: function() {
+                var cookie = document.cookie.substring(document.cookie.indexOf('app_forum_user=')+15);
+                var id = cookie.substring(0, cookie.indexOf('$$'));
+                if(cookie.indexOf(';') != -1)
+                    var token = cookie.substring(cookie.indexOf('$$')+2, cookie.indexOf(';'));
+                else
+                    var token = cookie.substring(cookie.indexOf('$$')+2);
+                return {id: id, token: token};
+            },
+            
+            // observe status of '_checkUser'
+            _checkStatus: function() {
+                if(!this._checkUser) {
+                    this._checkAction = false;
+                    this._checkEdit = false;
+                } else if(this._trackPage != undefined && this._trackPage.topic != null) {
+                    this._checkAction = this.topic[this.topic.findIndex(this._findId, {id: this._trackPage.topic})].status == 'open';
+                    this._checkEdit = this._userInfo.account == 1;
+                }
+            },
+            
+            // show user toolbar
+            _userMenu: function() {
+                this.userToolbar = true;
+            },
+            
+            // hide user toolbar
+            _userMenuClose: function() {
+                this.userToolbar = false;
+            },
+            
+            // check user toolbar with size of screen
+            _checkUserToolbar: function(toolbar, screen) {
+                return toolbar && screen;
+            },
+            
+            // NAVIGATION BAR
+            // -----------------------
+            
+            // go to homepage
+            _goHome: function() {
+                this.subSection = [];
+                this._pageFieldId = undefined;
+                this.previous_pageFieldId = undefined;
+                this._trackPage = [{section: [], topic: null}];
+                this.$.forumpages.select(0);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // go to previous page
+            _goBack: function() {
+                if(this._trackPage.topic != null && this._pageField != "reply" && 
+                   this._pageField != "editPost" && this._pageField != "editTopic") {
+                    this._trackPage.topic = null;
+                    this._pageFieldId = this._trackPage[0].section[this._trackPage[0].section.length-1];
+                    this.$.forumpages.select(1);
+                } else if(this._trackPage.topic != null) {
+                    this._pageFieldId = this._trackPage.topic;
+                    this._pageField = "topic";
+                    this._tempTitle = null;
+                    this._tempMessage = null;
+                    this.$.forumpages.select(2);
+                } else if(this._trackPage[0].section.length <= 1 && (this._pageField != "newTopic")) {
+                    this._trackPage[0].section.pop();
+                    this.$.forumpages.select(0);
+                } else if(this._trackPage[0].section.length >= 1) {
+                    if(this._pageField != "newTopic")
+                        this._trackPage[0].section.pop();
+                    else
+                        this._pageField = "section";
+                    this._pageFieldId = this._trackPage[0].section[this._trackPage[0].section.length-1];
+                    this.$.forumpages.select(1);
+                }
+                
+                if(this.$.forumpages.selected == 0) {
+                    this._trackPage[0].section.length = [];
+                    this._pageFieldId = undefined;
+                    this.previous_pageFieldId = undefined;
+                }
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // go to edit structure of forum page
+            _goEditForum: function() {
+                this._pageField = "editForum";
+                this._tempArea = this.area;
+                this._tempSection = this.section;
+                this._tempTopic = this.topic;
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // SUPPORT FUNCTION
+            // -----------------------
+            
+            // check privilege to view an area
+            _checkPrivilege: function(user) {
+                return function(area) {
+                    if(user.account == 1)
+                        return true;
+                    else
+                        return area.priv != 1;
+                }
+            },
+            
+            // filter section to not see subsection
+            _checkSubSection: function(sub) {
+                return sub == null || sub == "";
+            },
+            
+            // filter section with id of area
+            _areaFilter: function(id1, id2) {  
+                return id1 == id2;
+            },
+            
+            // filter subsection with id of section
+            _sectionFilter: function(idSection) {
+                return function(section) {
+                    return idSection == section.subsection;
+                };
+            },
+            
+            // filter topics with id of section
+            _topicFilter: function(idSection) {
+                return function(topic) {
+                    return idSection == topic.section;
+                };
+            },
+            
+            // filter posts with id of topic
+            _postFilter: function(idTopic) {
+                return function(post) {
+                    return idTopic == post.topic;
+                };
+            },
+            
+            // show topics of selected section
+            _sectionSelect: function(e) {
+                this.push('_trackPage.0.section', e.model.section.id);
+                this.fire('openSection', {id: e.model.section.id});
+                this._pageFieldId = e.model.section.id;
+                this.$.forumpages.select(1);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // show posts of selected topic
+            _topicSelect: function(e) {
+                this._trackPage.topic = e.model.topic.id;
+                this.notifyPath('_trackPage.topic');
+                this.fire('openTopic', {id: e.model.topic.id});
+                this._pageFieldId = e.model.topic.id;
+                this._topicName = e.model.topic.title;
+                this._checkAction = this._checkUser && (e.model.topic.status == 'open')
+                this.$.forumpages.select(2);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // show windows to create a new topic
+            _newTopic: function() {
+                this._pageField = "newTopic";
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // check if user post is equal to active user or admin
+            _checkEditUser: function(user, topic) {
+                return (this._userInfo.id == user || this._userInfo.account == 1) && 
+                    this.topic[this.topic.findIndex(this._findId, {id: topic})].status == 'open';
+            },
+            
+            // show window to edit a post
+            _editPost: function(e) {
+                var model = this.$.postList.modelForElement(e.target);
+                if(model.index == 0) {
+                    this._pageField = "editTopic";
+                    this._tempTitle = this._topicName;
+                } else {
+                    this._pageField = "editPost";
+                    this._tempTitle = "";
+                }
+                this._pageFieldId = model.post.id;
+                this._tempMessage = model.post.message;
+                this.notifyPath('_tempMessage');
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // delete selected post
+            _deletePost: function(e) {
+                var model = this.$.postList.modelForElement(e.target);
+                var pos = this.post.findIndex(this._findId, model.post);
+                var tempPost = this.splice('post', pos, 1);
+                this.editEvent = tempPost;
+                this.fire('forumEdit', {type: "deletePost", auth: this._getCookie()});
+            },
+            
+            //
+            _quotePost: function(e) {
+                this._pageField = "reply";
+                this._tempMessage = "<div style=\"border-left: 5px solid #b3cad0; border-bottom: 1px solid #b3cad0;" + 
+                                    "padding-left:15px; margin-top: 15px\"><b>" + 
+                                    this._findUser(e.model.post.user).nickname + 
+                                    " said:</b>\n " + 
+                                    e.model.post.message + 
+                                    "</div>\<p></p>";
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // show window to reply to a post
+            _replyPost: function(e) {
+                this._pageField = "reply";
+                this._tempMessage = "";
+                this.$.forumpages.select(3);
+                this._checkBack = this.$.forumpages.selected != 0;
+            },
+            
+            // return info of a specific user by id
+            _findUser: function(id) {
+                var pos = this.user.findIndex(this._findId, {id: id});
+                return this.user[pos];
+            },
+            
+            // support to find position of an id in an array
+            _findId: function(element) {
+                return element.id == this.id;
+            },
+            
+            // format a date for DB (YYYY-MM-DD HH:MI:SS) or for a VIEW (MM/DD/YYYY HH:MI:SS)
+            _formatDate: function(date, type) {
+                var m = date.getMonth()+1;
+                var month = m < 10 ? "0" + m : m; // to avoid '001'
+                var day = date.getDate()+1 < 10 ? "0" + date.getDate() : date.getDate();
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                
+                if(type == "DB")
+                    return date.getFullYear() + "-" + month + "-" + day + " " + hours + ":" + minutes;
+                else if(type == "VIEW")
+                    return month + "/" + day + "/" + date.getFullYear() + " " + hours + ":" + minutes;
+            },
+            
+            // MANAGE RESULT
+            // -----------------------
+            
+            // elaborate data received by the 'resultReady' event
+            _catchResult: function(data) {
+                var temp_pageField = this._pageField;
+                var date = new Date();
+
+                // Edit title in 'topic' array and/or message in 'post' array
+                if(this._pageField == "editPost" || this._pageField == "editTopic") {
+                    if(this._pageField == "editTopic") {
+                        data.detail.result.id = this._trackPage.topic;
+                        this.editEvent = data.detail.result;
+                        var ind = this.topic.findIndex(this._findId, {id: this._trackPage.topic});
+                        this.topic[ind].title = this.editEvent.title;
+                        this._topicName = this.editEvent.title;
+                        this.notifyPath('topic.' + ind + '.title');
+                    } else {
+                        this.editEvent = data.detail.result;
+                    }
+                    var pos = this.post.findIndex(this._findId, {id: this._pageFieldId});
+                    this._pageFieldId = this.post[pos].topic;
+                    this.post[pos].message = this.editEvent.message;
+                    this.post[pos].date = this._formatDate(date, "DB");
+                    this.notifyPath('post.' + pos + '.message');
+                    this.notifyPath('post.' + pos + '.date');
+                    this._pageField = "topic";
+                    this.$.forumpages.select(2);
+                    this._checkBack = this.$.forumpages.selected != 0;
+                    
+                // Add a new record in 'post' array
+                } else if(this._pageField == "reply") {
+                    var newid = this.post[this.post.length-1].id + 1;
+                    data.detail.result.id = newid;
+                    this.editEvent = data.detail.result;
+                    this.post.push({id: newid, topic: this.editEvent.typeid, message: this.editEvent.message, 
+                                    user: this._userInfo.id, date: this._formatDate(date, "DB")});
+                    this.notifySplices('post', [{index: (this.post.length - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this._pageField = "topic";
+                    this.$.forumpages.select(2);
+                    this._checkBack = this.$.forumpages.selected != 0;
+                    
+                // Add a new record in 'topic' and 'post' arrays
+                } else if(this._pageField == "newTopic") {
+                    if(this.topic[this.topic.length-1] != undefined)
+                        var newid = this.topic[this.topic.length-1].id + 1;
+                    else
+                        var newid = 1;
+                    this.topic.push({id: newid, section: data.detail.result.typeid, title: data.detail.result.title, status: 'open',
+                                    date: this._formatDate(date, "DB")});
+                    this.notifySplices('topic', [{index: (this.topic.length - 1), removed: [], addedCount: 1, object: this.topic}]);
+                    if(this.post[this.post.length-1] != undefined)
+                        var newid2 = this.post[this.post.length-1].id + 1;
+                    else
+                        var newid2 = 1;
+                    data.detail.result.id = newid;
+                    data.detail.result.postid = newid2;
+                    this.editEvent = data.detail.result;
+                    this.post.push({id: newid2, topic: newid, message: data.detail.result.message, user: this._userInfo.id,
+                                   date: this._formatDate(date, "DB")});
+                    this.notifySplices('post', [{index: (this.post.length - 1), removed: [], addedCount: 1, object: this.post}]);
+                    this._pageField = "section";
+                    this.$.forumpages.select(1);
+                    this._checkBack = this.$.forumpages.selected != 0;
+                  
+                // 
+                } else {
+                    this.$.forumpages.select(1);
+                    this._checkBack = this.$.forumpages.selected != 0;
+                }
+                this.fire('forumEdit', {type: temp_pageField, auth: this._getCookie()});
+            },
+            
+            // elaborate data received by the 'editArea' event in forum-edit component
+            _catchArea: function(data) {
+                this.area = data.detail.result;
+                if(data.detail.type == "newArea") {
+                    this.notifySplices('area', [{index: (this.area.length - 1), removed: [], addedCount: 1, object: this.area}]);
+                    this.editEvent = data.detail.result[this.area.length - 1];
+                    this.$.forumarea.render();
+                } else if(data.detail.type == "editArea") {
+                    this.notifyPath('area.' + data.detail.pos + '.title');
+                    this.editEvent = data.detail.result[data.detail.pos];
+                    
+                } else if(data.detail.type == "deleteArea") {
+                    this.notifySplices('area', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.area}]);
+                    this.editEvent = data.detail.removed;
+                }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
+            },
+            
+            // elaborate data received by the 'editSection' event in forum-edit component
+            _catchSection: function(data) {
+                this.section = data.detail.result;
+                if(data.detail.type == "newSection") {
+                    this.notifySplices('section', [{index: (this.section.length - 1), removed: [], addedCount: 1, 
+                                                object: this.section}]);
+                    this.editEvent = data.detail.result[this.section.length - 1];
+                    
+                } else if(data.detail.type == "editSection") {
+                    this.notifyPath('section.' + data.detail.pos + '.title');
+                    this.notifyPath('section.' + data.detail.pos + '.description');
+                    this.notifyPath('section.' + data.detail.pos + '.area');
+                    if(data.detail.oldsub != this.section[data.detail.pos].subsection)
+                        this.notifyPath('section.' + data.detail.pos + '.subsection');
+                    this.editEvent = data.detail.result[data.detail.pos];
+                      
+                } else if(data.detail.type == "deleteSection") {
+                    this.notifySplices('section', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.section}]);
+                    this.editEvent = data.detail.removed;
+                }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
+            },
+            
+            // elaborate data received by the 'editArea' event in forum-edit component
+            _catchTopic: function(data) {
+                this.editEvent = null;
+                this.topic = data.detail.result;
+                if(data.detail.type == "editTopic") {
+                    this.notifyPath('topic.' + data.detail.pos + '.title');
+                    this.notifyPath('topic.' + data.detail.pos + '.section');
+                    this.notifyPath('topic.' + data.detail.pos + '.status');
+                    this.editEvent = this.topic[data.detail.pos];
+                    
+                } else if(data.detail.type == "deleteTopic") {
+                    this.notifySplices('topic', [{index: data.detail.pos, removed: [data.detail.removed], addedCount: 0, object: this.topic}]);
+                    this.editEvent = data.detail.removed;
+                }
+                
+                this.fire('forumEdit', {type: data.detail.type, auth: this._getCookie()});
+            }
+		});
+	</script>
+</dom-module>

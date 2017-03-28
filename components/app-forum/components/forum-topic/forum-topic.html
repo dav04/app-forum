@@ -1,0 +1,96 @@
+<!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/app-forum
+This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+<dom-module id="forum-topic">
+	<template>
+		<style>
+            :host {
+                padding: 10px;
+                cursor: pointer;
+            }
+            .box {
+                margin-left: 15px;
+            }
+            .iconsection {
+                float: left;
+                color: var(--forum-secondary-color);
+                margin-right: 15px;
+                margin-top: -7px;
+            }
+            .big {
+                --iron-icon-height: 40px;
+                --iron-icon-width: 40px;
+            }
+            .close {
+                color:red;
+            }
+            .date {
+                float: right;
+                font-size: 10;
+                color: #828282;
+                margin-right: 10px;
+            }
+		</style>
+        
+        <div class="box">
+            <div class="iconsection">
+                <template is="dom-if" if="{{_checkStatus}}">
+                    <iron-icon class="big" title="Topic open" icon="speaker-notes"></iron-icon>
+                </template>
+                <template is="dom-if" if="{{!_checkStatus}}">
+                    <iron-icon class="big close" title="Topic close" icon="speaker-notes"></iron-icon>
+                </template>
+            </div>
+            <div class="date">{{_formatDate}}</div>
+            <div>{{title}}</div>
+            
+            <content></content>
+        </div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-topic",
+
+			properties: {
+				// 
+				title: {
+					type: String,
+					value: "Forum Topic"
+				},
+                //
+                status: {
+                    type: String,
+                    observer: '_checkTopic'
+                },
+                //
+                date: {
+                    type: String,
+                    observer: '_format'
+                },
+                //
+                _checkStatus: {
+                    type: Boolean
+                }
+			},
+            
+            //
+            _format: function() {
+                var date = new Date(this.date);
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                
+                this._formatDate = date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear() + " " + hours + ":" + minutes;
+            },
+            
+            // check if topic is opened or closed
+            _checkTopic: function() {
+                this._checkStatus = this.status == 'open';
+            }
+		});
+	</script>
+</dom-module>

@@ -1,0 +1,73 @@
+<!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/app-forum
+This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+<dom-module id="forum-user">
+	<template>
+		<style>
+            :host {
+                
+            }
+            .avatar {
+                border-radius: 50px;
+                --iron-icon-height: 30px;
+                --iron-icon-width: 30px;
+            }
+            .nickname {
+                color: black;
+                font-size: 14;
+            }
+            .userSmart {
+                color: red;
+                font-size: 12;
+                font-weight: bold;
+            }
+		</style>
+
+        <paper-icon-item disabled hidden$="{{smart}}">
+            <iron-icon src="{{infoUser.avatar}}" class="avatar" item-icon></iron-icon>
+            <paper-item-body>
+                <div class="nickname">{{infoUser.nickname}}</div>
+            </paper-item-body>
+        </paper-icon-item>
+        
+        <span hidden$="{{!smart}}" class="userSmart">{{infoUser.nickname}}</span>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-user",
+
+			properties: {
+                //
+                infoUser: {
+                    type: Array
+                },
+				// 
+				idUser: {
+					type: Number
+				},
+                // 
+				nickname: {
+					type: String
+				},
+                // 
+				account: {
+					type: Number
+				},
+                // 
+				avatar: {
+					type: String
+				},
+                //
+                smart: {
+                    type: Boolean,
+					value: false
+                }
+			}
+		});
+	</script>
+</dom-module>

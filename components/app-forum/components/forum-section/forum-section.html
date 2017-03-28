@@ -1,0 +1,59 @@
+<!--
+@license
+Copyright (c) 2017 Author: Davide Medina. All rights reserved.
+The complete code may be found at https://github.com/dav04/app-forum
+This component is created with The Polymer Project distributed by Google
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+<dom-module id="forum-section">
+	<template>
+		<style>
+            :host {
+                padding: 10px;
+                cursor: pointer;
+            }
+            .box {
+                margin-left: 15px;
+            }
+            .description {
+                font-style: oblique;
+                height: 10px;
+            }
+            .iconsection {
+                float: left;
+                color: var(--forum-secondary-color);
+                margin-right: 15px;
+            }
+            .big {
+                --iron-icon-height: 40px;
+                --iron-icon-width: 40px;
+            }
+		</style>
+        
+        <div class="box">
+            <div class="iconsection"><iron-icon class="big" icon="description"></iron-icon></div>
+            <div>{{name}}</div>
+            <div class="description">{{description}}</div>
+            <content></content>
+        </div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "forum-section",
+
+			properties: {
+				// 
+				name: {
+					type: String,
+					value: "Forum Section"
+				},
+                // 
+				description: {
+					type: String,
+					value: "Section description"
+				}
+			}
+		});
+	</script>
+</dom-module>
