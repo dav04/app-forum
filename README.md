@@ -4,6 +4,8 @@
 **app-forum** is a Polymer Web Component that can be used to create a simple forum in a website that uses any type of database through the inner use of json array as data structures. It also allows to integrate all users of a site that uses **app-forum**.
 
 Every single operation is protected by an **id** and a **token** of each user (**forumEdit** event) that allows the server to check authenticity of the user and catch any editing operation in **editEvent** property.
+
+API and DEMO: [GitHub](https://dav04.github.io/app-forum/components/app-forum/)
  
 ## Login
 It is possible to login inside the forum by listening to the **loginUserForum** event, where you will receive the username (**data.detail.username**) and password (**data.detail.password**) and send them to your server, check correctness and respond with an **id** and **token** of the authenticated user using the **getToken** event.
